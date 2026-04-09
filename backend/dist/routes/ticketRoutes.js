@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ticketController_1 = require("../controllers/ticketController");
+const upload_1 = require("../middleware/upload");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.post('/', upload_1.upload.single('image'), ticketController_1.createTicket);
+router.get('/', auth_1.protect, ticketController_1.getTickets);
+exports.default = router;
