@@ -19,7 +19,7 @@ const HomeLanding: React.FC = () => {
                 <div>
                     <h1 className="text-3xl md:text-4xl font-extrabold text-[#00272E] tracking-tight">Mesa de ayuda</h1>
                     <p className="text-[#006D65] mt-3 font-medium">
-                        Elige cómo deseas continuar: acceso para empresas registradas o reporte público.
+                        Acceso exclusivo para empresas registradas para levantamiento de incidentes y seguimiento de tickets.
                     </p>
                 </div>
 
@@ -34,22 +34,7 @@ const HomeLanding: React.FC = () => {
                         <div>
                             <p className="font-extrabold text-[#00272E] text-lg">Acceso empresa</p>
                             <p className="text-sm text-gray-500 mt-1">
-                                Inicia sesión con el usuario de tu empresa para levantar incidentes y ver tus tickets.
-                            </p>
-                        </div>
-                    </Link>
-
-                    <Link
-                        to="/reportar"
-                        className="marmacore-card p-6 flex items-center gap-4 text-left hover:border-[#006D65]/40 transition-colors group"
-                    >
-                        <div className="w-14 h-14 rounded-2xl bg-[#FFF4ED] flex items-center justify-center shrink-0 group-hover:bg-[#FD5200]/10">
-                            <GlobeAltIcon className="w-8 h-8 text-[#FD5200]" />
-                        </div>
-                        <div>
-                            <p className="font-extrabold text-[#00272E] text-lg">Reporte público</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                                Genera un ticket eligiendo tu empresa sin iniciar sesión.
+                                Inicia sesión con las credenciales de tu empresa para gestionar tus solicitudes.
                             </p>
                         </div>
                     </Link>

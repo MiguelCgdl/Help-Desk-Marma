@@ -4,7 +4,7 @@ import api from '../services/api';
 import companyApi from '../services/companyApi';
 import { Company, Problem } from '../types';
 import { motion } from 'framer-motion';
-import { TicketIcon, CheckCircleIcon, PhotoIcon, BuildingOffice2Icon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { TicketIcon, CheckCircleIcon, PhotoIcon, BuildingOffice2Icon, ExclamationTriangleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 export type TicketFormProps = {
     /** Si viene del portal empresa: empresa fija y no editable */
@@ -58,8 +58,29 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
         }
     };
 
+    const [captcha, setCaptcha] = useState({ a: 0, b: 0, answer: '' });
+    const [captchaInput, setCaptchaInput] = useState('');
+
+    const generateCaptcha = () => {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        setCaptcha({ a, b, answer: (a + b).toString() });
+    };
+
+    useEffect(() => {
+        generateCaptcha();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (captchaInput !== captcha.answer) {
+            setError('La respuesta de seguridad es incorrecta.');
+            generateCaptcha();
+            setCaptchaInput('');
+            return;
+        }
+
         setLoading(true);
         setError('');
         
@@ -80,8 +101,11 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
             setPreview(null);
             if (!lockedCompany) setSelectedCompany('');
             setSelectedProblem('');
+            setCaptchaInput('');
+            generateCaptcha();
         } catch (err) {
             setError('Error al crear el ticket. Por favor intente de nuevo.');
+            generateCaptcha();
         } finally {
             setLoading(false);
         }
@@ -153,6 +177,13 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                             <div>
                                 <h3 className="font-bold">Evidencia Visual</h3>
                                 <p className="text-sm text-gray-400">Adjunta fotos para ayudarnos a entender mejor el problema.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <LockClosedIcon className="w-8 h-8 text-primary" />
+                            <div>
+                                <h3 className="font-bold">Seguridad de Datos</h3>
+                                <p className="text-sm text-gray-400">Verificamos tu identidad con un sistema de seguridad anti-bots.</p>
                             </div>
                         </div>
                     </div>
@@ -252,6 +283,26 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                         )}
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="bg-accent-teal/30 p-4 rounded-xl border border-accent-teal/50">
+                                <label className="block text-sm font-bold text-dark-teal mb-3">Seguridad Anti-Bots</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-lg text-dark-teal border border-accent-teal">
+                                        ¿Cuánto es {captcha.a} + {captcha.b}?
+                                    </div>
+                                    <input 
+                                        type="number" 
+                                        value={captchaInput}
+                                        onChange={(e) => setCaptchaInput(e.target.value)}
+                                        className="marmacore-input max-w-[100px] text-center"
+                                        placeholder="?"
+                                        required
+                                    />
+                                </div>
+                                <p className="text-[10px] text-medium-teal mt-2 flex items-center gap-1">
+                                    <LockClosedIcon className="w-3 h-3" /> Resuelve para confirmar que eres humano
+                                </p>
                             </div>
 
                             <button 

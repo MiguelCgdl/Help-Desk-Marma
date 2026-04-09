@@ -70,8 +70,7 @@ const Login: React.FC = () => {
                                 <UserIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                                 <input 
                                     type="text" 
-                                    placeholder="admin" 
-                                    className="marmacore-input pl-12"
+                                    className="marmacore-input !pl-14"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
@@ -85,8 +84,7 @@ const Login: React.FC = () => {
                                 <LockClosedIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
                                 <input 
                                     type="password" 
-                                    placeholder="••••••••" 
-                                    className="marmacore-input pl-12"
+                                    className="marmacore-input !pl-14"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
