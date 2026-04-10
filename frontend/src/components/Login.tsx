@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import api from '../services/api';
 import { motion } from 'framer-motion';
-import { LockClosedIcon, UserIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, UserIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -50,6 +50,14 @@ const Login: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-md w-full"
             >
+                <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-medium-teal hover:text-dark-teal mb-8"
+                >
+                    <ArrowLeftIcon className="w-4 h-4" />
+                    Volver al inicio
+                </Link>
+
                 <div className="text-center mb-10">
                     <img src="https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png" alt="Marmacore" className="h-14 mx-auto mb-6" />
                     <h2 className="text-3xl font-extrabold text-dark-teal tracking-tight">Acceso Administrador</h2>
