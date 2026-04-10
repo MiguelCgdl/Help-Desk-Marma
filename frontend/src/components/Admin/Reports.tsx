@@ -54,23 +54,23 @@ export default function Reports() {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                         <div className="pl-3 py-2 text-gray-400 border-r border-gray-100">
-                            <FunnelIcon className="w-5 h-5" />
+                            <FunnelIcon className="w-4 h-4" />
                         </div>
                         <select
                             value={selectedCompany}
                             onChange={(e) => setSelectedCompany(e.target.value)}
-                            className="px-4 py-2 outline-none text-sm font-bold text-dark-teal bg-transparent"
+                            className="px-4 py-2 outline-none text-sm font-bold text-[#00272E] bg-transparent"
                         >
                             <option value="all">Todas las Empresas</option>
                             {companiesInMonth.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                     </div>
 
-                    <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                         <div className="pl-3 py-2 text-gray-400">
-                            <CalendarIcon className="w-5 h-5" />
+                            <CalendarIcon className="w-4 h-4" />
                         </div>
                         <select
                             value={selectedMonth}

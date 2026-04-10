@@ -461,21 +461,21 @@ const TicketsList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
+            <div className="marmacore-filter-container">
                 <div className="flex items-center gap-2 mb-4">
                     <FunnelIcon className="w-4 h-4 text-gray-400" />
                     <span className="text-xs font-bold text-[#00272E] uppercase tracking-widest opacity-50">Filtros</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     {/* Search */}
-                    <div className="relative lg:col-span-1">
+                    <div className="relative">
                         <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Buscar ticket o empresa..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                            className="marmacore-input pl-9"
                         />
                     </div>
                     <div>
@@ -483,7 +483,7 @@ const TicketsList: React.FC = () => {
                             type="date"
                             value={filter.startDate}
                             onChange={e => setFilter({ ...filter, startDate: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                            className="marmacore-input"
                         />
                     </div>
                     <div>
@@ -491,14 +491,14 @@ const TicketsList: React.FC = () => {
                             type="date"
                             value={filter.endDate}
                             onChange={e => setFilter({ ...filter, endDate: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                            className="marmacore-input"
                         />
                     </div>
-                    <div className="flex gap-3 lg:col-span-2">
+                    <div className="flex gap-3 sm:col-span-2 lg:col-span-2">
                         <select
                             value={filter.status}
                             onChange={e => setFilter({ ...filter, status: e.target.value })}
-                            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                            className="marmacore-select flex-1"
                         >
                             <option value="">Todos (Estado)</option>
                             <option value="open">Abiertos</option>
@@ -507,7 +507,7 @@ const TicketsList: React.FC = () => {
                         <select
                             value={filter.requiresInvoice}
                             onChange={e => setFilter({ ...filter, requiresInvoice: e.target.value })}
-                            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                            className="marmacore-select flex-1"
                         >
                             <option value="">Filtro Factura</option>
                             <option value="true">Requerida</option>
@@ -515,7 +515,7 @@ const TicketsList: React.FC = () => {
                         </select>
                         <button
                             onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
-                            className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-[#FD5200] border border-gray-200 hover:border-[#FD5200]/30 transition-all"
+                            className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-[#FD5200] border border-gray-200 hover:border-[#FD5200]/30 transition-all flex items-center justify-center min-w-[100px]"
                         >
                             Limpiar
                         </button>
@@ -524,11 +524,11 @@ const TicketsList: React.FC = () => {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="marmacore-table-container">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                            <tr className="marmacore-table-head">
                                 <th className="px-6 py-3 w-10">
                                     <input 
                                         type="checkbox" 
@@ -606,42 +606,44 @@ const TicketsList: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex flex-wrap gap-1">
-                                            {(t.problems && t.problems.length > 0
-                                                ? t.problems
-                                                : [{ title: (t as any).problemId?.title ?? '—', cost: 0, costPerHour: 0, timeSpentMinutes: 0 }]
-                                            ).map((p, i) => (
-                                                <span key={i} className="inline-block text-[10px] bg-gray-100 text-[#00272E] px-2 py-0.5 rounded font-medium max-w-[120px] truncate">
-                                                    {p.title}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        {(t.problems && t.problems.length > 0) ? (
+                                            <div className="flex flex-wrap gap-1">
+                                                {t.problems.slice(0, 2).map((p, idx) => (
+                                                    <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[9px] font-bold uppercase border border-gray-200">
+                                                        {p.title}
+                                                    </span>
+                                                ))}
+                                                {t.problems.length > 2 && (
+                                                    <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded text-[9px] font-bold">
+                                                        +{t.problems.length - 2}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-300 text-xs">—</span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        {t.invoiced ? (
-                                            <span className="inline-block px-2 py-1 bg-[#00272E] text-white rounded-lg text-[10px] font-bold uppercase">
-                                                Facturada
-                                            </span>
-                                        ) : t.requiresInvoice ? (
-                                            <span className="inline-block px-2 py-1 bg-cyan-100 text-cyan-800 rounded-lg text-[10px] font-bold uppercase">
-                                                Requerida
-                                            </span>
-                                        ) : (
-                                            <span className="inline-block px-2 py-1 bg-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase">
-                                                No
-                                            </span>
-                                        )}
+                                        <span className={`marmacore-badge ${
+                                            t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
+                                            t.requiresInvoice ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 
+                                            'bg-gray-50 text-gray-400 border-gray-100'
+                                        }`}>
+                                            {t.invoiced ? 'Facturada' : t.requiresInvoice ? 'Requerida' : 'No'}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        {t.status === 'solved' ? (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold uppercase">
-                                                <CheckCircleIcon className="w-3 h-3" /> Resuelto
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-bold uppercase">
-                                                Abierto
-                                            </span>
-                                        )}
+                                        <span className={`marmacore-badge ${
+                                            t.status === 'solved' 
+                                            ? 'bg-green-50 text-green-700 border-green-100' 
+                                            : 'bg-orange-50 text-orange-700 border-orange-100'
+                                        }`}>
+                                            {t.status === 'solved' ? (
+                                                <><CheckCircleIcon className="w-3.5 h-3.5" /> Resuelto</>
+                                            ) : (
+                                                <><ClockIcon className="w-3.5 h-3.5" /> Abierto</>
+                                            )}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <span className="font-black text-[#00272E] text-sm">
@@ -650,26 +652,36 @@ const TicketsList: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            {t.imagePath && <PhotoIcon className="w-4 h-4 text-[#FD5200]" />}
-                                            {t.status === 'open' ? (
+                                            {t.status === 'open' && (
                                                 <button
                                                     onClick={() => setSolving(t)}
-                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-[#FD5200] text-white rounded-lg hover:bg-[#E64A00] transition-colors active:scale-95"
+                                                    className="px-4 py-2 bg-[#FD5200] text-white text-[11px] font-bold uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1.5"
                                                 >
                                                     <CheckCircleIcon className="w-3.5 h-3.5" /> Resolver
                                                 </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() => setDetail(t)}
-                                                    className="p-1.5 text-gray-400 hover:text-[#00272E] hover:bg-gray-100 rounded-lg transition-all"
+                                            )}
+                                            {t.imagePath && (
+                                                <a
+                                                    href={`${BASE_SERVER_URL}/${t.imagePath}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="p-2 text-gray-400 hover:text-[#FD5200] hover:bg-[#FD5200]/5 rounded-lg transition-all"
+                                                    title="Ver imagen"
                                                 >
-                                                    <EyeIcon className="w-4 h-4" />
-                                                </button>
+                                                    <PhotoIcon className="w-4 h-4" />
+                                                </a>
                                             )}
                                             <button
+                                                onClick={() => setDetail(t)}
+                                                className="p-2 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all"
+                                                title="Ver detalles"
+                                            >
+                                                <EyeIcon className="w-4 h-4" />
+                                            </button>
+                                            <button
                                                 onClick={() => handleDelete(t._id, t.ticketNumber)}
-                                                className="p-1.5 text-red-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                title="Eliminar ticket"
+                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Eliminar"
                                             >
                                                 <TrashIcon className="w-4 h-4" />
                                             </button>

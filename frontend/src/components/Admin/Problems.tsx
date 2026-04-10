@@ -115,7 +115,7 @@ const Problems: React.FC = () => {
             <div className="flex flex-col gap-8 w-full mx-auto">
                 {/* ── Form ── */}
                 <div className="w-full">
-                    <div className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 ${editingId ? 'border-[#FD5200]/30 ring-2 ring-[#FD5200]/10' : 'border-gray-100'}`}>
+                    <div className={`marmacore-card transition-all duration-300 ${editingId ? 'border-[#FD5200]/30 ring-2 ring-[#FD5200]/10' : 'border-gray-100'}`}>
                         {/* Form header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
                             <div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ const Problems: React.FC = () => {
                                             placeholder="Ej. Falla de Internet, Software..." 
                                             value={title} 
                                             onChange={e => setTitle(e.target.value)} 
-                                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all" 
+                                            className="marmacore-input pl-10" 
                                             required 
                                         />
                                     </div>
@@ -168,7 +168,7 @@ const Problems: React.FC = () => {
                                         step={0.01}
                                         value={costPerHour}
                                         onChange={(e) => setCostPerHour(Number(e.target.value))}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        className="marmacore-input"
                                         required
                                     />
                                 </div>
@@ -190,7 +190,7 @@ const Problems: React.FC = () => {
 
                 {/* ── Table ── */}
                 <div className="w-full">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="marmacore-table-container">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
                             <div>
                                 <h3 className="text-base font-bold text-[#00272E]">Categorías Registradas</h3>
@@ -206,7 +206,7 @@ const Problems: React.FC = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                                    <tr className="marmacore-table-head">
                                         <th className="px-6 py-3">Identificador</th>
                                         <th className="px-6 py-3">Costo por Hora</th>
                                         <th className="px-6 py-3">Estado</th>

@@ -58,12 +58,35 @@ body {
 }
 
 .marmacore-input {
-  @apply w-full px-6 py-5 rounded-3xl border border-gray-100 bg-white outline-none transition-all text-[13px] font-bold text-[#00272E] shadow-sm;
+  @apply w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none transition-all text-sm font-medium text-[#00272E];
 }
 
 .marmacore-input:focus {
-  @apply bg-white border-primary/40;
-  box-shadow: 0 15px 25px -10px rgba(253, 82, 0, 0.1);
+  @apply bg-white border-[#FD5200]/40 ring-2 ring-[#FD5200]/10;
+}
+
+.marmacore-select {
+  @apply px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none transition-all;
+}
+
+.marmacore-select:focus {
+  @apply border-[#FD5200]/40 bg-white ring-2 ring-[#FD5200]/10;
+}
+
+.marmacore-filter-container {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5;
+}
+
+.marmacore-table-container {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
+}
+
+.marmacore-table-head {
+  @apply bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50;
+}
+
+.marmacore-badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all border;
 }
 
 .marmacore-label {

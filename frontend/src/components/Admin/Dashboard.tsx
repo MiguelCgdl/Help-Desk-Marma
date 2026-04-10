@@ -10,6 +10,7 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import api from '../../services/api';
+import { BASE_SERVER_URL } from '../../config';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
@@ -57,29 +58,29 @@ const Dashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {cards.map((card) => (
-                    <div key={card.name} className="marmacore-card p-6 bg-white hover:shadow-xl transition-all group active:scale-95 cursor-pointer">
+                    <div key={card.name} className="marmacore-card p-6 bg-white hover:shadow-xl transition-all group active:scale-95 cursor-pointer border-none shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className={`p-3 rounded-2xl ${card.bg} transition-transform group-hover:rotate-12`}>
                                 <card.icon className={`w-7 h-7 ${card.color}`} />
                             </div>
-                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${card.trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${card.trend.startsWith('+') ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
                                 {card.trend}
                             </span>
                         </div>
-                        <h3 className="text-sm font-bold text-medium-teal uppercase tracking-wider">{card.name}</h3>
-                        <p className="text-3xl font-black text-dark-teal mt-2">{card.value}</p>
+                        <h3 className="text-[10px] font-black text-[#006D65] uppercase tracking-widest opacity-70">{card.name}</h3>
+                        <p className="text-3xl font-black text-[#00272E] mt-2 tracking-tight">{card.value}</p>
                     </div>
                 ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-3 marmacore-card p-8">
+                <div className="lg:col-span-3 marmacore-card p-8 border-none shadow-sm">
                     <div className="flex items-center justify-between mb-8">
                         <div>
-                            <h3 className="text-lg font-bold text-dark-teal">Actividad de Tickets</h3>
-                            <p className="text-xs text-medium-teal font-medium">Frecuencia de reportes en la última semana</p>
+                            <h3 className="text-lg font-bold text-[#00272E]">Actividad de Tickets</h3>
+                            <p className="text-xs text-[#006D65] font-medium">Frecuencia de reportes en la última semana</p>
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                        <div className="flex items-center gap-2 text-xs font-bold text-[#FD5200]">
                             <ChartPieIcon className="w-5 h-5" />
                             <span>Ver Detalles</span>
                         </div>
@@ -105,38 +106,24 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="marmacore-card p-6 bg-white border border-gray-100 flex flex-col">
-                    <h3 className="text-sm font-black text-dark-teal uppercase tracking-widest mb-6 flex items-center gap-2">
-                        <TicketIcon className="w-4 h-4 text-primary" />
-                        Sin Atender
-                    </h3>
-                    <div className="space-y-3 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
-                        {stats && Object.entries(stats.summaryByCompany)
-                            .filter(([_, data]: [string, any]) => data.openCount > 0)
-                            .map(([name, data]: [string, any]) => (
-                            <button 
-                                key={name} 
-                                onClick={() => navigate(`/admin/tickets?companyId=${data.companyId}&status=open`)}
-                                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F8FAFB] hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-all group/item text-left"
-                            >
-                                <div className="min-w-0">
-                                    <p className="text-xs font-bold text-dark-teal group-hover/item:text-primary truncate">{name}</p>
-                                    <p className="text-[10px] text-medium-teal font-medium">Ver tickets</p>
+                <div className="lg:col-span-1 marmacore-card p-8 border-none shadow-sm">
+                    <h3 className="text-lg font-bold text-[#00272E] mb-6">Empresas Top</h3>
+                    <div className="space-y-6">
+                        {stats?.topCompanies?.map((c: any) => (
+                            <div key={c.name} className="flex items-center gap-4 group">
+                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-1 group-hover:border-[#FD5200]/30 transition-all">
+                                    <img 
+                                        src={c.logoUrl.startsWith('http') ? c.logoUrl : `${BASE_SERVER_URL}/${c.logoUrl}`} 
+                                        alt={c.name} 
+                                        className="w-full h-full object-contain"
+                                    />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2 py-1 rounded-lg font-black text-sm bg-orange-100 text-orange-600">
-                                        {data.openCount}
-                                    </span>
-                                    <ArrowUpIcon className="w-3 h-3 text-orange-400 rotate-45 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                <div className="flex-1">
+                                    <h4 className="text-xs font-bold text-[#00272E]">{c.name}</h4>
+                                    <p className="text-[10px] text-[#006D65] font-medium uppercase tracking-wider">{c.count} tickets</p>
                                 </div>
-                            </button>
-                        ))}
-                        {(!stats || Object.entries(stats.summaryByCompany).filter(([_, data]: [string, any]) => data.openCount > 0).length === 0) && (
-                            <div className="flex-1 flex flex-col items-center justify-center py-10">
-                                <CheckCircleIcon className="w-10 h-10 text-green-200 mb-2" />
-                                <p className="text-xs text-gray-400 font-bold">¡Todo al día!</p>
                             </div>
-                        )}
+                        ))}
                     </div>
                 </div>
             </div>
