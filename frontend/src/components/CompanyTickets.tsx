@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import companyApi from '../services/companyApi';
-import { Ticket } from '../types';
+import type { Ticket } from '../types';
 import { TicketIcon } from '@heroicons/react/24/outline';
 
 const CompanyTickets: React.FC = () => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import companyApi from '../services/companyApi';
-import { Company, Problem } from '../types';
+import type { Company, Problem } from '../types';
 import { motion } from 'framer-motion';
 import { TicketIcon, CheckCircleIcon, PhotoIcon, BuildingOffice2Icon, ExclamationTriangleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
