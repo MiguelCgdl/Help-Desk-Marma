@@ -8,6 +8,7 @@ export interface ICompany extends Document {
     email?: string;
     loginUsername?: string;
     password?: string;
+    logoUrl?: string; // NEW
     matchPassword(enteredPassword: string): Promise<boolean>;
     createdAt: Date;
 }
@@ -19,6 +20,7 @@ const CompanySchema = new Schema<ICompany>({
     email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     loginUsername: { type: String, unique: true, sparse: true, trim: true },
     password: { type: String, select: false },
+    logoUrl: { type: String, trim: true },
     createdAt: { type: Date, default: Date.now }
 });
 

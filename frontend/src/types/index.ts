@@ -15,6 +15,7 @@ export type Company = {
     costPerTicket: number;
     email?: string;
     loginUsername?: string;
+    logoUrl?: string; // NEW
 };
 
 export type Problem = {
@@ -35,6 +36,7 @@ export type Ticket = {
     cost: number;
     status?: 'open' | 'solved';
     solvedAt?: string;
+    requiresInvoice?: boolean; // NEW
     createdAt: string;
     // Legacy
     problemId?: Problem;

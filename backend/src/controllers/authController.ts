@@ -93,7 +93,8 @@ export const companyLogin = asyncHandler(async (req: Request, res: Response) => 
             _id: company._id,
             name: company.name,
             code: company.code,
-            email: company.email
+            email: company.email,
+            logoUrl: company.logoUrl
         }
     });
 });

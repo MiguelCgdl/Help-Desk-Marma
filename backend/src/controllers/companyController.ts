@@ -8,7 +8,7 @@ export const getCompanies = asyncHandler(async (req, res) => {
 });
 
 export const createCompany = asyncHandler(async (req, res) => {
-    const { name, code, costPerTicket, email, loginUsername, password } = req.body;
+    const { name, code, costPerTicket, email, loginUsername, password, logoUrl } = req.body;
     if (!email || !loginUsername || !password) {
         res.status(400).json({ message: 'Email, usuario de acceso y contraseña son obligatorios' });
         return;
@@ -19,7 +19,8 @@ export const createCompany = asyncHandler(async (req, res) => {
         costPerTicket,
         email,
         loginUsername,
-        password
+        password,
+        logoUrl
     });
     const created = company.toObject();
     delete (created as any).password;
@@ -32,12 +33,13 @@ export const updateCompany = asyncHandler(async (req, res) => {
         res.status(404).json({ message: 'Empresa no encontrada' });
         return;
     }
-    const { name, code, costPerTicket, email, loginUsername, password } = req.body;
+    const { name, code, costPerTicket, email, loginUsername, password, logoUrl } = req.body;
     if (name !== undefined) company.name = name;
     if (code !== undefined) company.code = code;
     if (costPerTicket !== undefined) company.costPerTicket = costPerTicket;
     if (email !== undefined) company.email = email;
     if (loginUsername !== undefined) company.loginUsername = loginUsername;
+    if (logoUrl !== undefined) company.logoUrl = logoUrl;
     if (password && String(password).trim() !== '') {
         company.password = password;
     }

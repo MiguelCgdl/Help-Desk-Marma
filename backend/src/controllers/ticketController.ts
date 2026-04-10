@@ -153,3 +153,26 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
 
     res.json(ticket);
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/tickets/:id/invoice   (empresa autenticada)
+// Body: { requiresInvoice: boolean }
+// ─────────────────────────────────────────────────────────────────────────────
+export const toggleInvoice = asyncHandler(async (req: Request, res: Response) => {
+    const tokenCompanyId = (req as any).companyIdFromToken || (req as any).companyId;
+    const { requiresInvoice } = req.body;
+
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) { res.status(404).json({ message: 'Ticket no encontrado' }); return; }
+
+    // Verificar que el ticket pertenezca a la empresa
+    if (String(ticket.companyId) !== String(tokenCompanyId)) {
+        res.status(403).json({ message: 'No puedes modificar tickets de otra empresa' });
+        return;
+    }
+
+    ticket.requiresInvoice = Boolean(requiresInvoice);
+    await ticket.save();
+
+    res.json(ticket);
+});
