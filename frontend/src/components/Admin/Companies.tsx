@@ -13,8 +13,10 @@ const Companies: React.FC = () => {
         email: '',
         loginUsername: '',
         password: '',
-        logoUrl: ''
+        logoUrl: '',
+        rfc: ''
     });
+    const [logoFile, setLogoFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -40,23 +42,40 @@ const Companies: React.FC = () => {
             email: c.email || '',
             loginUsername: c.loginUsername || '',
             password: '',
-            logoUrl: c.logoUrl || ''
+            logoUrl: c.logoUrl || '',
+            rfc: c.rfc || ''
         });
     };
 
     const cancelEdit = () => {
         setEditingId(null);
-        setForm({ name: '', code: '', costPerTicket: 0, email: '', loginUsername: '', password: '', logoUrl: '' });
+        setLogoFile(null);
+        setForm({ name: '', code: '', costPerTicket: 0, email: '', loginUsername: '', password: '', logoUrl: '', rfc: '' });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
         try {
+            const formData = new FormData();
+            formData.append('name', form.name);
+            formData.append('code', form.code);
+            formData.append('costPerTicket', String(form.costPerTicket));
+            if (form.email) formData.append('email', form.email);
+            if (form.loginUsername) formData.append('loginUsername', form.loginUsername);
+            if (form.password) formData.append('password', form.password);
+            if (form.logoUrl && !logoFile) formData.append('logoUrl', form.logoUrl);
+            if (form.rfc) formData.append('rfc', form.rfc);
+            if (logoFile) formData.append('logo', logoFile);
+
             if (editingId) {
-                await api.put(`/companies/${editingId}`, form);
+                await api.put(`/companies/${editingId}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
             } else {
-                await api.post('/companies', form);
+                await api.post('/companies', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
             }
             fetchCompanies();
             cancelEdit();
@@ -129,17 +148,45 @@ const Companies: React.FC = () => {
                                     required
                                 />
                             </div>
-                            <div className="mt-2">
-                                <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                    URL Logo (Opcional)
-                                </label>
-                                <input
-                                    type="url"
-                                    placeholder="https://ejemplo.com/logo.png"
-                                    value={form.logoUrl}
-                                    onChange={e => setForm({ ...form, logoUrl: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                />
+                            <div className="grid grid-cols-2 gap-3 mt-2">
+                                <div className="space-y-2">
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest opacity-60">
+                                        Logo (JPG/PNG o URL)
+                                    </label>
+                                    <div className="flex flex-col gap-2">
+                                        <input
+                                            type="file"
+                                            accept=".jpeg, .jpg, .png"
+                                            onChange={e => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    setLogoFile(e.target.files[0]);
+                                                    setForm({ ...form, logoUrl: '' });
+                                                }
+                                            }}
+                                            className="w-full text-[11px] text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
+                                        />
+                                        <input
+                                            type="url"
+                                            placeholder="o pega una URL https://..."
+                                            value={form.logoUrl}
+                                            onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
+                                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-xs font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        RFC (Opcional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        maxLength={13}
+                                        placeholder="ABC123456T1"
+                                        value={form.rfc}
+                                        onChange={e => setForm({ ...form, rfc: e.target.value.toUpperCase() })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all uppercase"
+                                    />
+                                </div>
                             </div>
 
                             {/* Código + Tarifa */}
@@ -258,7 +305,7 @@ const Companies: React.FC = () => {
                                 <thead>
                                     <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
                                         <th className="px-6 py-3">Empresa</th>
-                                        <th className="px-6 py-3">Usuario</th>
+                                        <th className="px-6 py-3">Usuario y RFC</th>
                                         <th className="px-6 py-3">Tarifa</th>
                                         <th className="px-6 py-3 text-right">Acciones</th>
                                     </tr>
@@ -289,7 +336,11 @@ const Companies: React.FC = () => {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     {c.logoUrl ? (
-                                                        <img src={c.logoUrl} alt={c.name} className="w-8 h-8 object-contain rounded bg-gray-50 p-1 border border-gray-100" />
+                                                        <img 
+                                                            src={c.logoUrl.startsWith('http') ? c.logoUrl : `http://localhost:5001/${c.logoUrl}`} 
+                                                            alt={c.name} 
+                                                            className="w-8 h-8 object-contain rounded bg-gray-50 p-1 border border-gray-100" 
+                                                        />
                                                     ) : (
                                                         <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-400">
                                                             {c.name.charAt(0).toUpperCase()}
@@ -313,9 +364,16 @@ const Companies: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="inline-flex items-center gap-1.5 bg-[#F8FAFB] border border-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold text-[#00272E]">
-                                                    <UserIcon className="w-3 h-3 opacity-30" />
-                                                    {c.loginUsername || '—'}
+                                                <div className="flex flex-col gap-1.5">
+                                                    <div className="inline-flex items-center gap-1.5 bg-[#F8FAFB] border border-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold text-[#00272E] w-max">
+                                                        <UserIcon className="w-3 h-3 opacity-30" />
+                                                        {c.loginUsername || '—'}
+                                                    </div>
+                                                    {c.rfc && (
+                                                        <div className="text-[10px] font-bold text-[#006D65] uppercase tracking-wider bg-[#D5EFF2]/30 px-2 py-0.5 rounded w-max">
+                                                            RFC: {c.rfc}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">

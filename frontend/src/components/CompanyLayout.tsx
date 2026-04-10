@@ -40,13 +40,17 @@ const CompanyLayout: React.FC = () => {
             location.pathname.startsWith(path) ? 'bg-[#00272E] text-white' : 'text-[#006D65] hover:bg-[#D5EFF2]/50'
         }`;
 
+    const finalLogo = profile.logoUrl
+        ? (profile.logoUrl.startsWith('http') ? profile.logoUrl : `http://localhost:5001/${profile.logoUrl}`)
+        : "https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png";
+
     return (
         <div className="min-h-screen bg-[#F8FAFB] font-jakarta">
             <header className="bg-white border-b border-gray-100 shadow-sm">
                 <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <img
-                            src={profile.logoUrl || "https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"}
+                            src={finalLogo}
                             alt={profile.name}
                             className="h-10 object-contain"
                         />

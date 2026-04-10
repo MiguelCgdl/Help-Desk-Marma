@@ -44,7 +44,7 @@ export default function Reports() {
         <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-[#00272E]">Reportes y Concentrados</h1>
+                    <h1 className="text-3xl font-extrabold text-[#00272E]">Reporte tickets</h1>
                     <p className="text-[#006D65] mt-1">
                         {selectedCompany === 'all' 
                             ? 'Análisis mensual global de tickets y facturación.' 
@@ -167,7 +167,20 @@ export default function Reports() {
                                 <tbody className="divide-y divide-gray-100">
                                     {companiesInMonth.map((name) => (
                                         <tr key={name} className="hover:bg-[#D5EFF2]/20 transition-colors group">
-                                            <td className="px-8 py-4 font-bold text-[#00272E]">{name}</td>
+                                            <td className="px-8 py-4 font-bold text-[#00272E]">
+                                                <div className="flex items-center gap-3">
+                                                    {summary.summaryByCompany[name].logoUrl ? (
+                                                        <img 
+                                                            src={summary.summaryByCompany[name].logoUrl.startsWith('http') ? summary.summaryByCompany[name].logoUrl : `http://localhost:5001/${summary.summaryByCompany[name].logoUrl}`} 
+                                                            className="w-6 h-6 object-contain rounded" 
+                                                            alt="logo" 
+                                                        />
+                                                    ) : (
+                                                        <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-[10px] text-gray-400 font-bold">{name.charAt(0)}</div>
+                                                    )}
+                                                    <span>{name}</span>
+                                                </div>
+                                            </td>
                                             <td className="px-8 py-4 text-center text-[#006D65] font-semibold">
                                                 {summary.summaryByCompany[name].count}
                                             </td>
@@ -193,7 +206,16 @@ export default function Reports() {
                 <div className="space-y-8">
                     <div className="marmacore-card overflow-hidden animate-fade-in">
                         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white">
-                            <h3 className="text-lg font-bold text-[#00272E]">Listado de Tickets: {selectedCompany}</h3>
+                            <h3 className="text-lg font-bold text-[#00272E] flex items-center gap-3">
+                                {currentCompanyData?.logoUrl && (
+                                    <img 
+                                        src={currentCompanyData.logoUrl.startsWith('http') ? currentCompanyData.logoUrl : `http://localhost:5001/${currentCompanyData.logoUrl}`} 
+                                        className="h-6 object-contain" 
+                                        alt="logo" 
+                                    />
+                                )}
+                                Listado de Tickets: {selectedCompany}
+                            </h3>
                             <button 
                                 onClick={() => setSelectedCompany('all')}
                                 className="text-xs font-bold text-[#FD5200] hover:underline"

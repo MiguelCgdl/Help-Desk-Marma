@@ -16,6 +16,7 @@ export type Company = {
     email?: string;
     loginUsername?: string;
     logoUrl?: string; // NEW
+    rfc?: string;
 };
 
 export type Problem = {
@@ -37,6 +38,8 @@ export type Ticket = {
     status?: 'open' | 'solved';
     solvedAt?: string;
     requiresInvoice?: boolean; // NEW
+    invoiced?: boolean;
+    operatorComments?: string;
     createdAt: string;
     // Legacy
     problemId?: Problem;

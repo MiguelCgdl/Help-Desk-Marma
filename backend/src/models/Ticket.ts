@@ -33,6 +33,8 @@ export interface ITicket extends Document {
     status: 'open' | 'solved';
     solvedAt?: Date;
     requiresInvoice?: boolean;
+    invoiced?: boolean;
+    operatorComments?: string;
     createdAt: Date;
     // Legacy fields kept so existing tickets don't break
     problemId?: Schema.Types.ObjectId;
@@ -50,6 +52,8 @@ const TicketSchema = new Schema<ITicket>({
     status:             { type: String, enum: ['open', 'solved'], default: 'open' },
     solvedAt:           { type: Date },
     requiresInvoice:    { type: Boolean, default: false },
+    invoiced:           { type: Boolean, default: false },
+    operatorComments:   { type: String },
     createdAt:          { type: Date, default: Date.now },
     // Legacy
     problemId:          { type: Schema.Types.ObjectId, ref: 'Problem' },

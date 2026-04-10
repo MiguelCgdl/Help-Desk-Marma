@@ -19,6 +19,7 @@ export const getMonthlySummary = asyncHandler(async (req, res) => {
         const company = ticket.companyId as any;
         const companyName = company?.name || 'Desconocida';
         const cid = company?._id || 'unknown';
+        const logoUrl = company?.logoUrl || '';
         
         if (!summaryByCompany[companyName]) {
             summaryByCompany[companyName] = { 
@@ -26,6 +27,7 @@ export const getMonthlySummary = asyncHandler(async (req, res) => {
                 totalCost: 0, 
                 openCount: 0, 
                 companyId: cid,
+                logoUrl: logoUrl,
                 tickets: [] 
             };
         }

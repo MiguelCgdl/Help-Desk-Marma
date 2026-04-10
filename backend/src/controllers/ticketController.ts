@@ -4,6 +4,7 @@ import Ticket from '../models/Ticket';
 import Company from '../models/Company';
 import Problem from '../models/Problem';
 import { generateTicketNumber } from '../utils/ticketNumberGenerator';
+import { sendTicketResolutionEmail } from '../utils/mailer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/tickets
@@ -84,17 +85,20 @@ export const createTicket = asyncHandler(async (req, res) => {
 // GET /api/tickets   (admin)
 // ─────────────────────────────────────────────────────────────────────────────
 export const getTickets = asyncHandler(async (req, res) => {
-    const { companyId, status, startDate, endDate } = req.query;
+    const { companyId, status, requiresInvoice, startDate, endDate } = req.query;
     const filter: Record<string, any> = {};
     if (companyId) filter.companyId = companyId;
     if (status)    filter.status    = status;
+    if (requiresInvoice !== undefined && requiresInvoice !== '') {
+        filter.requiresInvoice = requiresInvoice === 'true';
+    }
     if (startDate || endDate) {
         filter.createdAt = {};
         if (startDate) filter.createdAt.$gte = new Date(startDate as string);
         if (endDate)   filter.createdAt.$lte = new Date(endDate as string);
     }
     const tickets = await Ticket.find(filter)
-        .populate('companyId', 'name code')
+        .populate('companyId', 'name code logoUrl rfc')
         .populate('problems.problemId', 'title costPerHour')
         .sort({ createdAt: -1 });
     res.json(tickets);
@@ -117,13 +121,14 @@ export const getCompanyTickets = asyncHandler(async (req, res) => {
 // Calculates cost per problem: costPerHour * (minutes/60), or uses manual cost
 // ─────────────────────────────────────────────────────────────────────────────
 export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
-    const { problemResolutions } = req.body as {
+    const { problemResolutions, comments } = req.body as {
         problemResolutions: Array<{
             index: number;
             timeSpentMinutes: number;
             manualCost?: boolean;
             cost?: number;
         }>;
+        comments?: string;
     };
 
     const ticket = await Ticket.findById(req.params.id);
@@ -149,7 +154,19 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
     ticket.cost = ticket.problems.reduce((sum, p) => sum + (p.cost || 0), 0);
     ticket.status = 'solved';
     ticket.solvedAt = new Date();
+    if (comments) {
+        ticket.operatorComments = comments;
+    }
     await ticket.save();
+
+    try {
+        const company = await Company.findById(ticket.companyId);
+        if (company && company.email) {
+            await sendTicketResolutionEmail(company.email, ticket.ticketNumber, comments || '', company.name);
+        }
+    } catch (err) {
+        console.error('Error enviando email:', err);
+    }
 
     res.json(ticket);
 });
@@ -175,4 +192,23 @@ export const toggleInvoice = asyncHandler(async (req: Request, res: Response) =>
     await ticket.save();
 
     res.json(ticket);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/tickets/bulk-invoice   (admin)
+// Body: { ticketIds: string[] }
+// ─────────────────────────────────────────────────────────────────────────────
+export const bulkInvoice = asyncHandler(async (req: Request, res: Response) => {
+    const { ticketIds } = req.body;
+    if (!ticketIds || !Array.isArray(ticketIds)) {
+        res.status(400).json({ message: 'Se requiere un arreglo de ticketIds' });
+        return;
+    }
+    
+    await Ticket.updateMany(
+        { _id: { $in: ticketIds } },
+        { $set: { invoiced: true } }
+    );
+    
+    res.json({ message: 'Tickets marcados como facturados exitosamente' });
 });

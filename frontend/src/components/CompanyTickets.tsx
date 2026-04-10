@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import companyApi from '../services/companyApi';
 import type { Ticket } from '../types';
 import { TicketIcon, DocumentArrowDownIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { useOutletContext } from 'react-router-dom';
+import type { CompanyOutletContext } from './CompanyLayout';
 
 const CompanyTickets: React.FC = () => {
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'month' | 'week' | 'day'>('all');
+    const { lockedCompany } = useOutletContext<CompanyOutletContext>();
 
     useEffect(() => {
         const load = async () => {
@@ -57,21 +60,56 @@ const CompanyTickets: React.FC = () => {
             return;
         }
 
-        let csv = 'Ticket,Problema,Estado,Costo,Factura,Fecha\n';
+        // @ts-ignore
+        if (!window.jspdf) {
+            alert('Librería PDF no cargada. Intenta recargar la página.');
+            return;
+        }
+
+        // @ts-ignore
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Título del documento
+        doc.setFontSize(20);
+        doc.setTextColor(0, 39, 46); // #00272E
+        doc.text(`Reporte Quincenal de Tickets`, 14, 22);
+
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text(`Empresa: ${lockedCompany.name}`, 14, 30);
+        doc.text(`Período: ${isFirstFortnight ? '1ra Quincena' : '2da Quincena'} - ${now.toLocaleString('es-MX', { month: 'long', year: 'numeric' })}`, 14, 36);
+
+        // Preparar Datos
+        const tableColumn = ["Ticket", "Fecha", "Problema", "Factura", "Estado", "Costo"];
+        const tableRows: any[] = [];
+        let totalCost = 0;
+
         filtered.forEach(t => {
-            const prob = (t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—').replace(/,/g, '');
+            const prob = (t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—');
             const cost = t.status === 'solved' ? t.cost : 0;
             const fac = t.requiresInvoice ? 'SI' : 'NO';
-            const dateStr = new Date(t.createdAt).toLocaleDateString();
-            csv += `${t.ticketNumber},${prob},${t.status},${cost},${fac},${dateStr}\n`;
+            const dateStr = new Date(t.createdAt).toLocaleDateString('es-MX');
+            const statusStr = t.status === 'solved' ? 'Solucionado' : 'Abierto';
+            
+            totalCost += cost;
+            tableRows.push([t.ticketNumber, dateStr, prob, fac, statusStr, `$${cost.toLocaleString('es-MX', {minimumFractionDigits: 2})}`]);
         });
-        
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Reporte_Quincenal_${now.getFullYear()}_${now.getMonth()+1}_${isFirstFortnight?'Q1':'Q2'}.csv`;
-        a.click();
+
+        tableRows.push(['', '', '', '', 'TOTAL:', `$${totalCost.toLocaleString('es-MX', {minimumFractionDigits: 2})}`]);
+
+        // @ts-ignore
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 45,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 39, 46], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 251] },
+            margin: { top: 40 },
+        });
+
+        doc.save(`Reporte_${lockedCompany.name}_${now.getFullYear()}_${now.getMonth()+1}_${isFirstFortnight?'Q1':'Q2'}.pdf`);
     };
 
     const toggleInvoice = async (id: string, current: boolean) => {

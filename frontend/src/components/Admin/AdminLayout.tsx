@@ -24,7 +24,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Tickets', path: '/admin/tickets', icon: TicketIcon },
         { name: 'Empresas', path: '/admin/companies', icon: BuildingOfficeIcon },
         { name: 'Tipos de Problema', path: '/admin/problems', icon: ExclamationCircleIcon },
-        { name: 'Reportes', path: '/admin/reports', icon: ChartBarIcon },
+        { name: 'Reporte tickets', path: '/admin/reports', icon: ChartBarIcon },
         { name: 'Configurar Costos', path: '/admin/costs', icon: CurrencyDollarIcon },
     ];
 

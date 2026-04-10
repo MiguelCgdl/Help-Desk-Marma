@@ -10,7 +10,25 @@ const CompanyLogin: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [logo, setLogo] = useState<{name: string, url: string} | null>(null);
     const navigate = useNavigate();
+
+    const handleUsernameBlur = async () => {
+        if (!username) {
+            setLogo(null);
+            return;
+        }
+        try {
+            const res = await api.get(`/companies/logo?username=${username}`);
+            if (res.data && res.data.name) {
+                let finalLogo = res.data.logoUrl;
+                if (finalLogo && !finalLogo.startsWith('http')) finalLogo = `http://localhost:5001/${finalLogo}`;
+                setLogo({ name: res.data.name, url: finalLogo });
+            } else {
+                setLogo(null);
+            }
+        } catch { setLogo(null); }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,11 +69,13 @@ const CompanyLogin: React.FC = () => {
 
                 <div className="text-center mb-10">
                     <img
-                        src="https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"
-                        alt="Marmacore"
-                        className="h-14 mx-auto mb-6"
+                        src={logo?.url || "https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"}
+                        alt={logo?.name || "Marmacore"}
+                        className="h-14 mx-auto mb-6 object-contain transition-all duration-300"
                     />
-                    <h2 className="text-3xl font-extrabold text-[#00272E] tracking-tight">Acceso empresa</h2>
+                    <h2 className="text-3xl font-extrabold text-[#00272E] tracking-tight">
+                        {logo ? `Hola, ${logo.name}` : 'Acceso empresa'}
+                    </h2>
                     <p className="text-[#006D65] font-medium mt-3">Usa el usuario y contraseña que te asignó el administrador.</p>
                 </div>
 
@@ -76,6 +96,7 @@ const CompanyLogin: React.FC = () => {
                                     className="marmacore-input !pl-14"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
+                                    onBlur={handleUsernameBlur}
                                     autoComplete="username"
                                     required
                                 />
