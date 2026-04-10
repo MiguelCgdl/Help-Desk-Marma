@@ -469,13 +469,13 @@ const TicketsList: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     {/* Search */}
                     <div className="relative">
-                        <MagnifyingGlassIcon className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                        <MagnifyingGlassIcon className="marmacore-icon-left" />
                         <input
                             type="text"
                             placeholder="Buscar ticket o empresa..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="marmacore-input pl-9"
+                            className="marmacore-input marmacore-input-icon"
                         />
                     </div>
                     <div>

@@ -96,14 +96,14 @@ const CompanyLogin: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-[#006D65] uppercase tracking-widest mb-2">Usuario</label>
                             <div className="relative">
-                                <UserIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <UserIcon className="marmacore-icon-left" />
                                 <input
                                     type="text"
-                                    className="marmacore-input !pl-14"
+                                    placeholder="Nombre de usuario"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     onBlur={handleUsernameBlur}
-                                    autoComplete="username"
+                                    className="marmacore-input marmacore-input-icon"
                                     required
                                 />
                             </div>
@@ -112,13 +112,13 @@ const CompanyLogin: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-[#006D65] uppercase tracking-widest mb-2">Contraseña</label>
                             <div className="relative">
-                                <LockClosedIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <LockClosedIcon className="marmacore-icon-left" />
                                 <input
                                     type="password"
-                                    className="marmacore-input !pl-14"
+                                    placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    autoComplete="current-password"
+                                    className="marmacore-input marmacore-input-icon"
                                     required
                                 />
                             </div>

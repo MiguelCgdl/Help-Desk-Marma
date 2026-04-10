@@ -75,10 +75,10 @@ const Login: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-medium-teal uppercase tracking-widest mb-2">Usuario</label>
                             <div className="relative">
-                                <UserIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <UserIcon className="marmacore-icon-left" />
                                 <input 
                                     type="text" 
-                                    className="marmacore-input !pl-14"
+                                    className="marmacore-input marmacore-input-icon"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
@@ -89,10 +89,10 @@ const Login: React.FC = () => {
                         <div>
                             <label className="block text-xs font-bold text-medium-teal uppercase tracking-widest mb-2">Contraseña</label>
                             <div className="relative">
-                                <LockClosedIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <LockClosedIcon className="marmacore-icon-left" />
                                 <input 
                                     type="password" 
-                                    className="marmacore-input !pl-14"
+                                    className="marmacore-input marmacore-input-icon"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required

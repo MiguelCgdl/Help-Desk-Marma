@@ -37,8 +37,10 @@ const CompanyLayout: React.FC = () => {
     const ctx: CompanyOutletContext = { lockedCompany };
 
     const navCls = (path: string) =>
-        `flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
-            location.pathname.startsWith(path) ? 'bg-[#00272E] text-white' : 'text-[#006D65] hover:bg-[#D5EFF2]/50'
+        `flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            location.pathname.startsWith(path) 
+            ? 'bg-[#00272E] text-white shadow-lg shadow-[#00272E]/10' 
+            : 'text-[#006D65] hover:bg-[#D5EFF2]/50 hover:text-[#00272E]'
         }`;
 
     const finalLogo = profile.logoUrl

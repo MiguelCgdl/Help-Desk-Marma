@@ -246,17 +246,15 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
 
                                 {/* Empresa */}
                                 {!lockedCompany ? (
-                                    <div>
-                                        <label className="flex items-center gap-1.5 text-xs font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-70">
-                                            <BuildingOffice2Icon className="w-3.5 h-3.5" /> Empresa
-                                        </label>
+                                    <div className="relative">
+                                        <BuildingOffice2Icon className="marmacore-icon-left" />
                                         <select
                                             value={selectedCompany}
                                             onChange={e => setSelectedCompany(e.target.value)}
-                                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            className="marmacore-select marmacore-input-icon w-full"
                                             required
                                         >
-                                            <option value="">Selecciona tu empresa</option>
+                                            <option value="">Selecciona tu empresa...</option>
                                             {companies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                         </select>
                                     </div>
@@ -297,7 +295,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                                     <select
                                                         value={sp.problemId}
                                                         onChange={e => updateProblem(sp.id, e.target.value)}
-                                                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                        className="marmacore-select flex-1"
                                                         required
                                                     >
                                                         <option value="">¿Qué está sucediendo?</option>
@@ -332,7 +330,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                     <textarea
                                         value={description}
                                         onChange={e => setDescription(e.target.value.slice(0, 800))}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all min-h-[100px] resize-y"
+                                        className="marmacore-input min-h-[120px] resize-none"
                                         placeholder="Describe el problema detalladamente..."
                                         maxLength={800}
                                         required
@@ -378,14 +376,17 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                         <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-base text-[#00272E] border border-[#D5EFF2]">
                                             ¿Cuánto es {captcha.a} + {captcha.b}?
                                         </div>
-                                        <input
-                                            type="number"
-                                            value={captchaInput}
-                                            onChange={e => setCaptchaInput(e.target.value)}
-                                            className="w-20 px-3 py-2 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-bold text-center outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                            placeholder="?"
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <LockClosedIcon className="marmacore-icon-left" />
+                                            <input
+                                                type="text"
+                                                value={captchaInput}
+                                                onChange={e => setCaptchaInput(e.target.value)}
+                                                placeholder="Resultado"
+                                                className="marmacore-input marmacore-input-icon"
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

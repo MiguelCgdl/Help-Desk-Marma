@@ -22,21 +22,12 @@
 }
 
 body {
-  margin: 0;
-  font-family: var(--font-jakarta);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-main);
-  color: var(--text-main);
+  @apply bg-[#F8FAFB] text-[#00272E] leading-relaxed;
 }
 
 /* Component Classes - Standard CSS Composition */
 .marmacore-card {
-  background-color: white;
-  border-radius: 32px;
-  box-shadow: 0 10px 40px -20px rgba(0, 39, 46, 0.15), 0 1px 2px rgba(0, 39, 46, 0.02);
-  border: 1px solid rgba(0, 68, 101, 0.05);
-  overflow: hidden;
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-8 transition-all;
 }
 
 .marmacore-button-primary {
@@ -58,23 +49,31 @@ body {
 }
 
 .marmacore-input {
-  @apply w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none transition-all text-sm font-medium text-[#00272E];
+  @apply w-full px-5 py-3 rounded-xl border border-gray-200 bg-gray-50 outline-none transition-all text-sm font-medium text-[#00272E] leading-relaxed placeholder:text-gray-400;
 }
 
 .marmacore-input:focus {
-  @apply bg-white border-[#FD5200]/40 ring-2 ring-[#FD5200]/10;
+  @apply bg-white border-[#FD5200]/40 ring-4 ring-[#FD5200]/5;
+}
+
+.marmacore-input-icon {
+  @apply pl-12;
+}
+
+.marmacore-icon-left {
+  @apply absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none;
 }
 
 .marmacore-select {
-  @apply px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] outline-none transition-all;
+  @apply px-5 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-[#00272E] font-medium outline-none transition-all leading-relaxed;
 }
 
 .marmacore-select:focus {
-  @apply border-[#FD5200]/40 bg-white ring-2 ring-[#FD5200]/10;
+  @apply border-[#FD5200]/40 bg-white ring-4 ring-[#FD5200]/5;
 }
 
 .marmacore-filter-container {
-  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5;
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6;
 }
 
 .marmacore-table-container {
@@ -85,8 +84,12 @@ body {
   @apply bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50;
 }
 
+.marmacore-table-head th {
+  @apply px-6 py-4;
+}
+
 .marmacore-badge {
-  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all border;
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border leading-none;
 }
 
 .marmacore-label {

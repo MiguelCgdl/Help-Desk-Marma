@@ -45,14 +45,14 @@ const AdminLayout: React.FC = () => {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ${
+                                className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 ${
                                     isActive 
-                                    ? 'bg-[#FD5200] text-white shadow-lg shadow-primary/20' 
+                                    ? 'bg-[#FD5200] text-white shadow-lg shadow-[#FD5200]/20' 
                                     : 'text-gray-400 hover:bg-white/5 hover:text-white'
                                 }`}
                             >
-                                <Icon className="w-5 h-5" />
-                                <span className="font-semibold">{item.name}</span>
+                                <Icon className="w-5 h-5 flex-shrink-0" />
+                                <span className="font-bold text-sm tracking-wide">{item.name}</span>
                             </Link>
                         );
                     })}

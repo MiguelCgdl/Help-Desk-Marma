@@ -146,13 +146,13 @@ const Problems: React.FC = () => {
                                         Descripción del Problema
                                     </label>
                                     <div className="relative">
-                                        <ExclamationCircleIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <ExclamationCircleIcon className="marmacore-icon-left" />
                                         <input 
                                             type="text" 
                                             placeholder="Ej. Falla de Internet, Software..." 
                                             value={title} 
                                             onChange={e => setTitle(e.target.value)} 
-                                            className="marmacore-input pl-10" 
+                                            className="marmacore-input marmacore-input-icon" 
                                             required 
                                         />
                                     </div>
