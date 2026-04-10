@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import type { Problem } from '../../types';
-import { CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const Costs: React.FC = () => {
     const [problems, setProblems] = useState<Problem[]>([]);
     const [editingCosts, setEditingCosts] = useState<Record<string, number>>({});
+    const [editingTitles, setEditingTitles] = useState<Record<string, string>>({});
 
     useEffect(() => { 
         fetchProblems(); 
@@ -21,20 +22,50 @@ const Costs: React.FC = () => {
                     return acc;
                 }, {} as Record<string, number>)
             );
+            setEditingTitles(
+                (res.data as Problem[]).reduce((acc, p) => {
+                    acc[p._id] = p.title;
+                    return acc;
+                }, {} as Record<string, string>)
+            );
         } catch (err) {
             console.error(err);
         }
     };
 
-    const saveCost = async (id: string) => {
-        const value = Number(editingCosts[id]);
-        if (!Number.isFinite(value) || value < 0) {
+    const toggleStatus = async (id: string, currentStatus: boolean) => {
+        await api.put(`/problems/${id}`, { active: !currentStatus });
+        fetchProblems();
+    };
+
+    const handleDelete = async (id: string) => { 
+        if(window.confirm('¿Eliminar este tipo de problema?')) {
+            await api.delete(`/problems/${id}`); 
+            fetchProblems(); 
+        }
+    };
+
+    const saveRow = async (id: string) => {
+        const costValue = Number(editingCosts[id]);
+        const titleValue = editingTitles[id];
+
+        if (!Number.isFinite(costValue) || costValue < 0) {
             alert('Costo por hora inválido');
             return;
         }
-        await api.put(`/problems/${id}`, { costPerHour: value });
-        fetchProblems();
-        alert('Costo actualizado correctamente');
+        if (!titleValue || titleValue.trim() === '') {
+            alert('El identificador no puede estar vacío');
+            return;
+        }
+
+        try {
+            await api.put(`/problems/${id}`, { costPerHour: costValue, title: titleValue.trim() });
+            fetchProblems();
+            alert('Actualizado correctamente');
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar');
+        }
     };
 
     return (
@@ -65,17 +96,25 @@ const Costs: React.FC = () => {
                             {problems.map(p => (
                                 <tr key={p._id} className="hover:bg-[#D5EFF2]/20 transition-colors group">
                                     <td className="px-8 py-5">
-                                        <div className="font-bold text-dark-teal">{p.title}</div>
+                                        <input
+                                            type="text"
+                                            value={editingTitles[p._id] ?? ''}
+                                            onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                            className="marmacore-input py-2 text-sm w-full font-bold text-dark-teal"
+                                        />
                                     </td>
                                     <td className="px-8 py-5">
-                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                            p.active 
-                                            ? 'bg-green-100 text-green-700' 
-                                            : 'bg-red-100 text-red-700'
-                                        }`}>
+                                        <button 
+                                            onClick={() => toggleStatus(p._id, p.active)}
+                                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
+                                                p.active 
+                                                ? 'bg-green-100 text-green-700' 
+                                                : 'bg-red-100 text-red-700'
+                                            }`}
+                                        >
                                             {p.active ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
                                             {p.active ? 'Activo' : 'Inactivo'}
-                                        </span>
+                                        </button>
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="relative max-w-[200px]">
@@ -91,13 +130,21 @@ const Costs: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <button
-                                            onClick={() => saveCost(p._id)}
-                                            className="marmacore-button-primary px-6 py-2 text-sm flex items-center gap-2 ml-auto"
-                                        >
-                                            <CurrencyDollarIcon className="w-4 h-4" />
-                                            Actualizar Costo
-                                        </button>
+                                        <div className="flex items-center justify-end gap-3">
+                                            <button
+                                                onClick={() => saveRow(p._id)}
+                                                className="marmacore-button-primary px-4 py-2 text-sm flex items-center gap-2"
+                                            >
+                                                <CurrencyDollarIcon className="w-4 h-4" />
+                                                Guardar
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(p._id)}
+                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

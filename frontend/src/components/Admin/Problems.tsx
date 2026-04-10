@@ -8,6 +8,7 @@ const Problems: React.FC = () => {
     const [title, setTitle] = useState('');
     const [costPerHour, setCostPerHour] = useState<number>(0);
     const [editingCosts, setEditingCosts] = useState<Record<string, number>>({});
+    const [editingTitles, setEditingTitles] = useState<Record<string, string>>({});
 
     useEffect(() => { fetchProblems(); }, []);
     
@@ -20,6 +21,12 @@ const Problems: React.FC = () => {
                     acc[p._id] = Number(p.costPerHour ?? 0);
                     return acc;
                 }, {} as Record<string, number>)
+            );
+            setEditingTitles(
+                (res.data as Problem[]).reduce((acc, p) => {
+                    acc[p._id] = p.title;
+                    return acc;
+                }, {} as Record<string, string>)
             );
         } catch (err) {
             console.error(err);
@@ -43,14 +50,27 @@ const Problems: React.FC = () => {
         fetchProblems();
     };
 
-    const saveCost = async (id: string) => {
-        const value = Number(editingCosts[id]);
-        if (!Number.isFinite(value) || value < 0) {
+    const saveRow = async (id: string) => {
+        const costValue = Number(editingCosts[id]);
+        const titleValue = editingTitles[id];
+
+        if (!Number.isFinite(costValue) || costValue < 0) {
             alert('Costo por hora inválido');
             return;
         }
-        await api.put(`/problems/${id}`, { costPerHour: value });
-        fetchProblems();
+        if (!titleValue || titleValue.trim() === '') {
+            alert('El identificador no puede estar vacío');
+            return;
+        }
+
+        try {
+            await api.put(`/problems/${id}`, { costPerHour: costValue, title: titleValue.trim() });
+            fetchProblems();
+            alert('Actualizado correctamente');
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar');
+        }
     };
 
     const handleDelete = async (id: string) => { 
@@ -126,7 +146,12 @@ const Problems: React.FC = () => {
                             {problems.map(p => (
                                 <tr key={p._id} className="hover:bg-[#D5EFF2]/20 transition-colors group">
                                     <td className="px-8 py-5">
-                                        <div className="font-bold text-[#00272E]">{p.title}</div>
+                                        <input
+                                            type="text"
+                                            value={editingTitles[p._id] ?? ''}
+                                            onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                            className="marmacore-input py-2 text-sm w-full font-bold text-[#00272E]"
+                                        />
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
@@ -138,12 +163,6 @@ const Problems: React.FC = () => {
                                                 onChange={(e) => setEditingCosts({ ...editingCosts, [p._id]: Number(e.target.value) })}
                                                 className="marmacore-input py-2 text-sm max-w-[140px]"
                                             />
-                                            <button
-                                                onClick={() => saveCost(p._id)}
-                                                className="text-xs font-bold text-[#006D65] hover:text-primary"
-                                            >
-                                                Guardar
-                                            </button>
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">
@@ -160,12 +179,20 @@ const Problems: React.FC = () => {
                                         </button>
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <button 
-                                            onClick={() => handleDelete(p._id)}
-                                            className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <TrashIcon className="w-5 h-5" />
-                                        </button>
+                                        <div className="flex items-center justify-end gap-3">
+                                            <button
+                                                onClick={() => saveRow(p._id)}
+                                                className="px-4 py-2 text-xs font-bold text-white bg-[#006D65] hover:bg-[#004A44] rounded transition-colors"
+                                            >
+                                                Guardar
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(p._id)}
+                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
