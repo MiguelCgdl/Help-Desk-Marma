@@ -120,9 +120,14 @@ const Companies: React.FC = () => {
                                         : <PlusIcon className="w-4 h-4 text-white" />
                                     }
                                 </div>
-                                <span className="font-bold text-[#00272E] text-base">
-                                    {editingId ? 'Editar empresa' : 'Nueva empresa'}
-                                </span>
+                                <div>
+                                    <h3 className="text-base font-bold text-[#00272E]">
+                                        {editingId ? 'Editar empresa' : 'Nueva empresa'}
+                                    </h3>
+                                    <p className="text-[11px] text-[#006D65] font-semibold mt-0.5 opacity-60 uppercase tracking-wider">
+                                        {editingId ? 'Actualiza los datos del socio' : 'Registra un nuevo socio comercial'}
+                                    </p>
+                                </div>
                             </div>
                             {editingId && (
                                 <button

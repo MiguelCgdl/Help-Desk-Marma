@@ -461,12 +461,17 @@ const TicketsList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="marmacore-filter-container p-4 mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                    <FunnelIcon className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-[10px] font-bold text-[#00272E] uppercase tracking-widest opacity-50">Filtros</span>
+            <div className="marmacore-filter-container p-0 mb-6 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50 bg-[#F8FAFB]/50">
+                    <div className="flex items-center gap-2">
+                        <FunnelIcon className="w-4 h-4 text-[#FD5200]" />
+                        <div>
+                            <h3 className="text-sm font-bold text-[#00272E]">Panel de Filtros</h3>
+                            <p className="text-[10px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Busca y segmenta reportes</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* Search */}
                     <div className="relative">
                         <MagnifyingGlassIcon className="marmacore-icon-left" />

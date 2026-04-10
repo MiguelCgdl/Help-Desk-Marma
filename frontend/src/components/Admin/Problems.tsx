@@ -125,9 +125,14 @@ const Problems: React.FC = () => {
                                         : <PlusIcon className="w-4 h-4 text-white" />
                                     }
                                 </div>
-                                <span className="font-bold text-[#00272E] text-base">
-                                    {editingId ? 'Editar tipo de problema' : 'Nuevo tipo de problema'}
-                                </span>
+                                <div>
+                                    <h3 className="text-base font-bold text-[#00272E]">
+                                        {editingId ? 'Editar tipo de problema' : 'Nuevo tipo de problema'}
+                                    </h3>
+                                    <p className="text-[11px] text-[#006D65] font-semibold mt-0.5 opacity-60 uppercase tracking-wider">
+                                        {editingId ? 'Actualiza la categoría de incidencia' : 'Define una nueva categoría de soporte'}
+                                    </p>
+                                </div>
                             </div>
                             {editingId && (
                                 <button

@@ -78,12 +78,20 @@ const Costs: React.FC = () => {
 
             <div className="flex flex-col gap-8 w-full mx-auto">
                 <div className="w-full">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-4 bg-[#D5EFF2]/30 border-b border-[#D5EFF2]/50 flex items-center gap-3">
-                            <InformationCircleIcon className="w-5 h-5 text-[#006D65]" />
-                            <p className="text-xs text-[#006D65] font-medium">
-                                Los costos configurados aquí se aplicarán a los nuevos tickets y se usarán para el cálculo de facturación estimada en los reportes.
-                            </p>
+                    <div className="marmacore-table-container">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
+                            <div>
+                                <h3 className="text-base font-bold text-[#00272E]">Tabulador de Costos</h3>
+                                <p className="text-[11px] text-[#006D65] font-semibold mt-0.5 opacity-60 uppercase tracking-wider">
+                                    Ajuste de tarifas por hora
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <InformationCircleIcon className="w-5 h-5 text-[#006D65] opacity-40" />
+                                <span className="bg-[#00272E] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg tracking-wider uppercase">
+                                    Precios en MXN
+                                </span>
+                            </div>
                         </div>
 
                         <div className="overflow-x-auto">
