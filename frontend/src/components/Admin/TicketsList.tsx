@@ -566,98 +566,92 @@ const TicketsList: React.FC = () => {
                                 </td></tr>
                             )}
                             {filtered.map(t => (
-                                <tr key={t._id} className="group hover:bg-gray-50/80 transition-colors">
-                                    <td className="px-6 py-4">
+                                <tr key={t._id} className="group hover:bg-gray-50/80 transition-all border-b border-gray-50 last:border-0">
+                                    <td className="px-4 py-3">
                                         <input 
                                             type="checkbox" 
                                             className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
                                             checked={selectedTickets.includes(t._id)}
                                             onChange={e => {
-                                                if(e.target.checked) setSelectedTickets(prev => [...prev, t._id]);
-                                                else setSelectedTickets(prev => prev.filter(id => id !== t._id));
+                                                if (e.target.checked) setSelectedTickets([...selectedTickets, t._id]);
+                                                else setSelectedTickets(selectedTickets.filter(id => id !== t._id));
                                             }}
                                         />
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className="font-mono font-bold text-[#00272E] text-sm group-hover:text-[#FD5200] transition-colors">
-                                            {t.ticketNumber}
-                                        </span>
+                                    <td className="px-4 py-3">
+                                        <span className="text-xs font-black text-[#00272E] tracking-tight">{t.ticketNumber}</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
-                                            {(t.companyId as any)?.logoUrl ? (
+                                            <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center p-0.5">
                                                 <img 
                                                     src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `${BASE_SERVER_URL}/${(t.companyId as any).logoUrl}`} 
-                                                    className="w-5 h-5 object-contain rounded" 
-                                                    alt="logo" 
+                                                    alt="" 
+                                                    className="w-full h-full object-contain"
                                                 />
-                                            ) : (
-                                                <BuildingOfficeIcon className="w-4 h-4 text-gray-300" />
-                                            )}
-                                            <span className="text-sm font-semibold text-[#00272E]">
-                                                {(t.companyId as any)?.name ?? '—'}
-                                            </span>
+                                            </div>
+                                            <span className="text-xs font-bold text-[#00272E]">{(t.companyId as any).name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                            <CalendarDaysIcon className="w-3.5 h-3.5" />
-                                            {new Date(t.createdAt).toLocaleDateString('es-MX')}
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-1.5 text-gray-400">
+                                            <ClockIcon className="w-3.5 h-3.5" />
+                                            <span className="text-[10px] font-bold">{new Date(t.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 py-3">
                                         {(t.problems && t.problems.length > 0) ? (
                                             <div className="flex flex-wrap gap-1">
                                                 {t.problems.slice(0, 2).map((p, idx) => (
-                                                    <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[9px] font-bold uppercase border border-gray-200">
+                                                    <span key={idx} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[8px] font-black uppercase border border-gray-200">
                                                         {p.title}
                                                     </span>
                                                 ))}
                                                 {t.problems.length > 2 && (
-                                                    <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded text-[9px] font-bold">
+                                                    <span className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[8px] font-bold">
                                                         +{t.problems.length - 2}
                                                     </span>
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="text-gray-300 text-xs">—</span>
+                                            <span className="text-gray-300 text-[10px]">—</span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`marmacore-badge ${
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`marmacore-badge px-2 py-0.5 ${
                                             t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
                                             t.requiresInvoice ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 
                                             'bg-gray-50 text-gray-400 border-gray-100'
                                         }`}>
-                                            {t.invoiced ? 'Facturada' : t.requiresInvoice ? 'Requerida' : 'No'}
+                                            {t.invoiced ? 'FACTURADA' : t.requiresInvoice ? 'SI' : 'NO'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`marmacore-badge ${
+                                    <td className="px-4 py-3">
+                                        <span className={`marmacore-badge px-2 py-0.5 ${
                                             t.status === 'solved' 
                                             ? 'bg-green-50 text-green-700 border-green-100' 
                                             : 'bg-orange-50 text-orange-700 border-orange-100'
                                         }`}>
                                             {t.status === 'solved' ? (
-                                                <><CheckCircleIcon className="w-3.5 h-3.5" /> Resuelto</>
+                                                <><CheckCircleIcon className="w-3 h-3" /> Resuelto</>
                                             ) : (
-                                                <><ClockIcon className="w-3.5 h-3.5" /> Abierto</>
+                                                <><ClockIcon className="w-3 h-3" /> Abierto</>
                                             )}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <span className="font-black text-[#00272E] text-sm">
-                                            ${t.cost.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                    <td className="px-4 py-3 text-right">
+                                        <span className="text-xs font-black text-[#00272E] tracking-tight">
+                                            ${t.cost?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1.5">
                                             {t.status === 'open' && (
                                                 <button
                                                     onClick={() => setSolving(t)}
-                                                    className="px-4 py-2 bg-[#FD5200] text-white text-[11px] font-bold uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1.5"
+                                                    className="px-3 py-1.5 bg-[#FD5200] text-white text-[9px] font-black uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1"
                                                 >
-                                                    <CheckCircleIcon className="w-3.5 h-3.5" /> Resolver
+                                                    <CheckCircleIcon className="w-3 h-3" /> Resolver
                                                 </button>
                                             )}
                                             {t.imagePath && (
@@ -665,25 +659,25 @@ const TicketsList: React.FC = () => {
                                                     href={`${BASE_SERVER_URL}/${t.imagePath}`}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="p-2 text-gray-400 hover:text-[#FD5200] hover:bg-[#FD5200]/5 rounded-lg transition-all"
+                                                    className="p-1.5 text-gray-400 hover:text-[#FD5200] hover:bg-[#FD5200]/5 rounded-lg transition-all"
                                                     title="Ver imagen"
                                                 >
-                                                    <PhotoIcon className="w-4 h-4" />
+                                                    <PhotoIcon className="w-3.5 h-3.5" />
                                                 </a>
                                             )}
                                             <button
                                                 onClick={() => setDetail(t)}
-                                                className="p-2 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all"
+                                                className="p-1.5 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all"
                                                 title="Ver detalles"
                                             >
-                                                <EyeIcon className="w-4 h-4" />
+                                                <EyeIcon className="w-3.5 h-3.5" />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(t._id, t.ticketNumber)}
-                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Eliminar"
                                             >
-                                                <TrashIcon className="w-4 h-4" />
+                                                <TrashIcon className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </td>
