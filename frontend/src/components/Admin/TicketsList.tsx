@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
-import { Ticket } from '../../types';
+import type { Ticket } from '../../types';
 import { 
   FunnelIcon, 
   MagnifyingGlassIcon, 
@@ -11,8 +12,14 @@ import {
 } from '@heroicons/react/24/outline';
 
 const TicketsList: React.FC = () => {
+    const [searchParams] = useSearchParams();
     const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [filter, setFilter] = useState({ companyId: '', startDate: '', endDate: '' });
+    const [filter, setFilter] = useState({ 
+        companyId: searchParams.get('companyId') || '', 
+        status: searchParams.get('status') || '',
+        startDate: '', 
+        endDate: '' 
+    });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => { fetchTickets(); }, [filter]);
@@ -22,6 +29,7 @@ const TicketsList: React.FC = () => {
         try {
             const params = new URLSearchParams();
             if (filter.companyId) params.append('companyId', filter.companyId);
+            if (filter.status) params.append('status', filter.status);
             if (filter.startDate) params.append('startDate', filter.startDate);
             if (filter.endDate) params.append('endDate', filter.endDate);
             
@@ -61,10 +69,6 @@ const TicketsList: React.FC = () => {
                             className="pl-9 pr-4 py-2 border-none outline-none text-sm w-48"
                         />
                     </div>
-                    <div className="h-6 w-px bg-gray-100"></div>
-                    <button className="p-2 text-gray-400 hover:text-primary transition-colors">
-                        <FunnelIcon className="w-5 h-5" />
-                    </button>
                 </div>
             </div>
 
@@ -88,9 +92,21 @@ const TicketsList: React.FC = () => {
                         className="marmacore-input py-2 text-sm" 
                     />
                 </div>
-                <div className="col-span-1 md:col-span-2 flex items-end">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-[#006D65] uppercase pl-1">Estado</label>
+                    <select
+                        value={filter.status}
+                        onChange={e => setFilter({ ...filter, status: e.target.value })}
+                        className="marmacore-input py-2 text-sm"
+                    >
+                        <option value="">Todos</option>
+                        <option value="open">Abiertos (Sin atender)</option>
+                        <option value="solved">Solucionados</option>
+                    </select>
+                </div>
+                <div className="flex items-end">
                     <button 
-                        onClick={() => setFilter({ companyId: '', startDate: '', endDate: '' })}
+                        onClick={() => setFilter({ companyId: '', status: '', startDate: '', endDate: '' })}
                         className="text-xs font-bold text-gray-400 hover:text-primary mb-3 ml-2"
                     >
                         Limpiar filtros

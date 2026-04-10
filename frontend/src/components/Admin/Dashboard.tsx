@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   TicketIcon, 
   BuildingOffice2Icon, 
   CurrencyDollarIcon, 
   ClockIcon,
   ArrowUpIcon,
-  ChartPieIcon
+  ChartPieIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import api from '../../services/api';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -13,6 +15,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -72,8 +75,8 @@ const Dashboard: React.FC = () => {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 marmacore-card p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div className="lg:col-span-3 marmacore-card p-8">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h3 className="text-lg font-bold text-dark-teal">Actividad de Tickets</h3>
@@ -84,7 +87,7 @@ const Dashboard: React.FC = () => {
                             <span>Ver Detalles</span>
                         </div>
                     </div>
-                    <div className="h-[300px]">
+                    <div className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData}>
                                 <defs>
@@ -105,28 +108,39 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="marmacore-card p-8 bg-dark-teal text-white relative overflow-hidden">
-                    <div className="relative z-10">
-                        <h3 className="text-xl font-bold mb-2">Acceso Rápido</h3>
-                        <p className="text-accent-teal/60 text-sm mb-8">Configura y gestiona tu operación.</p>
-                        
-                        <div className="space-y-4">
-                            <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10">
-                                <span className="font-bold">Nueva Empresa</span>
-                                <ArrowUpIcon className="w-4 h-4 rotate-45" />
+                <div className="marmacore-card p-6 bg-white border border-gray-100 flex flex-col">
+                    <h3 className="text-sm font-black text-dark-teal uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <TicketIcon className="w-4 h-4 text-primary" />
+                        Sin Atender
+                    </h3>
+                    <div className="space-y-3 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
+                        {stats && Object.entries(stats.summaryByCompany)
+                            .filter(([_, data]: [string, any]) => data.openCount > 0)
+                            .map(([name, data]: [string, any]) => (
+                            <button 
+                                key={name} 
+                                onClick={() => navigate(`/admin/tickets?companyId=${data.companyId}&status=open`)}
+                                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F8FAFB] hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-all group/item text-left"
+                            >
+                                <div className="min-w-0">
+                                    <p className="text-xs font-bold text-dark-teal group-hover/item:text-primary truncate">{name}</p>
+                                    <p className="text-[10px] text-medium-teal font-medium">Ver tickets</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="px-2 py-1 rounded-lg font-black text-sm bg-orange-100 text-orange-600">
+                                        {data.openCount}
+                                    </span>
+                                    <ArrowUpIcon className="w-3 h-3 text-orange-400 rotate-45 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                </div>
                             </button>
-                            <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10">
-                                <span className="font-bold">Exportar Reporte</span>
-                                <ArrowUpIcon className="w-4 h-4 rotate-45" />
-                            </button>
-                            <button className="w-full flex items-center justify-between p-4 bg-primary text-white rounded-xl transition-all shadow-lg shadow-primary/20">
-                                <span className="font-bold">Configurar Costos</span>
-                                <ArrowUpIcon className="w-4 h-4 rotate-45" />
-                            </button>
-                        </div>
+                        ))}
+                        {(!stats || Object.entries(stats.summaryByCompany).filter(([_, data]: [string, any]) => data.openCount > 0).length === 0) && (
+                            <div className="flex-1 flex flex-col items-center justify-center py-10">
+                                <CheckCircleIcon className="w-10 h-10 text-green-200 mb-2" />
+                                <p className="text-xs text-gray-400 font-bold">¡Todo al día!</p>
+                            </div>
+                        )}
                     </div>
-                    {/* Decorative element */}
-                    <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
                 </div>
             </div>
         </div>

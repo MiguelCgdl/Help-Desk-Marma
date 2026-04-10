@@ -16,12 +16,32 @@ export const getMonthlySummary = asyncHandler(async (req, res) => {
 
     const summaryByCompany: any = {};
     tickets.forEach(ticket => {
-        const companyName = (ticket.companyId as any).name;
+        const company = ticket.companyId as any;
+        const companyName = company?.name || 'Desconocida';
+        const cid = company?._id || 'unknown';
+        
         if (!summaryByCompany[companyName]) {
-            summaryByCompany[companyName] = { count: 0, totalCost: 0 };
+            summaryByCompany[companyName] = { 
+                count: 0, 
+                totalCost: 0, 
+                openCount: 0, 
+                companyId: cid,
+                tickets: [] 
+            };
         }
         summaryByCompany[companyName].count++;
         summaryByCompany[companyName].totalCost += ticket.cost;
+        if (ticket.status === 'open') {
+            summaryByCompany[companyName].openCount++;
+        }
+        summaryByCompany[companyName].tickets.push({
+            _id: ticket._id,
+            ticketNumber: (ticket as any).ticketNumber,
+            cost: ticket.cost,
+            status: ticket.status,
+            createdAt: ticket.createdAt,
+            description: ticket.description
+        });
     });
 
     res.json({ summaryByCompany, totalTickets: tickets.length, totalAmount: tickets.reduce((sum, t) => sum + t.cost, 0) });

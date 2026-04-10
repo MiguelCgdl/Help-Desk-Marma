@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@source "../index.html";
+@source "./**/*.{js,ts,jsx,tsx}";
 
 @theme {
   --color-primary: #FD5200;
@@ -32,23 +33,24 @@ body {
 /* Component Classes - Standard CSS Composition */
 .marmacore-card {
   background-color: white;
-  border-radius: var(--radius-marma);
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  border: 1px solid #f3f4f6;
+  border-radius: 32px;
+  box-shadow: 0 10px 40px -20px rgba(0, 39, 46, 0.15), 0 1px 2px rgba(0, 39, 46, 0.02);
+  border: 1px solid rgba(0, 68, 101, 0.05);
   overflow: hidden;
 }
 
 .marmacore-button-primary {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-primary text-white shadow-md active:scale-95;
+  @apply inline-flex items-center justify-center gap-3 px-8 py-5 rounded-3xl font-black transition-all duration-300 bg-[#FD5200] text-white shadow-xl active:scale-95 text-[11px] uppercase tracking-[0.2em];
 }
 
 .marmacore-button-primary:hover {
-  background-color: var(--color-primary-hover);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  background-color: #E64A00;
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -15px rgba(253, 82, 0, 0.45);
 }
 
 .marmacore-button-secondary {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-accent-teal text-medium-teal;
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 bg-accent-teal text-medium-teal text-sm;
 }
 
 .marmacore-button-secondary:hover {
@@ -56,12 +58,16 @@ body {
 }
 
 .marmacore-input {
-  @apply w-full px-4 py-3 rounded-lg border border-gray-200 outline-none transition-all;
+  @apply w-full px-6 py-5 rounded-3xl border border-gray-100 bg-white outline-none transition-all text-[13px] font-bold text-[#00272E] shadow-sm;
 }
 
 .marmacore-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(253, 82, 0, 0.2);
+  @apply bg-white border-primary/40;
+  box-shadow: 0 15px 25px -10px rgba(253, 82, 0, 0.1);
+}
+
+.marmacore-label {
+  @apply block text-[10px] font-black text-[#00272E] uppercase tracking-[0.15em] mb-4 ml-1 opacity-80;
 }
 
 .glass-morphism {

@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
-import { Problem } from '../../types';
+import type { Problem } from '../../types';
 import { ExclamationCircleIcon, PlusIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const Problems: React.FC = () => {
     const [problems, setProblems] = useState<Problem[]>([]);
     const [title, setTitle] = useState('');
     const [costPerHour, setCostPerHour] = useState<number>(0);
-    const [loading, setLoading] = useState(false);
     const [editingCosts, setEditingCosts] = useState<Record<string, number>>({});
 
     useEffect(() => { fetchProblems(); }, []);
     
     const fetchProblems = async () => { 
-        setLoading(true);
         try {
             const res = await api.get('/problems'); 
             setProblems(res.data); 
@@ -23,8 +21,8 @@ const Problems: React.FC = () => {
                     return acc;
                 }, {} as Record<string, number>)
             );
-        } finally {
-            setLoading(false);
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -88,7 +86,7 @@ const Problems: React.FC = () => {
                                     placeholder="Ej. Falla de Internet, Software..." 
                                     value={title} 
                                     onChange={e => setTitle(e.target.value)} 
-                                    className="marmacore-input pl-10" 
+                                    className="marmacore-input !pl-12" 
                                     required 
                                 />
                             </div>

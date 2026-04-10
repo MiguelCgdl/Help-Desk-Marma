@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  ChartBarIcon, 
-  BuildingOfficeIcon, 
-  ExclamationCircleIcon, 
+  ChartBarIcon,
+  BuildingOfficeIcon,
+  ExclamationCircleIcon,
   TicketIcon,
   ArrowLeftOnRectangleIcon,
-  Squares2X2Icon
+  Squares2X2Icon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout: React.FC = () => {
@@ -24,6 +25,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Empresas', path: '/admin/companies', icon: BuildingOfficeIcon },
         { name: 'Tipos de Problema', path: '/admin/problems', icon: ExclamationCircleIcon },
         { name: 'Reportes', path: '/admin/reports', icon: ChartBarIcon },
+        { name: 'Configurar Costos', path: '/admin/costs', icon: CurrencyDollarIcon },
     ];
 
     return (

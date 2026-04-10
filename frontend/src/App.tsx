@@ -12,6 +12,7 @@ import Problems from './components/Admin/Problems';
 import Dashboard from './components/Admin/Dashboard';
 import TicketsList from './components/Admin/TicketsList';
 import Reports from './components/Admin/Reports';
+import Costs from './components/Admin/Costs';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
@@ -36,6 +37,7 @@ function App() {
           <Route path="problems" element={<Problems />} />
           <Route path="tickets" element={<TicketsList />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="costs" element={<Costs />} />
         </Route>
       </Routes>
     </BrowserRouter>
