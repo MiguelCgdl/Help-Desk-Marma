@@ -74,11 +74,9 @@ const AdminLayout: React.FC = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto p-10 relative">
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-[#D5EFF2]/30 to-transparent -z-10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-                
-                <div className="max-w-6xl mx-auto">
+            <main className="flex-1 overflow-y-auto p-8 relative min-w-0">
+                <div className="fixed top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-[#D5EFF2]/20 to-transparent -z-10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+                <div className="w-full max-w-[1400px] mx-auto">
                     <Outlet />
                 </div>
             </main>

@@ -1,3 +1,13 @@
+// ─── Sub-document returned inside a Ticket ─────────────────────────────────
+export type ProblemEntry = {
+    problemId?: { _id: string; title: string; costPerHour: number } | null;
+    title: string;
+    costPerHour: number;
+    timeSpentMinutes: number;
+    cost: number;
+    manualCost?: boolean;
+};
+
 export type Company = {
     _id: string;
     name: string;
@@ -7,5 +17,26 @@ export type Company = {
     loginUsername?: string;
 };
 
-export type Problem = { _id: string; title: string; description?: string; active: boolean; costPerHour: number; };
-export type Ticket = { _id: string; ticketNumber: string; companyId: Company; problemId: Problem; description: string; imagePath?: string; cost: number; status?: 'open' | 'solved'; solvedAt?: string; timeSpentMinutes?: number; createdAt: string; };
+export type Problem = {
+    _id: string;
+    title: string;
+    description?: string;
+    active: boolean;
+    costPerHour: number;
+};
+
+export type Ticket = {
+    _id: string;
+    ticketNumber: string;
+    companyId: Company;
+    problems: ProblemEntry[];
+    description: string;
+    imagePath?: string;
+    cost: number;
+    status?: 'open' | 'solved';
+    solvedAt?: string;
+    createdAt: string;
+    // Legacy
+    problemId?: Problem;
+    timeSpentMinutes?: number;
+};

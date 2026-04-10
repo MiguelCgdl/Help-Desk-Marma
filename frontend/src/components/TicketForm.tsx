@@ -2,30 +2,53 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import companyApi from '../services/companyApi';
-import type { Company, Problem } from '../types';
-import { motion } from 'framer-motion';
-import { TicketIcon, CheckCircleIcon, PhotoIcon, BuildingOffice2Icon, ExclamationTriangleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import type { Problem } from '../types';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    TicketIcon, CheckCircleIcon, PhotoIcon, BuildingOffice2Icon,
+    ExclamationTriangleIcon, LockClosedIcon, PlusIcon, TrashIcon,
+    ExclamationCircleIcon
+} from '@heroicons/react/24/outline';
 
 export type TicketFormProps = {
-    /** Si viene del portal empresa: empresa fija y no editable */
     lockedCompany?: { _id: string; name: string } | null;
-    /** Usar token de empresa en las peticiones (crear ticket) */
     useCompanyAuth?: boolean;
 };
 
+type ProblemSelection = {
+    id: string;              // unique UI key
+    problemId: string;       // ObjectId or '' for Otros
+    title: string;           // display label
+};
+
 const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompanyAuth = false }) => {
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [problems, setProblems] = useState<Problem[]>([]);
+    const [problems, setProblems]         = useState<Problem[]>([]);
     const [selectedCompany, setSelectedCompany] = useState('');
-    const [selectedProblem, setSelectedProblem] = useState('');
-    const [description, setDescription] = useState('');
-    const [image, setImage] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
+    const [companies, setCompanies]       = useState<{ _id: string; name: string }[]>([]);
+    const [description, setDescription]   = useState('');
+    const [image, setImage]               = useState<File | null>(null);
+    const [preview, setPreview]           = useState<string | null>(null);
     const [ticketNumber, setTicketNumber] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [loading, setLoading]           = useState(false);
+    const [error, setError]               = useState('');
+
+    // Multi-problem selection
+    const [selectedProblems, setSelectedProblems] = useState<ProblemSelection[]>([
+        { id: crypto.randomUUID(), problemId: '', title: '' }
+    ]);
+
+    // Captcha
+    const [captcha, setCaptcha]           = useState({ a: 0, b: 0, answer: '' });
+    const [captchaInput, setCaptchaInput] = useState('');
+
+    const generateCaptcha = () => {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        setCaptcha({ a, b, answer: (a + b).toString() });
+    };
 
     useEffect(() => {
+        generateCaptcha();
         const fetchData = async () => {
             try {
                 if (lockedCompany) {
@@ -37,43 +60,48 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                     setCompanies(compRes.data);
                     setProblems(probRes.data.filter((p: Problem) => p.active));
                 }
-            } catch (err) {
-                setError('Error al cargar datos iniciales. Verifique su conexión.');
+            } catch {
+                setError('Error al cargar datos. Verifique su conexión.');
             }
         };
         fetchData();
     }, [lockedCompany?._id]);
 
+    // ── Problem list helpers ─────────────────────────────────────────────────
+    const addProblem = () =>
+        setSelectedProblems(prev => [...prev, { id: crypto.randomUUID(), problemId: '', title: '' }]);
+
+    const removeProblem = (id: string) =>
+        setSelectedProblems(prev => prev.length > 1 ? prev.filter(p => p.id !== id) : prev);
+
+    const updateProblem = (id: string, problemId: string) => {
+        const found = problems.find(p => p._id === problemId);
+        setSelectedProblems(prev =>
+            prev.map(p => p.id === id
+                ? { ...p, problemId, title: found ? found.title : (problemId === '__otros__' ? 'Otros / Sin categoría' : '') }
+                : p
+            )
+        );
+    };
+
+    // ── Image ────────────────────────────────────────────────────────────────
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
-                setImage(file);
-                const reader = new FileReader();
-                reader.onloadend = () => setPreview(reader.result as string);
-                reader.readAsDataURL(file);
-            } else {
-                alert('Solo se permiten imágenes JPG/JPEG');
-            }
+        if (!file) return;
+        if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+            setImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => setPreview(reader.result as string);
+            reader.readAsDataURL(file);
+        } else {
+            alert('Solo se permiten imágenes JPG/JPEG');
         }
     };
 
-    const [captcha, setCaptcha] = useState({ a: 0, b: 0, answer: '' });
-    const [captchaInput, setCaptchaInput] = useState('');
-
-    const generateCaptcha = () => {
-        const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 10) + 1;
-        setCaptcha({ a, b, answer: (a + b).toString() });
-    };
-
-    useEffect(() => {
-        generateCaptcha();
-    }, []);
-
+    // ── Submit ───────────────────────────────────────────────────────────────
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (captchaInput !== captcha.answer) {
             setError('La respuesta de seguridad es incorrecta.');
             generateCaptcha();
@@ -81,12 +109,23 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
             return;
         }
 
+        const incomplete = selectedProblems.some(p => !p.problemId);
+        if (incomplete) {
+            setError('Selecciona un tipo de problema para cada fila.');
+            return;
+        }
+
         setLoading(true);
         setError('');
-        
+
+        const problemsPayload = selectedProblems.map(p => ({
+            problemId: p.problemId === '__otros__' ? null : p.problemId,
+            title: p.title
+        }));
+
         const formData = new FormData();
         formData.append('companyId', selectedCompany);
-        formData.append('problemId', selectedProblem);
+        formData.append('problems', JSON.stringify(problemsPayload));
         formData.append('description', description);
         if (image) formData.append('image', image);
 
@@ -99,11 +138,11 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
             setDescription('');
             setImage(null);
             setPreview(null);
+            setSelectedProblems([{ id: crypto.randomUUID(), problemId: '', title: '' }]);
             if (!lockedCompany) setSelectedCompany('');
-            setSelectedProblem('');
             setCaptchaInput('');
             generateCaptcha();
-        } catch (err) {
+        } catch {
             setError('Error al crear el ticket. Por favor intente de nuevo.');
             generateCaptcha();
         } finally {
@@ -111,34 +150,35 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
         }
     };
 
+    // ── Success screen ───────────────────────────────────────────────────────
     if (ticketNumber) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="marmacore-card p-10 max-w-md w-full text-center space-y-6"
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center space-y-6"
                 >
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                        <CheckCircleIcon className="w-12 h-12 text-green-600" />
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <CheckCircleIcon className="w-9 h-9 text-green-600" />
                     </div>
-                    <div className="space-y-2">
-                        <h2 className="text-3xl font-extrabold text-[#00272E]">¡Ticket Generado!</h2>
-                        <p className="text-[#006D65]">Su solicitud ha sido registrada con éxito.</p>
+                    <div>
+                        <h2 className="text-2xl font-black text-[#00272E]">¡Ticket Generado!</h2>
+                        <p className="text-[#006D65] text-sm mt-1">Su solicitud ha sido registrada con éxito.</p>
                     </div>
                     <div className="bg-[#D5EFF2] p-4 rounded-xl border border-[#006D65]/20">
-                        <p className="text-sm text-[#006D65] uppercase font-bold tracking-wider">Número de Ticket</p>
-                        <p className="text-2xl font-mono text-[#00272E] font-bold">{ticketNumber}</p>
+                        <p className="text-xs text-[#006D65] uppercase font-bold tracking-wider">Número de Ticket</p>
+                        <p className="text-2xl font-mono text-[#00272E] font-bold mt-1">{ticketNumber}</p>
                     </div>
                     <div className="flex flex-col gap-3">
-                        <button onClick={() => setTicketNumber('')} className="marmacore-button-primary w-full">
+                        <button
+                            onClick={() => setTicketNumber('')}
+                            className="w-full py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm hover:bg-[#E64A00] transition-colors"
+                        >
                             Generar otro ticket
                         </button>
                         {useCompanyAuth && (
-                            <Link
-                                to="/empresa/tickets"
-                                className="block text-center py-3 text-sm font-bold text-[#006D65] hover:text-[#00272E]"
-                            >
+                            <Link to="/empresa/tickets" className="block text-center py-2 text-sm font-bold text-[#006D65] hover:text-[#00272E]">
                                 Ver mis tickets
                             </Link>
                         )}
@@ -148,183 +188,227 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
         );
     }
 
+    // ── Main form ────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 font-jakarta">
-            <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="animate-fade-in">
-                        <img src="https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png" alt="Marmacore" className="h-14 mb-8" />
-                        <h1 className="text-4xl font-extrabold text-dark-teal">
-                            {lockedCompany ? 'Levantar incidente' : 'Mesa de Ayuda'}
-                        </h1>
-                        <p className="text-medium-teal text-lg mt-2">
-                            {lockedCompany
-                                ? 'Describe el problema y adjunta evidencia si aplica. Tu empresa ya está identificada en la sesión.'
-                                : 'Reporta problemas técnicos y solicita asistencia de manera rápida y eficiente.'}
-                        </p>
-                    </div>
-                    
-                    <div className="marmacore-card p-6 bg-dark-teal text-white space-y-4">
-                        <div className="flex items-center gap-4">
-                            <TicketIcon className="w-8 h-8 text-primary" />
-                            <div>
-                                <h3 className="font-bold">Seguimiento Real</h3>
-                                <p className="text-sm text-gray-400">Cada reporte genera un número único basado en tu empresa.</p>
-                            </div>
+        <div className="min-h-screen bg-gray-50 py-10 px-4">
+            <div className="max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                    {/* Left panel */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div>
+                            <img
+                                src="https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"
+                                alt="Marmacore"
+                                className="h-12 mb-6"
+                            />
+                            <h1 className="text-3xl font-black text-[#00272E] leading-tight">
+                                {lockedCompany ? 'Levantar incidente' : 'Mesa de Ayuda'}
+                            </h1>
+                            <p className="text-[#006D65] text-sm mt-2 leading-relaxed">
+                                {lockedCompany
+                                    ? 'Describe el problema y adjunta evidencia. Tu empresa ya está identificada.'
+                                    : 'Reporta problemas técnicos y solicita asistencia de manera rápida.'}
+                            </p>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <PhotoIcon className="w-8 h-8 text-primary" />
-                            <div>
-                                <h3 className="font-bold">Evidencia Visual</h3>
-                                <p className="text-sm text-gray-400">Adjunta fotos para ayudarnos a entender mejor el problema.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <LockClosedIcon className="w-8 h-8 text-primary" />
-                            <div>
-                                <h3 className="font-bold">Seguridad de Datos</h3>
-                                <p className="text-sm text-gray-400">Verificamos tu identidad con un sistema de seguridad anti-bots.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="lg:col-span-3">
-                    <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="marmacore-card p-8 bg-white"
-                    >
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {error && (
-                                <div className="bg-red-50 text-red-600 p-4 rounded-lg flex items-center gap-3 border border-red-100">
-                                    <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" />
-                                    <p className="text-sm font-medium">{error}</p>
+                        <div className="bg-[#00272E] rounded-2xl p-5 space-y-4">
+                            {[
+                                { icon: TicketIcon, title: 'Seguimiento Real', desc: 'Cada reporte genera un número único basado en tu empresa.' },
+                                { icon: ExclamationCircleIcon, title: 'Múltiples Problemas', desc: 'Puedes reportar varios tipos de problemas en un solo ticket.' },
+                                { icon: LockClosedIcon, title: 'Seguridad Anti-Bots', desc: 'Verificamos tu identidad para evitar registros fraudulentos.' }
+                            ].map(({ icon: Icon, title, desc }) => (
+                                <div key={title} className="flex items-start gap-3">
+                                    <Icon className="w-5 h-5 text-[#FD5200] mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-white font-bold text-sm">{title}</p>
+                                        <p className="text-gray-400 text-xs mt-0.5">{desc}</p>
+                                    </div>
                                 </div>
-                            )}
+                            ))}
+                        </div>
+                    </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-dark-teal mb-2 flex items-center gap-2">
-                                    <BuildingOffice2Icon className="w-4 h-4" /> Empresa
-                                </label>
-                                {lockedCompany ? (
-                                    <div className="marmacore-input bg-gray-50 text-gray-700 cursor-not-allowed border-gray-200">
-                                        {lockedCompany.name}
+                    {/* Right: Form */}
+                    <div className="lg:col-span-3">
+                        <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                        >
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                {/* Error */}
+                                {error && (
+                                    <div className="bg-red-50 text-red-600 p-3 rounded-xl flex items-center gap-2 border border-red-100 text-sm">
+                                        <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0" />
+                                        {error}
+                                    </div>
+                                )}
+
+                                {/* Empresa */}
+                                {!lockedCompany ? (
+                                    <div>
+                                        <label className="flex items-center gap-1.5 text-xs font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-70">
+                                            <BuildingOffice2Icon className="w-3.5 h-3.5" /> Empresa
+                                        </label>
+                                        <select
+                                            value={selectedCompany}
+                                            onChange={e => setSelectedCompany(e.target.value)}
+                                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            required
+                                        >
+                                            <option value="">Selecciona tu empresa</option>
+                                            {companies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                                        </select>
                                     </div>
                                 ) : (
-                                    <select
-                                        value={selectedCompany}
-                                        onChange={(e) => setSelectedCompany(e.target.value)}
-                                        className="marmacore-input"
-                                        required
-                                    >
-                                        <option value="">Selecciona tu empresa</option>
-                                        {companies.map((c) => (
-                                            <option key={c._id} value={c._id}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 text-sm font-medium">
+                                        {lockedCompany.name}
+                                    </div>
                                 )}
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-dark-teal mb-2">Problema</label>
-                                <select 
-                                    value={selectedProblem} 
-                                    onChange={e => setSelectedProblem(e.target.value)} 
-                                    className="marmacore-input"
-                                    required
-                                >
-                                    <option value="">¿Qué está sucediendo?</option>
-                                    {problems.map(p => <option key={p._id} value={p._id}>{p.title}</option>)}
-                                </select>
-                            </div>
+                                {/* Problemas */}
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-bold text-[#00272E] uppercase tracking-widest opacity-70">
+                                            Tipo(s) de Problema
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={addProblem}
+                                            className="flex items-center gap-1 text-[11px] font-bold text-[#FD5200] hover:text-[#E64A00] transition-colors"
+                                        >
+                                            <PlusIcon className="w-3.5 h-3.5" /> Agregar otro
+                                        </button>
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-dark-teal mb-2">
-                                    Descripción <span className="text-xs font-normal text-medium-teal">({800 - description.length} caracteres restantes)</span>
-                                </label>
-                                <textarea 
-                                    value={description} 
-                                    onChange={e => setDescription(e.target.value.slice(0, 800))} 
-                                    className="marmacore-input min-h-[120px]" 
-                                    placeholder="Describe el problema detalladamente..."
-                                    maxLength={800} 
-                                    required 
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-dark-teal mb-2">Imagen de Referencia</label>
-                                <div className="relative group">
-                                    <input 
-                                        type="file" 
-                                        accept="image/jpeg,image/jpg" 
-                                        onChange={handleImageChange} 
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    <div className={`p-8 border-2 border-dashed rounded-xl transition-all flex flex-col items-center justify-center gap-3 ${preview ? 'border-primary bg-primary/5' : 'border-gray-200 group-hover:border-primary/50'}`}>
-                                        {preview ? (
-                                            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                                                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <p className="text-white text-sm font-bold">Cambiar imagen</p>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <PhotoIcon className="w-10 h-10 text-gray-300 group-hover:text-primary transition-colors" />
-                                                <div className="text-center">
-                                                    <p className="text-medium-teal font-semibold">Haz clic o arrastra una imagen</p>
-                                                    <p className="text-xs text-gray-400 mt-1">Solo formato JPG/JPEG (Máx 5MB)</p>
-                                                </div>
-                                            </>
-                                        )}
+                                    <div className="space-y-2">
+                                        <AnimatePresence>
+                                            {selectedProblems.map((sp, idx) => (
+                                                <motion.div
+                                                    key={sp.id}
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <span className="text-xs text-gray-400 font-bold w-5 text-center flex-shrink-0">
+                                                        {idx + 1}
+                                                    </span>
+                                                    <select
+                                                        value={sp.problemId}
+                                                        onChange={e => updateProblem(sp.id, e.target.value)}
+                                                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                        required
+                                                    >
+                                                        <option value="">¿Qué está sucediendo?</option>
+                                                        {problems.map(p => (
+                                                            <option key={p._id} value={p._id}>{p.title}</option>
+                                                        ))}
+                                                        <option value="__otros__">Otros / No está en la lista</option>
+                                                    </select>
+                                                    {selectedProblems.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeProblem(sp.id)}
+                                                            className="p-2 text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                                                        >
+                                                            <TrashIcon className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="bg-accent-teal/30 p-4 rounded-xl border border-accent-teal/50">
-                                <label className="block text-sm font-bold text-dark-teal mb-3">Seguridad Anti-Bots</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-lg text-dark-teal border border-accent-teal">
-                                        ¿Cuánto es {captcha.a} + {captcha.b}?
-                                    </div>
-                                    <input 
-                                        type="number" 
-                                        value={captchaInput}
-                                        onChange={(e) => setCaptchaInput(e.target.value)}
-                                        className="marmacore-input max-w-[100px] text-center"
-                                        placeholder="?"
+                                {/* Descripción */}
+                                <div>
+                                    <label className="text-xs font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-70 block">
+                                        Descripción{' '}
+                                        <span className="normal-case font-normal opacity-60">
+                                            ({800 - description.length} caracteres restantes)
+                                        </span>
+                                    </label>
+                                    <textarea
+                                        value={description}
+                                        onChange={e => setDescription(e.target.value.slice(0, 800))}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all min-h-[100px] resize-y"
+                                        placeholder="Describe el problema detalladamente..."
+                                        maxLength={800}
                                         required
                                     />
                                 </div>
-                                <p className="text-[10px] text-medium-teal mt-2 flex items-center gap-1">
-                                    <LockClosedIcon className="w-3 h-3" /> Resuelve para confirmar que eres humano
-                                </p>
-                            </div>
 
-                            <button 
-                                type="submit" 
-                                disabled={loading}
-                                className={`marmacore-button-primary w-full py-4 text-lg ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                            >
-                                {loading ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Enviando Ticket...
-                                    </span>
-                                ) : 'Enviar Reporte'}
-                            </button>
-                        </form>
-                    </motion.div>
+                                {/* Imagen */}
+                                <div>
+                                    <label className="text-xs font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-70 block">
+                                        Imagen de Referencia <span className="normal-case font-normal opacity-60">(Opcional)</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/jpg"
+                                            onChange={handleImageChange}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        />
+                                        <div className={`p-5 border-2 border-dashed rounded-xl transition-all flex flex-col items-center justify-center gap-2 ${preview ? 'border-[#FD5200] bg-orange-50/30' : 'border-gray-200 group-hover:border-[#FD5200]/40'}`}>
+                                            {preview ? (
+                                                <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+                                                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <p className="text-white text-xs font-bold">Cambiar imagen</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <PhotoIcon className="w-8 h-8 text-gray-300 group-hover:text-[#FD5200] transition-colors" />
+                                                    <p className="text-sm text-gray-400">Haz clic o arrastra una imagen JPG</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Captcha */}
+                                <div className="bg-[#D5EFF2]/40 p-4 rounded-xl border border-[#D5EFF2]">
+                                    <label className="text-xs font-bold text-[#00272E] uppercase tracking-widest mb-3 block opacity-70">
+                                        Verificación de Seguridad
+                                    </label>
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-base text-[#00272E] border border-[#D5EFF2]">
+                                            ¿Cuánto es {captcha.a} + {captcha.b}?
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={captchaInput}
+                                            onChange={e => setCaptchaInput(e.target.value)}
+                                            className="w-20 px-3 py-2 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-bold text-center outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            placeholder="?"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Submit */}
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm transition-all ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
+                                >
+                                    {loading
+                                        ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Enviando...</>
+                                        : <><TicketIcon className="w-4 h-4" /> Enviar Reporte de Incidente</>
+                                    }
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
                 </div>
+
+                <footer className="mt-10 text-center text-gray-400 text-xs">
+                    © {new Date().getFullYear()} Marmacore Solutions. Todos los derechos reservados.
+                </footer>
             </div>
-            
-            <footer className="mt-12 text-center text-gray-400 text-sm">
-                &copy; {new Date().getFullYear()} Marmacore Solutions. Todos los derechos reservados.
-            </footer>
         </div>
     );
 };

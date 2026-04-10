@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import type { Company } from '../../types';
-import { PlusIcon, TrashIcon, PencilIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, PencilIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Companies: React.FC = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -18,12 +18,12 @@ const Companies: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => { fetchCompanies(); }, []);
-    
-    const fetchCompanies = async () => { 
+
+    const fetchCompanies = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/companies'); 
-            setCompanies(res.data); 
+            const res = await api.get('/companies');
+            setCompanies(res.data);
         } finally {
             setLoading(false);
         }
@@ -38,7 +38,7 @@ const Companies: React.FC = () => {
             costPerTicket: c.costPerTicket || 0,
             email: c.email || '',
             loginUsername: c.loginUsername || '',
-            password: '' 
+            password: ''
         });
     };
 
@@ -53,239 +53,270 @@ const Companies: React.FC = () => {
         try {
             if (editingId) {
                 await api.put(`/companies/${editingId}`, form);
-                alert('✓ Empresa actualizada con éxito');
             } else {
                 await api.post('/companies', form);
-                alert('✓ Empresa registrada con éxito');
             }
             fetchCompanies();
             cancelEdit();
-        } catch (err: any) {
-            console.error(err);
-            const errorMsg = err.response?.data?.message || 'Error al conectar con el servidor';
+        } catch (err: unknown) {
+            const errorMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Error al conectar con el servidor';
             alert(`ERROR: ${errorMsg}`);
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleDelete = async (id: string) => { 
-        if(window.confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) {
+    const handleDelete = async (id: string) => {
+        if (window.confirm('¿Estás seguro de eliminar esta empresa?')) {
             try {
-                await api.delete(`/companies/${id}`); 
-                fetchCompanies(); 
-            } catch (err: any) {
+                await api.delete(`/companies/${id}`);
+                fetchCompanies();
+            } catch {
                 alert('No se pudo eliminar la empresa.');
             }
         }
     };
 
     return (
-        <div className="space-y-12 animate-fade-in pb-32">
-            {/* Minimal Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
-                <div>
-                    <h1 className="text-5xl font-black text-[#00272E] tracking-tighter">Empresas</h1>
-                    <p className="text-[#006D65]/60 mt-2 font-bold text-xs uppercase tracking-[0.2em]">Configuración global de socios comerciales</p>
-                </div>
+        <div className="animate-fade-in pb-8">
+            {/* Page Header */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-black text-[#00272E] tracking-tight">Empresas</h1>
+                <p className="text-[#006D65] mt-1 text-sm font-medium">Gestión de socios comerciales y acceso al sistema</p>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-12">
-                {/* Form Section - Improved width and organization */}
-                <div className="xl:col-span-5">
-                    <div className={`marmacore-card p-1 shadow-2xl transition-all duration-700 ${editingId ? 'ring-1 ring-primary/30 ring-offset-[12px]' : ''}`}>
-                        <div className={`p-10 lg:p-14 rounded-[28px] h-full ${editingId ? 'bg-orange-50/10' : 'bg-white'}`}>
-                            <div className="flex items-center justify-between mb-12">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-2xl shadow-lg shadow-primary/20">
-                                        {editingId ? <PencilIcon className="w-6 h-6 text-white" /> : <PlusIcon className="w-6 h-6 text-white" />}
-                                    </div>
-                                    <h3 className="text-2xl font-black text-[#00272E] tracking-tight">
-                                        {editingId ? 'Actualizar' : 'Registro'}
-                                    </h3>
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                {/* ── Form ── */}
+                <div className="xl:col-span-2">
+                    <div className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 ${editingId ? 'border-[#FD5200]/30 ring-2 ring-[#FD5200]/10' : 'border-gray-100'}`}>
+                        {/* Form header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${editingId ? 'bg-[#FD5200]' : 'bg-[#00272E]'}`}>
+                                    {editingId
+                                        ? <PencilIcon className="w-4 h-4 text-white" />
+                                        : <PlusIcon className="w-4 h-4 text-white" />
+                                    }
                                 </div>
-                                {editingId && (
-                                    <button onClick={cancelEdit} className="text-[10px] bg-white border border-gray-100 px-6 py-3 rounded-2xl text-gray-400 hover:text-red-500 font-black uppercase shadow-sm transition-all hover:border-red-100">
-                                        Cancelar
-                                    </button>
-                                )}
+                                <span className="font-bold text-[#00272E] text-base">
+                                    {editingId ? 'Editar empresa' : 'Nueva empresa'}
+                                </span>
+                            </div>
+                            {editingId && (
+                                <button
+                                    onClick={cancelEdit}
+                                    className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 font-semibold transition-colors"
+                                >
+                                    <XMarkIcon className="w-3.5 h-3.5" /> Cancelar
+                                </button>
+                            )}
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            {/* Nombre */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                    Nombre Comercial
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre de la empresa"
+                                    value={form.name}
+                                    onChange={e => setForm({ ...form, name: e.target.value })}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                    required
+                                />
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-10">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                    <div className="sm:col-span-2">
-                                        <label className="marmacore-label">Nombre Comercial</label>
-                                        <div className="relative">
-                                            <input 
-                                                type="text" 
-                                                placeholder="Nombre de la empresa" 
-                                                value={form.name} 
-                                                onChange={e => setForm({ ...form, name: e.target.value })} 
-                                                className="marmacore-input" 
-                                                required 
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="marmacore-label">Código ID</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="MARMA" 
-                                            value={form.code} 
-                                            onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })} 
-                                            className="marmacore-input font-mono tracking-widest" 
-                                            required 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="marmacore-label">Tarifa Ticket ($)</label>
-                                        <input 
-                                            type="number" 
-                                            placeholder="0.00" 
-                                            value={form.costPerTicket} 
-                                            onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })} 
-                                            className="marmacore-input" 
-                                            step="0.01"
-                                            required 
-                                        />
-                                    </div>
+                            {/* Código + Tarifa */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Código ID
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="MARMA"
+                                        value={form.code}
+                                        onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-mono font-bold tracking-widest outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        required
+                                    />
                                 </div>
+                                <div>
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Tarifa ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="0.00"
+                                        value={form.costPerTicket}
+                                        onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                                <div className="p-10 bg-[#F8FAFB] rounded-[32px] border border-gray-50 space-y-8 shadow-inner">
-                                    <h4 className="text-[11px] font-black text-[#00272E] uppercase tracking-[0.3em] opacity-40 mb-2">Acceso al Sistema</h4>
-                                    
+                            {/* Acceso al sistema */}
+                            <div className="bg-[#F8FAFB] rounded-xl p-4 space-y-3 border border-gray-100">
+                                <p className="text-[10px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-40">
+                                    Acceso al Sistema
+                                </p>
+                                <div>
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Correo Electrónico
+                                    </label>
+                                    <input
+                                        type="email"
+                                        placeholder="admin@dominio.com"
+                                        value={form.email}
+                                        onChange={e => setForm({ ...form, email: e.target.value })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="marmacore-label">Correo Electrónico</label>
+                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                            Usuario
+                                        </label>
                                         <input
-                                            type="email"
-                                            placeholder="admin@dominio.com"
-                                            value={form.email}
-                                            onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                            className="marmacore-input"
+                                            type="text"
+                                            placeholder="username"
+                                            value={form.loginUsername}
+                                            onChange={e => setForm({ ...form, loginUsername: e.target.value.trim() })}
+                                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            autoComplete="off"
                                             required
                                         />
                                     </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                        <div>
-                                            <label className="marmacore-label">Usuario</label>
-                                            <input
-                                                type="text"
-                                                placeholder="username"
-                                                value={form.loginUsername}
-                                                onChange={(e) => setForm({ ...form, loginUsername: e.target.value.trim() })}
-                                                className="marmacore-input"
-                                                autoComplete="off"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="marmacore-label">Password</label>
-                                            <input
-                                                type="password"
-                                                placeholder={editingId ? "••••••••" : "Inicial"}
-                                                value={form.password}
-                                                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                                className="marmacore-input"
-                                                autoComplete="new-password"
-                                                required={!editingId}
-                                            />
-                                        </div>
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                            Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            placeholder={editingId ? '••••••••' : 'Inicial'}
+                                            value={form.password}
+                                            onChange={e => setForm({ ...form, password: e.target.value })}
+                                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            autoComplete="new-password"
+                                            required={!editingId}
+                                        />
                                     </div>
                                 </div>
+                            </div>
 
-                                <button 
-                                    type="submit" 
-                                    disabled={isSaving}
-                                    className={`marmacore-button-primary w-full py-6 group ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
-                                >
-                                    {isSaving ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    ) : (
-                                        <>
-                                            <span>{editingId ? 'CONFIRMAR CAMBIOS' : 'REGISTRAR SOCIO COMERCIAL'}</span>
-                                            <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        </div>
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm transition-all duration-200 ${isSaving ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
+                            >
+                                {isSaving
+                                    ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    : <><PlusIcon className="w-4 h-4" />{editingId ? 'Confirmar cambios' : 'Registrar empresa'}</>
+                                }
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                {/* List Section - Full screen usage */}
-                <div className="xl:col-span-7 space-y-8">
-                    <div className="marmacore-card !rounded-[40px] shadow-2xl overflow-hidden flex flex-col h-full">
-                        <div className="px-12 py-10 border-b border-gray-50 flex items-center justify-between bg-white">
+                {/* ── Directory Table ── */}
+                <div className="xl:col-span-3">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        {/* Table header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
                             <div>
-                                <h3 className="text-3xl font-black text-[#00272E] tracking-tight">Directorio</h3>
-                                <p className="text-[10px] text-[#006D65] mt-1 font-black uppercase tracking-[0.2em] opacity-40">Listado de empresas activas</p>
+                                <h3 className="text-base font-bold text-[#00272E]">Directorio</h3>
+                                <p className="text-[11px] text-[#006D65] font-semibold mt-0.5 opacity-60 uppercase tracking-wider">
+                                    Empresas activas
+                                </p>
                             </div>
-                            <div className="px-6 py-3 bg-dark-teal text-white rounded-2xl text-[10px] font-black tracking-[0.2em]">
+                            <span className="bg-[#00272E] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg tracking-wider">
                                 {companies.length} TOTAL
-                            </div>
+                            </span>
                         </div>
+
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-50">
-                                    <tr>
-                                        <th className="px-12 py-8">Empresa / ID</th>
-                                        <th className="px-12 py-8">Acceso</th>
-                                        <th className="px-12 py-8">Tarifa</th>
-                                        <th className="px-12 py-8 text-right">Acciones</th>
+                                <thead>
+                                    <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                                        <th className="px-6 py-3">Empresa</th>
+                                        <th className="px-6 py-3">Usuario</th>
+                                        <th className="px-6 py-3">Tarifa</th>
+                                        <th className="px-6 py-3 text-right">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50/50">
+                                <tbody className="divide-y divide-gray-50">
+                                    {loading && companies.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="py-16 text-center">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="w-8 h-8 border-[3px] border-[#FD5200]/20 border-t-[#FD5200] rounded-full animate-spin" />
+                                                    <span className="text-[11px] font-bold text-[#00272E] uppercase tracking-widest opacity-30">Cargando...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {!loading && companies.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="py-16 text-center">
+                                                <p className="text-sm text-gray-400 font-medium">No hay empresas registradas aún.</p>
+                                            </td>
+                                        </tr>
+                                    )}
                                     {companies.map(c => (
-                                        <tr key={c._id} className={`hover:bg-gray-50/50 transition-all group ${editingId === c._id ? 'bg-orange-50/30' : ''}`}>
-                                            <td className="px-12 py-10">
-                                                <div className="font-black text-[#00272E] text-lg tracking-tight group-hover:text-primary transition-colors">{c.name}</div>
-                                                <div className="flex items-center gap-4 mt-3">
-                                                    <span className="text-[10px] bg-dark-teal text-white px-3 py-1.5 rounded-lg font-mono font-bold">{c.code}</span>
-                                                    <span className="text-xs text-gray-400 font-bold">{c.email}</span>
+                                        <tr
+                                            key={c._id}
+                                            className={`group transition-colors hover:bg-gray-50/80 ${editingId === c._id ? 'bg-orange-50/40' : ''}`}
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="font-bold text-[#00272E] text-sm group-hover:text-[#FD5200] transition-colors">
+                                                    {c.name}
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-[10px] bg-[#00272E] text-white px-2 py-0.5 rounded font-mono font-bold">
+                                                        {c.code}
+                                                    </span>
+                                                    {c.email && (
+                                                        <span className="text-[11px] text-gray-400 font-medium truncate max-w-[140px]">
+                                                            {c.email}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10">
-                                                <div className="text-sm font-bold text-dark-teal px-4 py-2 bg-[#F8FAFB] rounded-xl border border-gray-100 inline-flex items-center gap-2">
+                                            <td className="px-6 py-4">
+                                                <div className="inline-flex items-center gap-1.5 bg-[#F8FAFB] border border-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold text-[#00272E]">
                                                     <UserIcon className="w-3 h-3 opacity-30" />
-                                                    {c.loginUsername}
+                                                    {c.loginUsername || '—'}
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10">
-                                                <div className="text-3xl font-black text-dark-teal tracking-tighter">
-                                                    <span className="text-sm font-bold text-primary mr-1">$</span>
+                                            <td className="px-6 py-4">
+                                                <div className="text-xl font-black text-[#00272E] tracking-tight">
+                                                    <span className="text-xs font-bold text-[#FD5200] mr-0.5">$</span>
                                                     {c.costPerTicket.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10 text-right">
-                                                <div className="flex items-center justify-end gap-3">
-                                                    <button 
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
                                                         onClick={() => startEdit(c)}
-                                                        className="flex items-center gap-2 px-6 py-3 text-[10px] font-black text-primary border border-primary/20 bg-white rounded-2xl hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm active:scale-95"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-[#FD5200] border border-[#FD5200]/20 bg-white rounded-lg hover:bg-[#FD5200] hover:text-white hover:border-[#FD5200] transition-all active:scale-95"
                                                     >
-                                                        EDITAR
+                                                        <PencilIcon className="w-3.5 h-3.5" /> Editar
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleDelete(c._id)}
-                                                        className="p-3 text-red-200 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                                                        className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                     >
-                                                        <TrashIcon className="w-5 h-5" />
+                                                        <TrashIcon className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))}
-                                    {loading && companies.length === 0 && (
-                                        <tr>
-                                            <td colSpan={4} className="py-40 text-center">
-                                                <div className="flex flex-col items-center gap-4">
-                                                    <div className="w-16 h-16 border-[6px] border-primary/10 border-t-primary rounded-full animate-spin"></div>
-                                                    <span className="text-[11px] font-black text-dark-teal uppercase tracking-[0.4em] opacity-30">Sincronizando Directorio</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
                         </div>
