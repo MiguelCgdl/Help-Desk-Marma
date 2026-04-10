@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BuildingOffice2Icon, GlobeAltIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 const HomeLanding: React.FC = () => {
     return (

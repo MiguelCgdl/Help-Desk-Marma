@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
+import { BASE_SERVER_URL } from '../config';
 import { TicketIcon, QueueListIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export type CompanyOutletContext = {
@@ -41,13 +42,13 @@ const CompanyLayout: React.FC = () => {
         }`;
 
     const finalLogo = profile.logoUrl
-        ? (profile.logoUrl.startsWith('http') ? profile.logoUrl : `http://localhost:5001/${profile.logoUrl}`)
+        ? (profile.logoUrl.startsWith('http') ? profile.logoUrl : `${BASE_SERVER_URL}/${profile.logoUrl}`)
         : "https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png";
 
     return (
         <div className="min-h-screen bg-[#F8FAFB] font-jakarta">
             <header className="bg-white border-b border-gray-100 shadow-sm">
-                <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <img
                             src={finalLogo}
@@ -79,7 +80,7 @@ const CompanyLayout: React.FC = () => {
                     </nav>
                 </div>
             </header>
-            <main className="max-w-5xl mx-auto px-4 py-10">
+            <main className="max-w-7xl mx-auto px-4 py-10">
                 <Outlet context={ctx} />
             </main>
         </div>

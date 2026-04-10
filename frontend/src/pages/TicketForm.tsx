@@ -22,7 +22,7 @@ export default function TicketForm() {
     const [companies, setCompanies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<TicketFormData>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<TicketFormData>({
         resolver: zodResolver(ticketSchema),
         defaultValues: {
             priority: 'medium',

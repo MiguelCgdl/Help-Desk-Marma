@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import type { Ticket, ProblemEntry } from '../../types';
+import { BASE_SERVER_URL } from '../../config';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
     CalendarDaysIcon, BuildingOfficeIcon, CheckCircleIcon,
@@ -90,7 +91,7 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                         <p className="text-sm text-[#00272E]">{ticket.description}</p>
                         {ticket.imagePath && (
                             <a
-                                href={`http://localhost:5001/${ticket.imagePath}`}
+                                href={`${BASE_SERVER_URL}/${ticket.imagePath}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-[#FD5200] hover:underline"
@@ -258,7 +259,7 @@ const DetailModal: React.FC<{ ticket: Ticket; onClose: () => void }> = ({ ticket
                     <p className="text-sm text-[#00272E]">{ticket.description}</p>
                     {ticket.imagePath && (
                         <a
-                            href={`http://localhost:5001/${ticket.imagePath}`}
+                            href={`${BASE_SERVER_URL}/${ticket.imagePath}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-[#FD5200] hover:underline"
@@ -586,7 +587,7 @@ const TicketsList: React.FC = () => {
                                         <div className="flex items-center gap-2">
                                             {(t.companyId as any)?.logoUrl ? (
                                                 <img 
-                                                    src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `http://localhost:5001/${(t.companyId as any).logoUrl}`} 
+                                                    src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `${BASE_SERVER_URL}/${(t.companyId as any).logoUrl}`} 
                                                     className="w-5 h-5 object-contain rounded" 
                                                     alt="logo" 
                                                 />

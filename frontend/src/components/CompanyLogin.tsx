@@ -3,7 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from '../services/api';
 import { motion } from 'framer-motion';
-import { LockClosedIcon, UserIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { BASE_SERVER_URL } from '../config';
+import {
+    LockClosedIcon,
+    UserIcon,
+    ArrowRightIcon,
+    ArrowLeftIcon
+} from '@heroicons/react/24/outline';
 
 const CompanyLogin: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -22,7 +28,7 @@ const CompanyLogin: React.FC = () => {
             const res = await api.get(`/companies/logo?username=${username}`);
             if (res.data && res.data.name) {
                 let finalLogo = res.data.logoUrl;
-                if (finalLogo && !finalLogo.startsWith('http')) finalLogo = `http://localhost:5001/${finalLogo}`;
+                if (finalLogo && !finalLogo.startsWith('http')) finalLogo = `${BASE_SERVER_URL}/${finalLogo}`;
                 setLogo({ name: res.data.name, url: finalLogo });
             } else {
                 setLogo(null);

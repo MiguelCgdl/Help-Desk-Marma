@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import TicketForm from './components/TicketForm';
@@ -14,8 +15,8 @@ import TicketsList from './components/Admin/TicketsList';
 import Reports from './components/Admin/Reports';
 import Costs from './components/Admin/Costs';
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  return localStorage.getItem('token') ? children : <Navigate to="/login" />;
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  return localStorage.getItem('token') ? <>{children}</> : <Navigate to="/login" />;
 };
 
 function App() {

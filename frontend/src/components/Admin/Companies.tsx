@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import type { Company } from '../../types';
+import { BASE_SERVER_URL } from '../../config';
 import { PlusIcon, TrashIcon, PencilIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Companies: React.FC = () => {
@@ -106,7 +107,7 @@ const Companies: React.FC = () => {
                 <p className="text-[#006D65] mt-1 text-sm font-medium">Gestión de socios comerciales y acceso al sistema</p>
             </div>
 
-            <div className="flex flex-col gap-8 max-w-6xl mx-auto">
+            <div className="flex flex-col gap-8 w-full mx-auto">
                 {/* ── Form ── */}
                 <div className="w-full">
                     <div className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 ${editingId ? 'border-[#FD5200]/30 ring-2 ring-[#FD5200]/10' : 'border-gray-100'}`}>
@@ -342,7 +343,7 @@ const Companies: React.FC = () => {
                                                 <div className="flex items-center gap-3">
                                                     {c.logoUrl ? (
                                                         <img 
-                                                            src={c.logoUrl.startsWith('http') ? c.logoUrl : `http://localhost:5001/${c.logoUrl}`} 
+                                                            src={c.logoUrl.startsWith('http') ? c.logoUrl : `${BASE_SERVER_URL}/${c.logoUrl}`} 
                                                             alt={c.name} 
                                                             className="w-8 h-8 object-contain rounded bg-gray-50 p-1 border border-gray-100" 
                                                         />

@@ -87,14 +87,14 @@ export default function Tickets() {
                                     {ticket.company?.name}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${statusBadgeClasses[ticket.status]}`}>
+                                    <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${(statusBadgeClasses as any)[ticket.status]}`}>
                                         {ticket.status === 'open' && 'Abierto'}
                                         {ticket.status === 'in-progress' && 'En Progreso'}
                                         {ticket.status === 'closed' && 'Cerrado'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${priorityBadgeClasses[ticket.priority]}`}>
+                                    <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${(priorityBadgeClasses as any)[ticket.priority]}`}>
                                         {ticket.priority === 'low' && 'Baja'}
                                         {ticket.priority === 'medium' && 'Media'}
                                         {ticket.priority === 'high' && 'Alta'}

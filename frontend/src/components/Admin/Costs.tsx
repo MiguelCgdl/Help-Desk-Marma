@@ -69,87 +69,92 @@ const Costs: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8 animate-fade-in">
-            <div>
-                <h1 className="text-3xl font-extrabold text-dark-teal">Configuración de Costos</h1>
-                <p className="text-medium-teal mt-1">Define el costo por hora para cada tipo de incidente reportado.</p>
+        <div className="animate-fade-in pb-8">
+            {/* Page Header */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-black text-[#00272E] tracking-tight">Configuración de Costos</h1>
+                <p className="text-[#006D65] mt-1 text-sm font-medium">Define el costo por hora para cada tipo de incidente reportado.</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-8">
-                <div className="marmacore-card overflow-hidden">
-                    <div className="p-6 bg-accent-teal/30 border-b border-accent-teal flex items-center gap-3">
-                        <InformationCircleIcon className="w-5 h-5 text-medium-teal" />
-                        <p className="text-sm text-medium-teal font-medium">
-                            Los costos configurados aquí se aplicarán a los nuevos tickets y se usarán para el cálculo de facturación estimada en los reportes.
-                        </p>
+            <div className="flex flex-col gap-8 w-full mx-auto">
+                <div className="w-full">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="p-4 bg-[#D5EFF2]/30 border-b border-[#D5EFF2]/50 flex items-center gap-3">
+                            <InformationCircleIcon className="w-5 h-5 text-[#006D65]" />
+                            <p className="text-xs text-[#006D65] font-medium">
+                                Los costos configurados aquí se aplicarán a los nuevos tickets y se usarán para el cálculo de facturación estimada en los reportes.
+                            </p>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                                        <th className="px-6 py-3">Tipo de Problema</th>
+                                        <th className="px-6 py-3">Estado Actual</th>
+                                        <th className="px-6 py-3">Costo por Hora (MXN)</th>
+                                        <th className="px-6 py-3 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {problems.map(p => (
+                                        <tr key={p._id} className="group hover:bg-gray-50/80 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <input
+                                                    type="text"
+                                                    value={editingTitles[p._id] ?? ''}
+                                                    onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                                    className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-semibold outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button 
+                                                    onClick={() => toggleStatus(p._id, p.active)}
+                                                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                                                        p.active 
+                                                        ? 'bg-green-50 text-green-600 border border-green-100' 
+                                                        : 'bg-red-50 text-red-600 border border-red-100'
+                                                    }`}
+                                                >
+                                                    {p.active ? <CheckCircleIcon className="w-3.5 h-3.5" /> : <XCircleIcon className="w-3.5 h-3.5" />}
+                                                    {p.active ? 'Activo' : 'Inactivo'}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-bold text-gray-400">$</span>
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        step={0.01}
+                                                        value={editingCosts[p._id] ?? 0}
+                                                        onChange={(e) => setEditingCosts({ ...editingCosts, [p._id]: Number(e.target.value) })}
+                                                        className="w-32 px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#FD5200] text-sm font-black outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => saveRow(p._id)}
+                                                        className="px-4 py-2 text-[11px] font-bold text-white bg-[#006D65] hover:bg-[#004A44] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95"
+                                                    >
+                                                        Guardar
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(p._id)}
+                                                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                    >
+                                                        <TrashIcon className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <table className="w-full text-left">
-                        <thead className="bg-[#F8FAFB] text-xs font-bold text-medium-teal uppercase tracking-wider">
-                            <tr>
-                                <th className="px-8 py-5">Tipo de Problema</th>
-                                <th className="px-8 py-5">Estado Actual</th>
-                                <th className="px-8 py-5">Costo por Hora (MXN)</th>
-                                <th className="px-8 py-5 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {problems.map(p => (
-                                <tr key={p._id} className="hover:bg-[#D5EFF2]/20 transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <input
-                                            type="text"
-                                            value={editingTitles[p._id] ?? ''}
-                                            onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
-                                            className="marmacore-input py-2 text-sm w-full font-bold text-dark-teal"
-                                        />
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <button 
-                                            onClick={() => toggleStatus(p._id, p.active)}
-                                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
-                                                p.active 
-                                                ? 'bg-green-100 text-green-700' 
-                                                : 'bg-red-100 text-red-700'
-                                            }`}
-                                        >
-                                            {p.active ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
-                                            {p.active ? 'Activo' : 'Inactivo'}
-                                        </button>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <div className="relative max-w-[200px]">
-                                            <span className="absolute left-3 top-2.5 text-gray-400 font-bold">$</span>
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                step={0.01}
-                                                value={editingCosts[p._id] ?? 0}
-                                                onChange={(e) => setEditingCosts({ ...editingCosts, [p._id]: Number(e.target.value) })}
-                                                className="marmacore-input py-2 !pl-12 text-sm w-full"
-                                            />
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5 text-right">
-                                        <div className="flex items-center justify-end gap-3">
-                                            <button
-                                                onClick={() => saveRow(p._id)}
-                                                className="marmacore-button-primary px-4 py-2 text-sm flex items-center gap-2"
-                                            >
-                                                <CurrencyDollarIcon className="w-4 h-4" />
-                                                Guardar
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(p._id)}
-                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                                            >
-                                                <TrashIcon className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>

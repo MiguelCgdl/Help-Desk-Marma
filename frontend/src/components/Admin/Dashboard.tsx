@@ -14,7 +14,6 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,8 +26,6 @@ const Dashboard: React.FC = () => {
                 setStats(res.data);
             } catch (err) {
                 console.error(err);
-            } finally {
-                setLoading(false);
             }
         };
         fetchStats();

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { FunnelIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import api from '../../services/api';
+import { BASE_SERVER_URL } from '../../config';
 
 const COLORS = ['#FD5200', '#006D65', '#00272E', '#D5EFF2', '#94A3B8'];
 
@@ -171,7 +172,7 @@ export default function Reports() {
                                                 <div className="flex items-center gap-3">
                                                     {summary.summaryByCompany[name].logoUrl ? (
                                                         <img 
-                                                            src={summary.summaryByCompany[name].logoUrl.startsWith('http') ? summary.summaryByCompany[name].logoUrl : `http://localhost:5001/${summary.summaryByCompany[name].logoUrl}`} 
+                                                            src={summary.summaryByCompany[name].logoUrl.startsWith('http') ? summary.summaryByCompany[name].logoUrl : `${BASE_SERVER_URL}/${summary.summaryByCompany[name].logoUrl}`} 
                                                             className="w-6 h-6 object-contain rounded" 
                                                             alt="logo" 
                                                         />
@@ -209,7 +210,7 @@ export default function Reports() {
                             <h3 className="text-lg font-bold text-[#00272E] flex items-center gap-3">
                                 {currentCompanyData?.logoUrl && (
                                     <img 
-                                        src={currentCompanyData.logoUrl.startsWith('http') ? currentCompanyData.logoUrl : `http://localhost:5001/${currentCompanyData.logoUrl}`} 
+                                        src={currentCompanyData.logoUrl.startsWith('http') ? currentCompanyData.logoUrl : `${BASE_SERVER_URL}/${currentCompanyData.logoUrl}`} 
                                         className="h-6 object-contain" 
                                         alt="logo" 
                                     />
