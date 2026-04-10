@@ -12,7 +12,8 @@ const Companies: React.FC = () => {
         costPerTicket: 0,
         email: '',
         loginUsername: '',
-        password: ''
+        password: '',
+        logoUrl: ''
     });
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -38,13 +39,14 @@ const Companies: React.FC = () => {
             costPerTicket: c.costPerTicket || 0,
             email: c.email || '',
             loginUsername: c.loginUsername || '',
-            password: ''
+            password: '',
+            logoUrl: c.logoUrl || ''
         });
     };
 
     const cancelEdit = () => {
         setEditingId(null);
-        setForm({ name: '', code: '', costPerTicket: 0, email: '', loginUsername: '', password: '' });
+        setForm({ name: '', code: '', costPerTicket: 0, email: '', loginUsername: '', password: '', logoUrl: '' });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -125,6 +127,18 @@ const Companies: React.FC = () => {
                                     onChange={e => setForm({ ...form, name: e.target.value })}
                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
                                     required
+                                />
+                            </div>
+                            <div className="mt-2">
+                                <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                    URL Logo (Opcional)
+                                </label>
+                                <input
+                                    type="url"
+                                    placeholder="https://ejemplo.com/logo.png"
+                                    value={form.logoUrl}
+                                    onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
                                 />
                             </div>
 
@@ -273,18 +287,29 @@ const Companies: React.FC = () => {
                                             className={`group transition-colors hover:bg-gray-50/80 ${editingId === c._id ? 'bg-orange-50/40' : ''}`}
                                         >
                                             <td className="px-6 py-4">
-                                                <div className="font-bold text-[#00272E] text-sm group-hover:text-[#FD5200] transition-colors">
-                                                    {c.name}
-                                                </div>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-[10px] bg-[#00272E] text-white px-2 py-0.5 rounded font-mono font-bold">
-                                                        {c.code}
-                                                    </span>
-                                                    {c.email && (
-                                                        <span className="text-[11px] text-gray-400 font-medium truncate max-w-[140px]">
-                                                            {c.email}
-                                                        </span>
+                                                <div className="flex items-center gap-3">
+                                                    {c.logoUrl ? (
+                                                        <img src={c.logoUrl} alt={c.name} className="w-8 h-8 object-contain rounded bg-gray-50 p-1 border border-gray-100" />
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-400">
+                                                            {c.name.charAt(0).toUpperCase()}
+                                                        </div>
                                                     )}
+                                                    <div>
+                                                        <div className="font-bold text-[#00272E] text-sm group-hover:text-[#FD5200] transition-colors">
+                                                            {c.name}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-[10px] bg-[#00272E] text-white px-2 py-0.5 rounded font-mono font-bold">
+                                                                {c.code}
+                                                            </span>
+                                                            {c.email && (
+                                                                <span className="text-[11px] text-gray-400 font-medium truncate max-w-[140px]">
+                                                                    {c.email}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">

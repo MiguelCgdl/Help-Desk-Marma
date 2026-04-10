@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import companyApi from '../services/companyApi';
 import type { Ticket } from '../types';
-import { TicketIcon } from '@heroicons/react/24/outline';
+import { TicketIcon, DocumentArrowDownIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const CompanyTickets: React.FC = () => {
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [filterType, setFilterType] = useState<'all' | 'month' | 'week' | 'day'>('all');
 
     useEffect(() => {
         const load = async () => {
@@ -27,11 +28,99 @@ const CompanyTickets: React.FC = () => {
     const statusLabel = (t: Ticket) =>
         t.status === 'solved' ? { text: 'Solucionado', cls: 'bg-green-100 text-green-800' } : { text: 'En proceso', cls: 'bg-amber-100 text-amber-800' };
 
+    const getFilteredTickets = () => {
+        if (filterType === 'all') return tickets;
+        const now = new Date();
+        return tickets.filter(t => {
+            const d = new Date(t.createdAt);
+            if (filterType === 'day') return d.toDateString() === now.toDateString();
+            if (filterType === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            if (filterType === 'week') {
+                const diff = now.getTime() - d.getTime();
+                return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+            }
+            return true;
+        });
+    };
+
+    const downloadReport = () => {
+        const now = new Date();
+        const isFirstFortnight = now.getDate() <= 15;
+        const filtered = tickets.filter(t => {
+            const d = new Date(t.createdAt);
+            if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return false;
+            return isFirstFortnight ? d.getDate() <= 15 : d.getDate() > 15;
+        });
+
+        if (filtered.length === 0) {
+            alert('No hay tickets en la quincena actual para exportar.');
+            return;
+        }
+
+        let csv = 'Ticket,Problema,Estado,Costo,Factura,Fecha\n';
+        filtered.forEach(t => {
+            const prob = (t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—').replace(/,/g, '');
+            const cost = t.status === 'solved' ? t.cost : 0;
+            const fac = t.requiresInvoice ? 'SI' : 'NO';
+            const dateStr = new Date(t.createdAt).toLocaleDateString();
+            csv += `${t.ticketNumber},${prob},${t.status},${cost},${fac},${dateStr}\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Quincenal_${now.getFullYear()}_${now.getMonth()+1}_${isFirstFortnight?'Q1':'Q2'}.csv`;
+        a.click();
+    };
+
+    const toggleInvoice = async (id: string, current: boolean) => {
+        try {
+            await companyApi.patch(`/tickets/${id}/invoice`, { requiresInvoice: !current });
+            setTickets(tickets.map(t => t._id === id ? { ...t, requiresInvoice: !current } : t));
+        } catch {
+            alert('Error al actualizar estado de factura');
+        }
+    };
+
+    const displayTickets = getFilteredTickets();
+
     return (
         <div className="space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-3xl font-extrabold text-[#00272E]">Mis tickets</h1>
-                <p className="text-[#006D65] mt-1">Número de ticket, estado y costo una vez cerrado el incidente.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-[#00272E]">Mis tickets</h1>
+                    <p className="text-[#006D65] mt-1">Número de ticket, estado, costo y facturación.</p>
+                </div>
+                <button
+                    onClick={downloadReport}
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-[#00272E] font-bold text-sm rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                    <DocumentArrowDownIcon className="w-5 h-5 text-[#FD5200]" />
+                    Reporte Quincenal (Actual)
+                </button>
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-2">
+                {[
+                    { id: 'all', label: 'Todos' },
+                    { id: 'month', label: 'Este mes' },
+                    { id: 'week', label: 'Últimos 7 días' },
+                    { id: 'day', label: 'Hoy' }
+                ].map(f => (
+                    <button
+                        key={f.id}
+                        onClick={() => setFilterType(f.id as any)}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${
+                            filterType === f.id 
+                            ? 'bg-[#00272E] text-white' 
+                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                        {f.label}
+                    </button>
+                ))}
             </div>
 
             {error && (
@@ -44,6 +133,7 @@ const CompanyTickets: React.FC = () => {
                         <tr>
                             <th className="px-6 py-4">Ticket</th>
                             <th className="px-6 py-4">Problema</th>
+                            <th className="px-6 py-4 text-center">Factura</th>
                             <th className="px-6 py-4">Estado</th>
                             <th className="px-6 py-4 text-right">Costo</th>
                         </tr>
@@ -51,26 +141,40 @@ const CompanyTickets: React.FC = () => {
                     <tbody className="divide-y divide-gray-100">
                         {loading && (
                             <tr>
-                                <td colSpan={4} className="p-12 text-center text-gray-400">
+                                <td colSpan={5} className="p-12 text-center text-gray-400">
                                     Cargando...
                                 </td>
                             </tr>
                         )}
-                        {!loading && tickets.length === 0 && (
+                        {!loading && displayTickets.length === 0 && (
                             <tr>
-                                <td colSpan={4} className="p-12 text-center text-gray-400">
+                                <td colSpan={5} className="p-12 text-center text-gray-400">
                                     <TicketIcon className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                                    Aún no hay tickets registrados.
+                                    No se encontraron tickets.
                                 </td>
                             </tr>
                         )}
                         {!loading &&
-                            tickets.map((t) => {
+                            displayTickets.map((t) => {
                                 const st = statusLabel(t);
+                                const probTitle = t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—';
                                 return (
                                     <tr key={t._id} className="hover:bg-[#D5EFF2]/15">
                                         <td className="px-6 py-4 font-mono font-bold text-[#00272E]">{t.ticketNumber}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{(t.problemId as any)?.title ?? '—'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-700">{probTitle}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <button 
+                                                onClick={() => toggleInvoice(t._id, !!t.requiresInvoice)}
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
+                                                    t.requiresInvoice 
+                                                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+                                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                                }`}
+                                            >
+                                                {t.requiresInvoice ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
+                                                {t.requiresInvoice ? 'Sí' : 'No'}
+                                            </button>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${st.cls}`}>
                                                 {st.text}

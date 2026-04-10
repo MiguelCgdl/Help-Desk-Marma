@@ -16,7 +16,7 @@ const CompanyLayout: React.FC = () => {
         return <Navigate to="/empresa/login" state={{ from: location }} replace />;
     }
 
-    let profile: { _id: string; name: string; code?: string };
+    let profile: { _id: string; name: string; code?: string; logoUrl?: string };
     try {
         profile = JSON.parse(raw);
     } catch {
@@ -46,9 +46,9 @@ const CompanyLayout: React.FC = () => {
                 <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <img
-                            src="https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"
-                            alt="Marmacore"
-                            className="h-10"
+                            src={profile.logoUrl || "https://marmacore.com/wp-content/uploads/2025/02/mmcore-logo-main@4x.png"}
+                            alt={profile.name}
+                            className="h-10 object-contain"
                         />
                         <div>
                             <p className="text-xs font-bold text-[#006D65] uppercase tracking-wider">Portal empresa</p>
