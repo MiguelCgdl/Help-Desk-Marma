@@ -134,152 +134,152 @@ const Companies: React.FC = () => {
                             )}
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
                             {/* ── Datos Generales ── */}
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                                 {/* Nombre */}
                                 <div className="md:col-span-5">
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
                                         Nombre Comercial
                                     </label>
                                     <input
-                                            type="text"
-                                            placeholder="Nombre de la empresa"
-                                            value={form.name}
-                                            onChange={e => setForm({ ...form, name: e.target.value })}
-                                            className="marmacore-input"
-                                            required
-                                        />
-                                    </div>
+                                        type="text"
+                                        placeholder="Nombre de la empresa"
+                                        value={form.name}
+                                        onChange={e => setForm({ ...form, name: e.target.value })}
+                                        className="marmacore-input py-2 text-xs"
+                                        required
+                                    />
+                                </div>
 
-                                    {/* Código ID */}
-                                    <div className="md:col-span-3">
-                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                            Código ID
-                                        </label>
+                                {/* Código ID */}
+                                <div className="md:col-span-3">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                        Código ID
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="MARMA"
+                                        value={form.code}
+                                        onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                                        className="marmacore-input py-2 text-xs font-mono font-bold tracking-widest text-center"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Tarifa */}
+                                <div className="md:col-span-4">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                        Tarifa Fija ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="0.00"
+                                        value={form.costPerTicket}
+                                        onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
+                                        className="marmacore-input py-2 text-xs"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Logo */}
+                                <div className="md:col-span-8">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                        Logo (JPG/PNG o URL)
+                                    </label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
                                         <input
-                                            type="text"
-                                            placeholder="MARMA"
-                                            value={form.code}
-                                            onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                                            className="marmacore-input font-mono font-bold tracking-widest"
-                                            required
+                                            type="file"
+                                            accept=".jpeg, .jpg, .png"
+                                            onChange={e => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    setLogoFile(e.target.files[0]);
+                                                    setForm({ ...form, logoUrl: '' });
+                                                }
+                                            }}
+                                            className="w-full sm:w-1/2 text-[10px] text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
                                         />
-                                    </div>
-
-                                    {/* Tarifa */}
-                                    <div className="md:col-span-4">
-                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                            Tarifa Fija ($)
-                                        </label>
                                         <input
-                                            type="number"
-                                            placeholder="0.00"
-                                            value={form.costPerTicket}
-                                            onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
-                                            className="marmacore-input"
-                                            step="0.01"
-                                            required
-                                        />
-                                    </div>
-
-                                    {/* Logo */}
-                                    <div className="md:col-span-8">
-                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                            Logo (JPG/PNG o URL)
-                                        </label>
-                                        <div className="flex flex-col sm:flex-row gap-3">
-                                            <input
-                                                type="file"
-                                                accept=".jpeg, .jpg, .png"
-                                                onChange={e => {
-                                                    if (e.target.files && e.target.files[0]) {
-                                                        setLogoFile(e.target.files[0]);
-                                                        setForm({ ...form, logoUrl: '' });
-                                                    }
-                                                }}
-                                                className="w-full sm:w-1/2 text-[11px] text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
-                                            />
-                                            <input
-                                                type="url"
-                                                placeholder="o URL https://..."
-                                                value={form.logoUrl}
-                                                onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
-                                                className="marmacore-input sm:w-1/2"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* RFC */}
-                                    <div className="md:col-span-4">
-                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                            RFC (Opcional)
-                                        </label>
-                                        <input
-                                            type="text"
-                                            maxLength={13}
-                                            placeholder="ABC123456T1"
-                                            value={form.rfc}
-                                            onChange={e => setForm({ ...form, rfc: e.target.value.toUpperCase() })}
-                                            className="marmacore-input uppercase"
+                                            type="url"
+                                            placeholder="o URL https://..."
+                                            value={form.logoUrl}
+                                            onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
+                                            className="marmacore-input py-2 text-xs sm:w-1/2"
                                         />
                                     </div>
                                 </div>
 
-                                {/* ── Acceso al sistema ── */}
-                                <div className="bg-[#F8FAFB] rounded-xl p-5 border border-gray-100">
-                                    <p className="text-[10px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-40 mb-4">
-                                        Accesos de Plataforma
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                        <div>
-                                            <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                                Correo Electrónico
-                                            </label>
-                                            <input
-                                                type="email"
-                                                placeholder="admin@dominio.com"
-                                                value={form.email}
-                                                onChange={e => setForm({ ...form, email: e.target.value })}
-                                                className="marmacore-input bg-white"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                                Usuario
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="username"
-                                                value={form.loginUsername}
-                                                onChange={e => setForm({ ...form, loginUsername: e.target.value.trim() })}
-                                                className="marmacore-input bg-white"
-                                                autoComplete="off"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                                Password
-                                            </label>
-                                            <input
-                                                type="password"
-                                                placeholder={editingId ? '••••••••' : 'Inicial'}
-                                                value={form.password}
-                                                onChange={e => setForm({ ...form, password: e.target.value })}
-                                                className="marmacore-input bg-white"
-                                                autoComplete="new-password"
-                                                required={!editingId}
-                                            />
-                                        </div>
+                                {/* RFC */}
+                                <div className="md:col-span-4">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                        RFC (Opcional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        maxLength={13}
+                                        placeholder="ABC123456T1"
+                                        value={form.rfc}
+                                        onChange={e => setForm({ ...form, rfc: e.target.value.toUpperCase() })}
+                                        className="marmacore-input py-2 text-xs uppercase"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* ── Acceso al sistema ── */}
+                            <div className="bg-[#F8FAFB] rounded-xl p-4 border border-gray-50">
+                                <p className="text-[9px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-40 mb-3">
+                                    Accesos de Plataforma
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                            Correo Electrónico
+                                        </label>
+                                        <input
+                                            type="email"
+                                            placeholder="admin@dominio.com"
+                                            value={form.email}
+                                            onChange={e => setForm({ ...form, email: e.target.value })}
+                                            className="marmacore-input py-2 text-xs bg-white"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                            Usuario
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="username"
+                                            value={form.loginUsername}
+                                            onChange={e => setForm({ ...form, loginUsername: e.target.value.trim() })}
+                                            className="marmacore-input py-2 text-xs bg-white"
+                                            autoComplete="off"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                            Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            placeholder={editingId ? '••••••••' : 'Inicial'}
+                                            value={form.password}
+                                            onChange={e => setForm({ ...form, password: e.target.value })}
+                                            className="marmacore-input py-2 text-xs bg-white"
+                                            autoComplete="new-password"
+                                            required={!editingId}
+                                        />
                                     </div>
                                 </div>
+                            </div>
 
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm transition-all duration-200 ${isSaving ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
+                                className={`w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#FD5200] text-white font-bold text-xs transition-all duration-200 ${isSaving ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
                             >
                                 {isSaving
                                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

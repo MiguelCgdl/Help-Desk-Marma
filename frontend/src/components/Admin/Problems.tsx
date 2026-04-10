@@ -139,10 +139,10 @@ const Problems: React.FC = () => {
                             )}
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
                                         Descripción del Problema
                                     </label>
                                     <div className="relative">
@@ -152,14 +152,14 @@ const Problems: React.FC = () => {
                                             placeholder="Ej. Falla de Internet, Software..." 
                                             value={title} 
                                             onChange={e => setTitle(e.target.value)} 
-                                            className="marmacore-input marmacore-input-icon" 
+                                            className="marmacore-input marmacore-input-icon py-2 text-xs" 
                                             required 
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
                                         Costo por hora (MXN)
                                     </label>
                                     <input
@@ -168,7 +168,7 @@ const Problems: React.FC = () => {
                                         step={0.01}
                                         value={costPerHour}
                                         onChange={(e) => setCostPerHour(Number(e.target.value))}
-                                        className="marmacore-input"
+                                        className="marmacore-input py-2 text-xs"
                                         required
                                     />
                                 </div>
@@ -177,7 +177,7 @@ const Problems: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm transition-all duration-200 ${isSaving ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
+                                className={`w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#FD5200] text-white font-bold text-xs transition-all duration-200 ${isSaving ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#E64A00] hover:shadow-lg hover:shadow-[#FD5200]/20 active:scale-[0.98]'}`}
                             >
                                 {isSaving
                                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

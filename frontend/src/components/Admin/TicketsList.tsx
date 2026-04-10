@@ -461,12 +461,12 @@ const TicketsList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="marmacore-filter-container">
-                <div className="flex items-center gap-2 mb-4">
-                    <FunnelIcon className="w-4 h-4 text-gray-400" />
-                    <span className="text-xs font-bold text-[#00272E] uppercase tracking-widest opacity-50">Filtros</span>
+            <div className="marmacore-filter-container p-4 mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <FunnelIcon className="w-3.5 h-3.5 text-gray-400" />
+                    <span className="text-[10px] font-bold text-[#00272E] uppercase tracking-widest opacity-50">Filtros</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* Search */}
                     <div className="relative">
                         <MagnifyingGlassIcon className="marmacore-icon-left" />
@@ -475,7 +475,7 @@ const TicketsList: React.FC = () => {
                             placeholder="Buscar ticket o empresa..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="marmacore-input marmacore-input-icon"
+                            className="marmacore-input marmacore-input-icon py-2 text-xs"
                         />
                     </div>
                     <div>
@@ -483,7 +483,7 @@ const TicketsList: React.FC = () => {
                             type="date"
                             value={filter.startDate}
                             onChange={e => setFilter({ ...filter, startDate: e.target.value })}
-                            className="marmacore-input"
+                            className="marmacore-input py-2 text-xs"
                         />
                     </div>
                     <div>
@@ -491,14 +491,14 @@ const TicketsList: React.FC = () => {
                             type="date"
                             value={filter.endDate}
                             onChange={e => setFilter({ ...filter, endDate: e.target.value })}
-                            className="marmacore-input"
+                            className="marmacore-input py-2 text-xs"
                         />
                     </div>
-                    <div className="flex gap-3 sm:col-span-2 lg:col-span-2">
+                    <div className="flex gap-2 sm:col-span-2 lg:col-span-2">
                         <select
                             value={filter.status}
                             onChange={e => setFilter({ ...filter, status: e.target.value })}
-                            className="marmacore-select flex-1"
+                            className="marmacore-select py-2 text-xs flex-1"
                         >
                             <option value="">Todos (Estado)</option>
                             <option value="open">Abiertos</option>
@@ -507,7 +507,7 @@ const TicketsList: React.FC = () => {
                         <select
                             value={filter.requiresInvoice}
                             onChange={e => setFilter({ ...filter, requiresInvoice: e.target.value })}
-                            className="marmacore-select flex-1"
+                            className="marmacore-select py-2 text-xs flex-1"
                         >
                             <option value="">Filtro Factura</option>
                             <option value="true">Requerida</option>
@@ -515,7 +515,7 @@ const TicketsList: React.FC = () => {
                         </select>
                         <button
                             onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
-                            className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-[#FD5200] border border-gray-200 hover:border-[#FD5200]/30 transition-all flex items-center justify-center min-w-[100px]"
+                            className="px-3 py-2 rounded-lg text-[10px] font-bold text-gray-400 hover:text-[#FD5200] border border-gray-100 hover:border-[#FD5200]/30 transition-all flex items-center justify-center min-w-[80px]"
                         >
                             Limpiar
                         </button>
@@ -528,8 +528,8 @@ const TicketsList: React.FC = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="marmacore-table-head">
-                                <th className="px-6 py-3 w-10">
+                            <tr className="marmacore-table-head bg-gray-50/50">
+                                <th className="px-4 py-3 w-10">
                                     <input 
                                         type="checkbox" 
                                         className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
@@ -540,14 +540,14 @@ const TicketsList: React.FC = () => {
                                         }}
                                     />
                                 </th>
-                                <th className="px-6 py-3">Ticket</th>
-                                <th className="px-6 py-3">Empresa</th>
-                                <th className="px-6 py-3">Fecha</th>
-                                <th className="px-6 py-3">Problemas</th>
-                                <th className="px-6 py-3 text-center">Factura</th>
-                                <th className="px-6 py-3">Estado</th>
-                                <th className="px-6 py-3 text-right">Costo</th>
-                                <th className="px-6 py-3 text-right">Acción</th>
+                                <th className="px-4 py-3">Ticket</th>
+                                <th className="px-4 py-3">Empresa</th>
+                                <th className="px-4 py-3">Fecha</th>
+                                <th className="px-4 py-3">Problemas</th>
+                                <th className="px-4 py-3 text-center">Factura</th>
+                                <th className="px-4 py-3">Estado</th>
+                                <th className="px-4 py-3 text-right">Costo</th>
+                                <th className="px-4 py-3 text-right">Acción</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
