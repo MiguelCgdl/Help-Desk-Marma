@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTicket, getTickets, solveTicket, getCompanyTickets, toggleInvoice, bulkInvoice } from '../controllers/ticketController';
+import { createTicket, getTickets, solveTicket, getCompanyTickets, toggleInvoice, bulkInvoice, deleteTicket } from '../controllers/ticketController';
 import { upload } from '../middleware/upload';
 import { protectAdmin, protectCompany, optionalCompanyAuth } from '../middleware/auth';
 
@@ -10,4 +10,5 @@ router.get('/', protectAdmin, getTickets);
 router.patch('/bulk-invoice', protectAdmin, bulkInvoice);
 router.patch('/:id/solve', protectAdmin, solveTicket);
 router.patch('/:id/invoice', protectCompany, toggleInvoice);
+router.delete('/:id', protectAdmin, deleteTicket);
 export default router;

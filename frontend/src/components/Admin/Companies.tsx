@@ -106,9 +106,9 @@ const Companies: React.FC = () => {
                 <p className="text-[#006D65] mt-1 text-sm font-medium">Gestión de socios comerciales y acceso al sistema</p>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+            <div className="flex flex-col gap-8 max-w-6xl mx-auto">
                 {/* ── Form ── */}
-                <div className="xl:col-span-2">
+                <div className="w-full">
                     <div className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 ${editingId ? 'border-[#FD5200]/30 ring-2 ring-[#FD5200]/10' : 'border-gray-100'}`}>
                         {/* Form header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
@@ -133,27 +133,61 @@ const Companies: React.FC = () => {
                             )}
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            {/* Nombre */}
-                            <div>
-                                <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                    Nombre Comercial
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Nombre de la empresa"
-                                    value={form.name}
-                                    onChange={e => setForm({ ...form, name: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                    required
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-3 mt-2">
-                                <div className="space-y-2">
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest opacity-60">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            {/* ── Datos Generales ── */}
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                                {/* Nombre */}
+                                <div className="md:col-span-5">
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Nombre Comercial
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre de la empresa"
+                                        value={form.name}
+                                        onChange={e => setForm({ ...form, name: e.target.value })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Código ID */}
+                                <div className="md:col-span-3">
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Código ID
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="MARMA"
+                                        value={form.code}
+                                        onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-mono font-bold tracking-widest outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Tarifa */}
+                                <div className="md:col-span-4">
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                        Tarifa Fija ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="0.00"
+                                        value={form.costPerTicket}
+                                        onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Logo */}
+                                <div className="md:col-span-8">
+                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                         Logo (JPG/PNG o URL)
                                     </label>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col sm:flex-row gap-3">
                                         <input
                                             type="file"
                                             accept=".jpeg, .jpg, .png"
@@ -163,18 +197,20 @@ const Companies: React.FC = () => {
                                                     setForm({ ...form, logoUrl: '' });
                                                 }
                                             }}
-                                            className="w-full text-[11px] text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
+                                            className="w-full sm:w-1/2 text-[11px] text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
                                         />
                                         <input
                                             type="url"
-                                            placeholder="o pega una URL https://..."
+                                            placeholder="o URL https://..."
                                             value={form.logoUrl}
                                             onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
-                                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-xs font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            className="w-full sm:w-1/2 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
                                         />
                                     </div>
                                 </div>
-                                <div>
+
+                                {/* RFC */}
+                                <div className="md:col-span-4">
                                     <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                         RFC (Opcional)
                                     </label>
@@ -189,56 +225,25 @@ const Companies: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Código + Tarifa */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                        Código ID
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="MARMA"
-                                        value={form.code}
-                                        onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-mono font-bold tracking-widest outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                        Tarifa ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="0.00"
-                                        value={form.costPerTicket}
-                                        onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Acceso al sistema */}
-                            <div className="bg-[#F8FAFB] rounded-xl p-4 space-y-3 border border-gray-100">
-                                <p className="text-[10px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-40">
-                                    Acceso al Sistema
+                            {/* ── Acceso al sistema ── */}
+                            <div className="bg-[#F8FAFB] rounded-xl p-5 border border-gray-100">
+                                <p className="text-[10px] font-black text-[#00272E] uppercase tracking-[0.25em] opacity-40 mb-4">
+                                    Accesos de Plataforma
                                 </p>
-                                <div>
-                                    <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
-                                        Correo Electrónico
-                                    </label>
-                                    <input
-                                        type="email"
-                                        placeholder="admin@dominio.com"
-                                        value={form.email}
-                                        onChange={e => setForm({ ...form, email: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
-                                        required
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
+                                            Correo Electrónico
+                                        </label>
+                                        <input
+                                            type="email"
+                                            placeholder="admin@dominio.com"
+                                            value={form.email}
+                                            onChange={e => setForm({ ...form, email: e.target.value })}
+                                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-[#00272E] text-sm font-medium outline-none focus:border-[#FD5200]/40 focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                            required
+                                        />
+                                    </div>
                                     <div>
                                         <label className="block text-[11px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                             Usuario
@@ -285,7 +290,7 @@ const Companies: React.FC = () => {
                 </div>
 
                 {/* ── Directory Table ── */}
-                <div className="xl:col-span-3">
+                <div className="w-full">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         {/* Table header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">

@@ -212,3 +212,14 @@ export const bulkInvoice = asyncHandler(async (req: Request, res: Response) => {
     
     res.json({ message: 'Tickets marcados como facturados exitosamente' });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE /api/tickets/:id   (admin)
+// ─────────────────────────────────────────────────────────────────────────────
+export const deleteTicket = asyncHandler(async (req: Request, res: Response) => {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) { res.status(404).json({ message: 'Ticket no encontrado' }); return; }
+    
+    await Ticket.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Ticket eliminado correctamente' });
+});

@@ -5,7 +5,7 @@ import type { Ticket, ProblemEntry } from '../../types';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
     CalendarDaysIcon, BuildingOfficeIcon, CheckCircleIcon,
-    XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon
+    XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon
 } from '@heroicons/react/24/outline';
 
 // ─── Solve Modal ─────────────────────────────────────────────────────────────
@@ -423,6 +423,17 @@ const TicketsList: React.FC = () => {
         }
     };
 
+    const handleDelete = async (id: string, ticketNumber: string) => {
+        if (!window.confirm(`¿Estás seguro de que deseas ELIMINAR permanentemente el ticket ${ticketNumber}?`)) return;
+        try {
+            await api.delete(`/tickets/${id}`);
+            setTickets(prev => prev.filter(t => t._id !== id));
+            setSelectedTickets(prev => prev.filter(tid => tid !== id));
+        } catch {
+            alert('Error al eliminar el ticket. Intenta de nuevo.');
+        }
+    };
+
     const filtered = tickets.filter(t =>
         !search ||
         t.ticketNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -654,6 +665,13 @@ const TicketsList: React.FC = () => {
                                                     <EyeIcon className="w-4 h-4" />
                                                 </button>
                                             )}
+                                            <button
+                                                onClick={() => handleDelete(t._id, t.ticketNumber)}
+                                                className="p-1.5 text-red-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Eliminar ticket"
+                                            >
+                                                <TrashIcon className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
