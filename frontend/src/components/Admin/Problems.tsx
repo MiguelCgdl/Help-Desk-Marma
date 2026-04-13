@@ -76,7 +76,7 @@ const Problems: React.FC = () => {
         const titleValue = editingTitles[id];
 
         if (!Number.isFinite(costValue) || costValue < 0) {
-            alert('Costo por hora inválido');
+            alert('Costo inválido');
             return;
         }
         if (!titleValue || titleValue.trim() === '') {
@@ -165,7 +165,7 @@ const Problems: React.FC = () => {
 
                                 <div>
                                     <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
-                                        Costo por hora (MXN)
+                                        Costo General Base (MXN)
                                     </label>
                                     <input
                                         type="number"
@@ -208,12 +208,12 @@ const Problems: React.FC = () => {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[600px]">
                                 <thead>
                                     <tr className="marmacore-table-head">
                                         <th className="px-6 py-3">Identificador</th>
-                                        <th className="px-6 py-3">Costo por Hora</th>
+                                        <th className="px-6 py-3">Costo General</th>
                                         <th className="px-6 py-3">Estado</th>
                                         <th className="px-6 py-3 text-right">Acciones</th>
                                     </tr>

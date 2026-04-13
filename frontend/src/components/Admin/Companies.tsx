@@ -311,8 +311,8 @@ const Companies: React.FC = () => {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[700px]">
                                 <thead>
                                     <tr className="marmacore-table-head">
                                         <th className="px-6 py-3">Empresa</th>

@@ -171,18 +171,18 @@ const Costs: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-base font-bold text-[#00272E]">Tarifas por Tipo de Problema</h3>
-                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Costo general por hora</p>
+                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Precio general base</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[500px]">
                                 <thead>
                                     <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
                                         <th className="px-6 py-3">Tipo</th>
                                         <th className="px-6 py-3">Estado</th>
-                                        <th className="px-6 py-3">Costo/Hora</th>
+                                        <th className="px-6 py-3">Costo Base</th>
                                         <th className="px-6 py-3 text-right">Acción</th>
                                     </tr>
                                 </thead>
@@ -249,8 +249,8 @@ const Costs: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[500px]">
                                 <thead>
                                     <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
                                         <th className="px-6 py-3">Empresa</th>
@@ -338,7 +338,7 @@ const Costs: React.FC = () => {
                                     <div key={p._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
-                                            <span className="text-[10px] text-gray-400 font-bold uppercase">Tarifa Global: ${p.costPerHour}/hr</span>
+                                            <span className="text-[10px] text-gray-400 font-bold uppercase">Tarifa Global: ${p.costPerHour}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-bold text-gray-400">$</span>
@@ -351,7 +351,6 @@ const Costs: React.FC = () => {
                                                 })}
                                                 className="w-24 px-3 py-2 rounded-lg border border-gray-200 bg-white text-[#FD5200] text-sm font-black focus:border-[#FD5200]/40 transition-all"
                                             />
-                                            <span className="text-xs font-bold text-gray-400">/hr</span>
                                         </div>
                                     </div>
                                 ))}

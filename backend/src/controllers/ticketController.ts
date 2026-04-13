@@ -145,8 +145,7 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
             entry.cost = Math.round(r.cost * 100) / 100;
             entry.manualCost = true;
         } else {
-            const hours = entry.timeSpentMinutes / 60;
-            entry.cost = Math.round(entry.costPerHour * hours * 100) / 100;
+            entry.cost = Math.round(entry.costPerHour * 100) / 100;
             entry.manualCost = false;
         }
     }
@@ -166,8 +165,7 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
             const customRate = problemIdStr ? (company?.problemCosts as any)?.get(problemIdStr) : undefined;
             
             const rate = (typeof customRate === 'number') ? customRate : p.costPerHour;
-            const hours = p.timeSpentMinutes / 60;
-            const problemCost = Math.round(rate * hours * 100) / 100;
+            const problemCost = Math.round(rate * 100) / 100;
             
             // Update the individual problem cost if we used a company-specific rate
             if (typeof customRate === 'number' && !p.manualCost) {

@@ -165,69 +165,74 @@ const CompanyTickets: React.FC = () => {
                 <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-bold">{error}</div>
             )}
 
-            <div className="marmacore-card overflow-hidden bg-white">
-                <table className="w-full text-left">
-                    <thead className="bg-[#F8FAFB] text-xs font-bold text-[#006D65] uppercase tracking-wider">
-                        <tr>
-                            <th className="px-6 py-4">Ticket</th>
-                            <th className="px-6 py-4">Problema</th>
-                            <th className="px-6 py-4 text-center">Factura</th>
-                            <th className="px-6 py-4">Estado</th>
-                            <th className="px-6 py-4 text-right">Costo</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {loading && (
+            <div className="marmacore-card overflow-hidden bg-white shadow-md border border-gray-100/50">
+                <div className="overflow-x-auto w-full">
+                    <table className="w-full text-left whitespace-nowrap">
+                        <thead className="bg-[#F8FAFB] text-[10px] font-black text-[#006D65] uppercase tracking-wider">
                             <tr>
-                                <td colSpan={5} className="p-12 text-center text-gray-400">
-                                    Cargando...
-                                </td>
+                                <th className="px-6 py-4">Ticket</th>
+                                <th className="px-6 py-4">Problema</th>
+                                <th className="px-6 py-4 text-center">Factura</th>
+                                <th className="px-6 py-4">Estado</th>
+                                <th className="px-6 py-4 text-right">Costo</th>
                             </tr>
-                        )}
-                        {!loading && displayTickets.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="p-12 text-center text-gray-400">
-                                    <TicketIcon className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-                                    No se encontraron tickets.
-                                </td>
-                            </tr>
-                        )}
-                        {!loading &&
-                            displayTickets.map((t) => {
-                                const st = statusLabel(t);
-                                const probTitle = t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—';
-                                return (
-                                    <tr key={t._id} className="hover:bg-[#D5EFF2]/15">
-                                        <td className="px-6 py-4 font-mono font-bold text-[#00272E]">{t.ticketNumber}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{probTitle}</td>
-                                        <td className="px-6 py-4 text-center">
-                                            <button 
-                                                onClick={() => toggleInvoice(t._id, !!t.requiresInvoice)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
-                                                    t.requiresInvoice 
-                                                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                                                }`}
-                                            >
-                                                {t.requiresInvoice ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
-                                                {t.requiresInvoice ? 'Sí' : 'No'}
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${st.cls}`}>
-                                                {st.text}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right font-extrabold text-[#00272E]">
-                                            {t.status === 'solved'
-                                                ? `$${Number(t.cost).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
-                                                : '—'}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {loading && (
+                                <tr>
+                                    <td colSpan={5} className="p-12 text-center text-gray-400">
+                                        <div className="flex justify-center items-center gap-2">
+                                            <div className="w-5 h-5 border-2 border-[#00272E]/20 border-t-[#00272E] rounded-full animate-spin" />
+                                            <span className="font-bold text-sm">Cargando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && displayTickets.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="p-12 text-center text-gray-400">
+                                        <TicketIcon className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                                        <span className="font-bold">No se encontraron tickets.</span>
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading &&
+                                displayTickets.map((t) => {
+                                    const st = statusLabel(t);
+                                    const probTitle = t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—';
+                                    return (
+                                        <tr key={t._id} className="hover:bg-[#D5EFF2]/15 transition-colors">
+                                            <td className="px-6 py-4 font-mono font-bold text-[#00272E]">{t.ticketNumber}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700 max-w-[200px] truncate" title={probTitle}>{probTitle}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <button 
+                                                    onClick={() => toggleInvoice(t._id, !!t.requiresInvoice)}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all hover:scale-105 active:scale-95 ${
+                                                        t.requiresInvoice 
+                                                        ? 'bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100' 
+                                                        : 'bg-gray-50 text-gray-500 border border-gray-100 hover:bg-gray-100'
+                                                    }`}
+                                                >
+                                                    {t.requiresInvoice ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
+                                                    {t.requiresInvoice ? 'Sí' : 'No'}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${st.cls}`}>
+                                                    {st.text}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right font-black text-[#00272E]">
+                                                {t.status === 'solved'
+                                                    ? `$${Number(t.cost).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                                                    : <span className="text-gray-300 font-medium">—</span>}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

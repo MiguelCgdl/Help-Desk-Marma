@@ -44,7 +44,7 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
         const customRate = company?.problemCosts?.[problemId];
         
         const rate = (typeof customRate === 'number') ? customRate : problem.costPerHour;
-        return Math.round((rate / 60) * res.timeSpentMinutes * 100) / 100;
+        return Math.round(rate * 100) / 100;
     };
 
     const totalCost = (ticket.companyId as any)?.useCustomCost 
@@ -142,7 +142,7 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                                                 <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
                                                 {!isOtros && (
                                                     <span className="text-xs text-[#006D65] ml-2 opacity-60">
-                                                        ${((ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] ?? p.costPerHour)}/hr
+                                                        Precio Gral: ${((ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] ?? p.costPerHour)}
                                                         {(ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] !== undefined && (
                                                             <span className="ml-1 text-[9px] bg-amber-100 text-amber-700 px-1 rounded font-black uppercase">Especial</span>
                                                         )}
@@ -154,7 +154,7 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             {/* Time */}
                                             <div>
                                                 <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 block flex items-center gap-1">
