@@ -473,37 +473,35 @@ const TicketsList: React.FC = () => {
                 </div>
                 <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* Search */}
-                    <div className="relative">
+                    <div className="relative col-span-1 sm:col-span-2 lg:col-span-1">
                         <MagnifyingGlassIcon className="marmacore-icon-left" />
                         <input
                             type="text"
                             placeholder="Buscar ticket o empresa..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="marmacore-input marmacore-input-icon py-2 text-xs"
+                            className="marmacore-input marmacore-input-icon py-2 text-xs w-full"
                         />
                     </div>
-                    <div>
+                    <div className="grid grid-cols-2 gap-3 sm:col-span-2 lg:col-span-2">
                         <input
                             type="date"
                             value={filter.startDate}
                             onChange={e => setFilter({ ...filter, startDate: e.target.value })}
-                            className="marmacore-input py-2 text-xs"
+                            className="marmacore-input py-2 text-xs w-full"
                         />
-                    </div>
-                    <div>
                         <input
                             type="date"
                             value={filter.endDate}
                             onChange={e => setFilter({ ...filter, endDate: e.target.value })}
-                            className="marmacore-input py-2 text-xs"
+                            className="marmacore-input py-2 text-xs w-full"
                         />
                     </div>
-                    <div className="flex gap-2 sm:col-span-2 lg:col-span-2">
+                    <div className="grid grid-cols-2 gap-3 sm:col-span-2 lg:col-span-2">
                         <select
                             value={filter.status}
                             onChange={e => setFilter({ ...filter, status: e.target.value })}
-                            className="marmacore-select py-2 text-xs flex-1"
+                            className="marmacore-select py-2 text-xs w-full"
                         >
                             <option value="">Todos (Estado)</option>
                             <option value="open">Abiertos</option>
@@ -512,17 +510,19 @@ const TicketsList: React.FC = () => {
                         <select
                             value={filter.requiresInvoice}
                             onChange={e => setFilter({ ...filter, requiresInvoice: e.target.value })}
-                            className="marmacore-select py-2 text-xs flex-1"
+                            className="marmacore-select py-2 text-xs w-full"
                         >
                             <option value="">Filtro Factura</option>
                             <option value="true">Requerida</option>
                             <option value="false">No Requerida</option>
                         </select>
+                    </div>
+                    <div className="sm:col-span-2 lg:col-span-5 flex justify-end">
                         <button
                             onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
                             className="px-3 py-2 rounded-lg text-[10px] font-bold text-gray-400 hover:text-[#FD5200] border border-gray-100 hover:border-[#FD5200]/30 transition-all flex items-center justify-center min-w-[80px]"
                         >
-                            Limpiar
+                            Limpiar Filtros
                         </button>
                     </div>
                 </div>
@@ -547,9 +547,9 @@ const TicketsList: React.FC = () => {
                                 </th>
                                 <th className="px-4 py-3">Ticket</th>
                                 <th className="px-4 py-3">Empresa</th>
-                                <th className="px-4 py-3">Fecha</th>
-                                <th className="px-4 py-3">Problemas</th>
-                                <th className="px-4 py-3 text-center">Factura</th>
+                                <th className="px-4 py-3 hidden md:table-cell">Fecha</th>
+                                <th className="px-4 py-3 hidden lg:table-cell">Problemas</th>
+                                <th className="px-4 py-3 text-center hidden sm:table-cell">Factura</th>
                                 <th className="px-4 py-3">Estado</th>
                                 <th className="px-4 py-3 text-right">Costo</th>
                                 <th className="px-4 py-3 text-right">Acción</th>
@@ -588,23 +588,23 @@ const TicketsList: React.FC = () => {
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center p-0.5">
+                                            <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center p-0.5 shrink-0">
                                                 <img 
                                                     src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `${BASE_SERVER_URL}/${(t.companyId as any).logoUrl}`} 
                                                     alt="" 
                                                     className="w-full h-full object-contain"
                                                 />
                                             </div>
-                                            <span className="text-xs font-bold text-[#00272E]">{(t.companyId as any).name}</span>
+                                            <span className="text-xs font-bold text-[#00272E] truncate max-w-[80px] sm:max-w-none">{(t.companyId as any).name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 hidden md:table-cell">
                                         <div className="flex items-center gap-1.5 text-gray-400">
                                             <ClockIcon className="w-3.5 h-3.5" />
                                             <span className="text-[10px] font-bold">{new Date(t.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 hidden lg:table-cell">
                                         {(t.problems && t.problems.length > 0) ? (
                                             <div className="flex flex-wrap gap-1">
                                                 {t.problems.slice(0, 2).map((p, idx) => (
@@ -622,7 +622,7 @@ const TicketsList: React.FC = () => {
                                             <span className="text-gray-300 text-[10px]">—</span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-center">
+                                    <td className="px-4 py-3 text-center hidden sm:table-cell">
                                         <span className={`marmacore-badge px-2 py-0.5 ${
                                             t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
                                             t.requiresInvoice ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 
@@ -632,15 +632,15 @@ const TicketsList: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <span className={`marmacore-badge px-2 py-0.5 ${
+                                        <span className={`marmacore-badge px-2 py-0.5 whitespace-nowrap ${
                                             t.status === 'solved' 
                                             ? 'bg-green-50 text-green-700 border-green-100' 
                                             : 'bg-orange-50 text-orange-700 border-orange-100'
                                         }`}>
                                             {t.status === 'solved' ? (
-                                                <><CheckCircleIcon className="w-3 h-3" /> Resuelto</>
+                                                <><CheckCircleIcon className="w-3 h-3 hidden xs:block" /> Resuelto</>
                                             ) : (
-                                                <><ClockIcon className="w-3 h-3" /> Abierto</>
+                                                <><ClockIcon className="w-3 h-3 hidden xs:block" /> Abierto</>
                                             )}
                                         </span>
                                     </td>
@@ -654,32 +654,21 @@ const TicketsList: React.FC = () => {
                                             {t.status === 'open' && (
                                                 <button
                                                     onClick={() => setSolving(t)}
-                                                    className="px-3 py-1.5 bg-[#FD5200] text-white text-[9px] font-black uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1"
+                                                    className="px-2 py-1.5 bg-[#FD5200] text-white text-[9px] font-black uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1 shrink-0"
                                                 >
-                                                    <CheckCircleIcon className="w-3 h-3" /> Resolver
+                                                    <CheckCircleIcon className="w-3 h-3 hidden sm:block" /> Resolver
                                                 </button>
-                                            )}
-                                            {t.imagePath && (
-                                                <a
-                                                    href={`${BASE_SERVER_URL}/${t.imagePath}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="p-1.5 text-gray-400 hover:text-[#FD5200] hover:bg-[#FD5200]/5 rounded-lg transition-all"
-                                                    title="Ver imagen"
-                                                >
-                                                    <PhotoIcon className="w-3.5 h-3.5" />
-                                                </a>
                                             )}
                                             <button
                                                 onClick={() => setDetail(t)}
-                                                className="p-1.5 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all"
+                                                className="p-1.5 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all shrink-0"
                                                 title="Ver detalles"
                                             >
                                                 <EyeIcon className="w-3.5 h-3.5" />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(t._id, t.ticketNumber)}
-                                                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0 hidden sm:block"
                                                 title="Eliminar"
                                             >
                                                 <TrashIcon className="w-3.5 h-3.5" />
