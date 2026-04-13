@@ -7,6 +7,7 @@ import companyRoutes from './routes/companyRoutes';
 import problemRoutes from './routes/problemRoutes';
 import ticketRoutes from './routes/ticketRoutes';
 import reportRoutes from './routes/reportRoutes';
+import billingRoutes from './routes/billingRoutes';
 import path from 'path';
 import { createAdmin } from './controllers/authController';
 import mongoose from 'mongoose';
@@ -32,6 +33,7 @@ const start = async () => {
     app.use('/api/problems', problemRoutes);
     app.use('/api/tickets', ticketRoutes);
     app.use('/api/reports', reportRoutes);
+    app.use('/api/billing', billingRoutes);
 
     const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -9,7 +9,8 @@ import {
   Squares2X2Icon,
   CurrencyDollarIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout: React.FC = () => {
@@ -29,6 +30,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Tipos de Problema', path: '/admin/problems', icon: ExclamationCircleIcon },
         { name: 'Reporte tickets', path: '/admin/reports', icon: ChartBarIcon },
         { name: 'Configurar Costos', path: '/admin/costs', icon: CurrencyDollarIcon },
+        { name: 'Facturación', path: '/admin/billing', icon: DocumentTextIcon },
     ];
 
     return (

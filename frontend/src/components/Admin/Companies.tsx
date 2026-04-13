@@ -141,10 +141,11 @@ const Companies: React.FC = () => {
 
                         <form onSubmit={handleSubmit} className="p-5 space-y-4">
                             {/* ── Datos Generales ── */}
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            {/* ── Datos Generales ── */}
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                                 {/* Nombre */}
-                                <div className="md:col-span-5">
-                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                <div className="md:col-span-6">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                         Nombre Comercial
                                     </label>
                                     <input
@@ -152,14 +153,14 @@ const Companies: React.FC = () => {
                                         placeholder="Nombre de la empresa"
                                         value={form.name}
                                         onChange={e => setForm({ ...form, name: e.target.value })}
-                                        className="marmacore-input py-2 text-xs"
+                                        className="marmacore-input py-2.5 text-xs"
                                         required
                                     />
                                 </div>
 
                                 {/* Código ID */}
                                 <div className="md:col-span-3">
-                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                         Código ID
                                     </label>
                                     <input
@@ -167,57 +168,14 @@ const Companies: React.FC = () => {
                                         placeholder="MARMA"
                                         value={form.code}
                                         onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                                        className="marmacore-input py-2 text-xs font-mono font-bold tracking-widest text-center"
+                                        className="marmacore-input py-2.5 text-xs font-mono font-bold tracking-widest text-center"
                                         required
                                     />
                                 </div>
 
-                                {/* Tarifa */}
-                                <div className="md:col-span-4">
-                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
-                                        Tarifa Fija ($)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="0.00"
-                                        value={form.costPerTicket}
-                                        onChange={e => setForm({ ...form, costPerTicket: Number(e.target.value) })}
-                                        className="marmacore-input py-2 text-xs"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-
-                                {/* Logo */}
-                                <div className="md:col-span-8">
-                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
-                                        Logo (JPG/PNG o URL)
-                                    </label>
-                                    <div className="flex flex-col sm:flex-row gap-2">
-                                        <input
-                                            type="file"
-                                            accept=".jpeg, .jpg, .png"
-                                            onChange={e => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                    setLogoFile(e.target.files[0]);
-                                                    setForm({ ...form, logoUrl: '' });
-                                                }
-                                            }}
-                                            className="w-full sm:w-1/2 text-[10px] text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="o URL https://..."
-                                            value={form.logoUrl}
-                                            onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
-                                            className="marmacore-input py-2 text-xs sm:w-1/2"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* RFC */}
-                                <div className="md:col-span-4">
-                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1 opacity-60">
+                                {/* RFC (Ahora en la primera fila) */}
+                                <div className="md:col-span-3">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest mb-1.5 opacity-60">
                                         RFC (Opcional)
                                     </label>
                                     <input
@@ -226,8 +184,47 @@ const Companies: React.FC = () => {
                                         placeholder="ABC123456T1"
                                         value={form.rfc}
                                         onChange={e => setForm({ ...form, rfc: e.target.value.toUpperCase() })}
-                                        className="marmacore-input py-2 text-xs uppercase"
+                                        className="marmacore-input py-2.5 text-xs uppercase"
                                     />
+                                </div>
+
+                                {/* Logo Layout Redesign - Ahora ocupa todo el ancho o gran parte */}
+                                <div className="md:col-span-12 space-y-3">
+                                    <label className="block text-[10px] font-bold text-[#00272E] uppercase tracking-widest opacity-60">
+                                        Identidad Visual (Logo)
+                                    </label>
+                                    
+                                    <div className="bg-white border-2 border-dashed border-gray-100 rounded-xl p-5 transition-all hover:border-[#FD5200]/20 group">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            {/* Subir Archivo */}
+                                            <div className="flex flex-col gap-2">
+                                                <span className="text-[9px] font-black text-[#006D65] uppercase tracking-tighter">1. Subir desde equipo</span>
+                                                <input
+                                                    type="file"
+                                                    accept=".jpeg, .jpg, .png"
+                                                    onChange={e => {
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            setLogoFile(e.target.files[0]);
+                                                            setForm({ ...form, logoUrl: '' });
+                                                        }
+                                                    }}
+                                                    className="w-full text-[10px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:bg-[#00272E] file:text-white hover:file:bg-[#FD5200] file:transition-all file:cursor-pointer"
+                                                />
+                                            </div>
+
+                                            {/* URL Directa */}
+                                            <div className="flex flex-col gap-2 border-l border-gray-50 pl-0 md:pl-8">
+                                                <span className="text-[9px] font-black text-[#006D65] uppercase tracking-tighter">2. Enlace directo (URL)</span>
+                                                <input
+                                                    type="text"
+                                                    placeholder="https://ejemplo.com/logo.png"
+                                                    value={form.logoUrl}
+                                                    onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}
+                                                    className="marmacore-input py-2.5 text-xs bg-gray-50/50 border-gray-100 focus:bg-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -243,11 +240,10 @@ const Companies: React.FC = () => {
                                         </label>
                                         <input
                                             type="email"
-                                            placeholder="admin@dominio.com"
+                                            placeholder="admin@dominio.com (Opcional)"
                                             value={form.email}
                                             onChange={e => setForm({ ...form, email: e.target.value })}
-                                            className="marmacore-input py-2 text-xs bg-white"
-                                            required
+                                            className="marmacore-input py-2.5 text-xs bg-white"
                                         />
                                     </div>
                                     <div>
@@ -318,7 +314,6 @@ const Companies: React.FC = () => {
                                     <tr className="marmacore-table-head">
                                         <th className="px-6 py-3">Empresa</th>
                                         <th className="px-6 py-3">Usuario y RFC</th>
-                                        <th className="px-6 py-3">Tarifa</th>
                                         <th className="px-6 py-3 text-right">Acciones</th>
                                     </tr>
                                 </thead>
@@ -389,12 +384,6 @@ const Companies: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="text-xl font-black text-[#00272E] tracking-tight">
-                                                    <span className="text-xs font-bold text-[#FD5200] mr-0.5">$</span>
-                                                    {c.costPerTicket.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <button
                                                         onClick={() => startEdit(c)}
@@ -453,19 +442,21 @@ const Companies: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3 pb-2">
-                                        <div className="bg-[#F8FAFB] p-2.5 rounded-lg border border-gray-50">
-                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Usuario</p>
-                                            <p className="text-xs font-bold text-[#00272E] truncate flex items-center gap-1.5">
-                                                <UserIcon className="w-3 h-3 opacity-40 shrink-0" />
-                                                {c.loginUsername || '—'}
-                                            </p>
-                                        </div>
-                                        <div className="bg-[#F8FAFB] p-2.5 rounded-lg border border-gray-50">
-                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tarifa Fija</p>
-                                            <p className="text-sm font-black text-[#FD5200]">
-                                                ${c.costPerTicket.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                                            </p>
+                                    <div className="pb-2">
+                                        <div className="bg-[#F8FAFB] p-3 rounded-lg border border-gray-50 flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Usuario de Acceso</p>
+                                                <p className="text-xs font-bold text-[#00272E] flex items-center gap-1.5">
+                                                    <UserIcon className="w-3 h-3 opacity-40 shrink-0" />
+                                                    {c.loginUsername || '—'}
+                                                </p>
+                                            </div>
+                                            {c.rfc && (
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">RFC Registrado</p>
+                                                    <p className="text-[10px] font-black text-[#006D65] uppercase">{c.rfc}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

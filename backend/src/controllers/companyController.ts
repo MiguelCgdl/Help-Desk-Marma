@@ -22,8 +22,8 @@ export const createCompany = asyncHandler(async (req, res) => {
         logoUrl = `uploads/${req.file.filename}`;
     }
     
-    if (!email || !loginUsername || !password) {
-        res.status(400).json({ message: 'Email, usuario de acceso y contraseña son obligatorios' });
+    if (!loginUsername || !password) {
+        res.status(400).json({ message: 'Usuario de acceso y contraseña son obligatorios' });
         return;
     }
     const company = await Company.create({
