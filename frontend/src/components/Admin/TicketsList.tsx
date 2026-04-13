@@ -3,9 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import type { Ticket, ProblemEntry } from '../../types';
 import { BASE_SERVER_URL } from '../../config';
+import TicketForm from '../TicketForm';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
-    CheckCircleIcon, XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon
+    CheckCircleIcon, XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon,
+    PlusIcon
 } from '@heroicons/react/24/outline';
 
 // ─── Solve Modal ─────────────────────────────────────────────────────────────
@@ -403,6 +405,7 @@ const TicketsList: React.FC = () => {
     const [detail, setDetail]       = useState<Ticket | null>(null);
     const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
     const [showCutoffModal, setShowCutoffModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => { fetchTickets(); }, [filter]);
 
@@ -448,15 +451,24 @@ const TicketsList: React.FC = () => {
                     <h1 className="text-3xl font-black text-[#00272E] tracking-tight">Registro de Tickets</h1>
                     <p className="text-[#006D65] mt-1 text-sm font-medium">Historial completo de reportes y asistencias técnicas.</p>
                 </div>
-                {selectedTickets.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3">
                     <button 
-                        onClick={() => setShowCutoffModal(true)}
-                        className="px-6 py-3 bg-[#FD5200] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FD5200]/20 hover:bg-[#E64A00] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                        onClick={() => setShowCreateModal(true)}
+                        className="px-6 py-3 bg-[#006D65] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#006D65]/20 hover:bg-[#004D47] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
                     >
-                        <CurrencyDollarIcon className="w-5 h-5" />
-                        Generar Corte de {selectedTickets.length} Tickets
+                        <PlusIcon className="w-5 h-5" />
+                        Nuevo Ticket
                     </button>
-                )}
+                    {selectedTickets.length > 0 && (
+                        <button 
+                            onClick={() => setShowCutoffModal(true)}
+                            className="px-6 py-3 bg-[#FD5200] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FD5200]/20 hover:bg-[#E64A00] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                        >
+                            <CurrencyDollarIcon className="w-5 h-5" />
+                            Generar Corte de {selectedTickets.length} Tickets
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters */}
@@ -721,6 +733,21 @@ const TicketsList: React.FC = () => {
                         fetchTickets();
                     }}
                 />
+            )}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col relative">
+                        <button 
+                            onClick={() => setShowCreateModal(false)}
+                            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 z-50 bg-white/80 rounded-full backdrop-blur-sm shadow-sm"
+                        >
+                            <XMarkIcon className="w-6 h-6" />
+                        </button>
+                        <div className="overflow-y-auto flex-1 rounded-2xl">
+                            <TicketForm />
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -31,6 +31,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
     const [ticketNumber, setTicketNumber] = useState('');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
+    const [success, setSuccess]           = useState(false);
 
     // Multi-problem selection
     const [selectedProblems, setSelectedProblems] = useState<ProblemSelection[]>([
@@ -135,6 +136,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setTicketNumber(res.data.ticketNumber);
+            setSuccess(true);
             setDescription('');
             setImage(null);
             setPreview(null);
@@ -151,13 +153,13 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
     };
 
     // ── Success screen ───────────────────────────────────────────────────────
-    if (ticketNumber) {
+    if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+            <div className="flex items-center justify-center p-10 bg-white min-h-[400px]">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center space-y-6"
+                    className="bg-white rounded-2xl p-10 max-w-md w-full text-center space-y-6"
                 >
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                         <CheckCircleIcon className="w-9 h-9 text-green-600" />
@@ -172,16 +174,14 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                     </div>
                     <div className="flex flex-col gap-3">
                         <button
-                            onClick={() => setTicketNumber('')}
+                            onClick={() => {
+                                setTicketNumber('');
+                                setSuccess(false);
+                            }}
                             className="w-full py-3 rounded-xl bg-[#FD5200] text-white font-bold text-sm hover:bg-[#E64A00] transition-colors"
                         >
                             Generar otro ticket
                         </button>
-                        {useCompanyAuth && (
-                            <Link to="/empresa/tickets" className="block text-center py-2 text-sm font-bold text-[#006D65] hover:text-[#00272E]">
-                                Ver mis tickets
-                            </Link>
-                        )}
                     </div>
                 </motion.div>
             </div>
@@ -190,7 +190,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
 
     // ── Main form ────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-gray-50 py-10 px-4">
+        <div className="bg-gray-50 py-10 px-4">
             <div className="max-w-5xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
                     {/* Left panel */}
@@ -405,10 +405,6 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                         </motion.div>
                     </div>
                 </div>
-
-                <footer className="mt-10 text-center text-gray-400 text-xs">
-                    © {new Date().getFullYear()} Marmacore Solutions. Todos los derechos reservados.
-                </footer>
             </div>
         </div>
     );
