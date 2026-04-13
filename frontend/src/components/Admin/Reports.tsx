@@ -155,8 +155,8 @@ export default function Reports() {
                         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-[#00272E]">Resumen por Empresa</h3>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[600px]">
                                 <thead className="bg-[#F8FAFB] text-xs font-bold text-[#006D65] uppercase tracking-wider">
                                     <tr>
                                         <th className="px-8 py-4">Empresa</th>
@@ -224,8 +224,8 @@ export default function Reports() {
                                 VOLVER AL GENERAL
                             </button>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left whitespace-nowrap min-w-[700px]">
                                 <thead className="bg-[#F8FAFB] text-xs font-bold text-[#006D65] uppercase tracking-wider">
                                     <tr>
                                         <th className="px-8 py-4">ID / Ticket #</th>
