@@ -15,6 +15,7 @@ export type Company = {
     costPerTicket: number;
     useCustomCost: boolean;
     customCostPerTicket: number;
+    problemCosts?: Record<string, number>;
     email?: string;
     loginUsername?: string;
     logoUrl?: string; // NEW

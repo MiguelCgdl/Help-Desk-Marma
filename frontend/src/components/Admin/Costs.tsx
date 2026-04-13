@@ -14,6 +14,8 @@ const Costs: React.FC = () => {
     const [editingTitles, setEditingTitles] = useState<Record<string, string>>({});
     const [editingCompanyCosts, setEditingEditingCompanyCosts] = useState<Record<string, number>>({});
     const [editingCompanyToggles, setEditingCompanyToggles] = useState<Record<string, boolean>>({});
+    const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+    const [editingProblemCostsForCompany, setEditingProblemCostsForCompany] = useState<Record<string, number>>({});
 
     useEffect(() => { 
         fetchData(); 
@@ -29,6 +31,7 @@ const Costs: React.FC = () => {
             setProblems(probRes.data); 
             setCompanies(compRes.data);
 
+            // Initialize global problem costs
             setEditingCosts(
                 (probRes.data as Problem[]).reduce((acc, p) => {
                     acc[p._id] = Number(p.costPerHour ?? 0);
@@ -42,6 +45,7 @@ const Costs: React.FC = () => {
                 }, {} as Record<string, string>)
             );
 
+            // Initialize company fixed costs
             setEditingEditingCompanyCosts(
                 (compRes.data as Company[]).reduce((acc, c) => {
                     acc[c._id] = Number(c.customCostPerTicket ?? 0);
@@ -58,6 +62,22 @@ const Costs: React.FC = () => {
             console.error(err);
         }
     };
+
+    // When a company is selected for problem-specific costs
+    useEffect(() => {
+        if (selectedCompanyId) {
+            const company = companies.find(c => c._id === selectedCompanyId);
+            if (company) {
+                const initialProblemCosts = problems.reduce((acc, p) => {
+                    // Check both Map-style and Object-style access for the response
+                    const customRate = company.problemCosts?.[p._id];
+                    acc[p._id] = typeof customRate === 'number' ? customRate : p.costPerHour;
+                    return acc;
+                }, {} as Record<string, number>);
+                setEditingProblemCostsForCompany(initialProblemCosts);
+            }
+        }
+    }, [selectedCompanyId, companies, problems]);
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         await api.put(`/problems/${id}`, { active: !currentStatus });
@@ -113,6 +133,22 @@ const Costs: React.FC = () => {
         } catch (error) {
             console.error(error);
             alert('Error al actualizar empresa');
+        }
+    };
+
+    const saveCompanyProblemCosts = async () => {
+        if (!selectedCompanyId) return;
+
+        try {
+            await api.put(`/companies/${selectedCompanyId}`, { 
+                problemCosts: editingProblemCostsForCompany 
+            });
+            fetchData();
+            setSelectedCompanyId(null);
+            alert('Tarifas por problema actualizadas para la empresa');
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar tarifas de la empresa');
         }
     };
 
@@ -255,12 +291,22 @@ const Costs: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <button 
-                                                    onClick={() => saveCompanyRow(c._id)}
-                                                    className="p-1.5 text-[#006D65] hover:bg-emerald-50 rounded-lg transition-all"
-                                                >
-                                                    <CheckCircleIcon className="w-4 h-4"/>
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => setSelectedCompanyId(c._id)}
+                                                        className="p-1.5 text-[#006D65] hover:bg-emerald-50 rounded-lg transition-all flex items-center gap-1 text-[10px] font-bold"
+                                                        title="Configurar tarifas por problema"
+                                                    >
+                                                        <PlusIcon className="w-3.5 h-3.5"/>
+                                                        Tarifas
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => saveCompanyRow(c._id)}
+                                                        className="p-1.5 text-[#006D65] hover:bg-emerald-50 rounded-lg transition-all"
+                                                    >
+                                                        <CheckCircleIcon className="w-4 h-4"/>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -270,6 +316,64 @@ const Costs: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Company Problem Costs Modal */}
+            {selectedCompanyId && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <div>
+                                <h3 className="text-lg font-black text-[#00272E]">Tarifas Personalizadas</h3>
+                                <p className="text-xs text-[#006D65] font-bold">
+                                    {companies.find(c => c._id === selectedCompanyId)?.name}
+                                </p>
+                            </div>
+                            <button onClick={() => setSelectedCompanyId(null)} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                <XMarkIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto flex-1 px-6 py-5">
+                            <div className="space-y-4">
+                                {problems.map(p => (
+                                    <div key={p._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
+                                            <span className="text-[10px] text-gray-400 font-bold uppercase">Tarifa Global: ${p.costPerHour}/hr</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-gray-400">$</span>
+                                            <input
+                                                type="number"
+                                                value={editingProblemCostsForCompany[p._id] ?? 0}
+                                                onChange={(e) => setEditingProblemCostsForCompany({ 
+                                                    ...editingProblemCostsForCompany, 
+                                                    [p._id]: Number(e.target.value) 
+                                                })}
+                                                className="w-24 px-3 py-2 rounded-lg border border-gray-200 bg-white text-[#FD5200] text-sm font-black focus:border-[#FD5200]/40 transition-all"
+                                            />
+                                            <span className="text-xs font-bold text-gray-400">/hr</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => setSelectedCompanyId(null)}
+                                className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={saveCompanyProblemCosts}
+                                className="px-6 py-2.5 rounded-xl bg-[#006D65] text-white font-bold text-sm hover:bg-[#004D47] transition-all"
+                            >
+                                Guardar Tarifas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* IVA Notice */}
             <div className="bg-[#00272E] text-white p-6 rounded-2xl shadow-xl border border-white/10 relative overflow-hidden group">

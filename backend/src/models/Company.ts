@@ -12,6 +12,7 @@ export interface ICompany extends Document {
     rfc?: string;
     useCustomCost: boolean;
     customCostPerTicket: number;
+    problemCosts?: Map<string, number>; // NEW: Custom costs per problem for this company
     matchPassword(enteredPassword: string): Promise<boolean>;
     createdAt: Date;
 }
@@ -22,6 +23,7 @@ const CompanySchema = new Schema<ICompany>({
     costPerTicket: { type: Number, default: 0 },
     useCustomCost: { type: Boolean, default: false },
     customCostPerTicket: { type: Number, default: 0 },
+    problemCosts: { type: Map, of: Number, default: {} }, // NEW
     email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     loginUsername: { type: String, unique: true, sparse: true, trim: true },
     password: { type: String, select: false },

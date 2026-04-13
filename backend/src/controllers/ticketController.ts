@@ -154,11 +154,28 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
     const company = await Company.findById(ticket.companyId);
     let baseCost = 0;
 
-    // Custom Cost Logic: If company has custom cost enabled, use it as fixed base cost
+    // Custom Cost Logic: 
+    // 1. If company has a fixed custom cost per ticket, use it
     if (company?.useCustomCost && company.customCostPerTicket > 0) {
         baseCost = company.customCostPerTicket;
     } else {
-        baseCost = ticket.problems.reduce((sum, p) => sum + (p.cost || 0), 0);
+        // 2. Use problem-specific costs from company or the global problem rate
+        baseCost = ticket.problems.reduce((sum, p) => {
+            const problemIdStr = p.problemId?.toString();
+            // Check if company has a custom rate for THIS specific problem
+            const customRate = (company?.problemCosts as any)?.get?.(problemIdStr) || company?.problemCosts?.[problemIdStr as any];
+            
+            const rate = (typeof customRate === 'number') ? customRate : p.costPerHour;
+            const hours = p.timeSpentMinutes / 60;
+            const problemCost = Math.round(rate * hours * 100) / 100;
+            
+            // Update the individual problem cost if we used a company-specific rate
+            if (typeof customRate === 'number' && !p.manualCost) {
+                p.cost = problemCost;
+            }
+            
+            return sum + (p.cost || 0);
+        }, 0);
     }
 
     ticket.cost = Math.round(baseCost * 100) / 100;
