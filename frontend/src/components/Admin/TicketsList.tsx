@@ -5,8 +5,7 @@ import type { Ticket, ProblemEntry } from '../../types';
 import { BASE_SERVER_URL } from '../../config';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
-    CalendarDaysIcon, BuildingOfficeIcon, CheckCircleIcon,
-    XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon
+    CheckCircleIcon, XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon
 } from '@heroicons/react/24/outline';
 
 // ─── Solve Modal ─────────────────────────────────────────────────────────────
