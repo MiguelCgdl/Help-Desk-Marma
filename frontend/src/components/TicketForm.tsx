@@ -372,8 +372,8 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                     <label className="text-xs font-bold text-[#00272E] uppercase tracking-widest mb-3 block opacity-70">
                                         Verificación de Seguridad
                                     </label>
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-base text-[#00272E] border border-[#D5EFF2]">
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                        <div className="bg-white px-4 py-2 rounded-lg font-mono font-bold text-base text-[#00272E] border border-[#D5EFF2] text-center">
                                             ¿Cuánto es {captcha.a} + {captcha.b}?
                                         </div>
                                         <div className="relative">
