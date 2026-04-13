@@ -299,9 +299,21 @@ const DetailModal: React.FC<{ ticket: Ticket; onClose: () => void }> = ({ ticket
                     </div>
                 )}
 
-                <div className="flex items-center justify-between px-4 py-3 bg-[#00272E] rounded-xl">
-                    <span className="text-white font-bold text-sm">Total</span>
-                    <span className="text-[#FD5200] font-black text-lg">${ticket.cost.toFixed(2)}</span>
+                <div className="space-y-2 bg-[#00272E] rounded-xl p-4 shadow-inner">
+                    <div className="flex items-center justify-between">
+                        <span className="text-white/60 text-xs font-bold uppercase tracking-wider">Subtotal</span>
+                        <span className="text-white font-bold text-sm">${(ticket.cost || 0).toFixed(2)}</span>
+                    </div>
+                    {ticket.taxAmount > 0 && (
+                        <div className="flex items-center justify-between border-t border-white/10 pt-2">
+                            <span className="text-white/60 text-xs font-bold uppercase tracking-wider">IVA (16%)</span>
+                            <span className="text-white font-bold text-sm">${(ticket.taxAmount || 0).toFixed(2)}</span>
+                        </div>
+                    )}
+                    <div className="flex items-center justify-between border-t border-white/20 pt-2">
+                        <span className="text-white font-black text-sm uppercase tracking-widest">Total</span>
+                        <span className="text-[#FD5200] font-black text-xl tracking-tight">${(ticket.totalCost || ticket.cost || 0).toFixed(2)}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -318,9 +330,11 @@ const CutoffModal: React.FC<{
     const selected = tickets.filter(t => selectedIds.includes(t._id));
     const byCompany = selected.reduce((acc, t) => {
         const cId = (t.companyId as any)._id;
-        if (!acc[cId]) acc[cId] = { company: t.companyId, tickets: [], total: 0 };
+        if (!acc[cId]) acc[cId] = { company: t.companyId, tickets: [], subtotal: 0, tax: 0, total: 0 };
         acc[cId].tickets.push(t);
-        acc[cId].total += t.cost;
+        acc[cId].subtotal += (t.cost || 0);
+        acc[cId].tax += (t.taxAmount || 0);
+        acc[cId].total += (t.totalCost || t.cost || 0);
         return acc;
     }, {} as Record<string, any>);
 
@@ -358,17 +372,37 @@ const CutoffModal: React.FC<{
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Total de la empresa</p>
-                                    <p className="font-black text-[#FD5200] text-lg">
-                                        ${group.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                                    </p>
+                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Resumen de Corte</p>
+                                    <div className="flex flex-col items-end gap-0.5 mt-1">
+                                        <div className="flex items-center gap-2 text-xs">
+                                            <span className="text-gray-400 font-medium">Subtotal:</span>
+                                            <span className="text-[#00272E] font-bold">${group.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        {group.tax > 0 && (
+                                            <div className="flex items-center gap-2 text-xs">
+                                                <span className="text-gray-400 font-medium">IVA (16%):</span>
+                                                <span className="text-[#006D65] font-bold">${group.tax.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-2 text-lg pt-1 mt-1 border-t border-gray-200 w-full justify-end">
+                                            <span className="text-gray-400 text-xs font-black uppercase">Total:</span>
+                                            <span className="font-black text-[#FD5200]">
+                                                ${group.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <ul className="space-y-1.5 overflow-y-auto max-h-40 pr-2">
                                 {group.tickets.map((t: any) => (
                                     <li key={t._id} className="text-xs flex justify-between items-center bg-white p-2 rounded border border-gray-50">
-                                        <span className="font-mono font-bold text-[#00272E]">{t.ticketNumber}</span>
-                                        <span className="font-semibold text-gray-500">${t.cost.toFixed(2)}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-mono font-bold text-[#00272E]">{t.ticketNumber}</span>
+                                            {t.taxAmount > 0 && (
+                                                <span className="text-[8px] font-black bg-cyan-50 text-cyan-600 px-1.5 py-0.5 rounded border border-cyan-100 uppercase">Factura</span>
+                                            )}
+                                        </div>
+                                        <span className="font-semibold text-gray-500">${(t.totalCost || t.cost || 0).toFixed(2)}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -674,9 +708,16 @@ const TicketsList: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-4 py-4 text-right">
-                                        <span className="text-sm font-black text-[#00272E] tracking-tight">
-                                            ${t.cost?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                                        </span>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-sm font-black text-[#00272E] tracking-tight">
+                                                ${(t.totalCost || t.cost || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                            </span>
+                                            {t.taxAmount > 0 && (
+                                                <span className="text-[9px] font-bold text-[#006D65] uppercase">
+                                                    Inc. IVA
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="pl-4 pr-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">

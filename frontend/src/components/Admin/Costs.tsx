@@ -1,32 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
-import type { Problem } from '../../types';
-import { CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import type { Problem, Company } from '../../types';
+import { 
+    CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, 
+    InformationCircleIcon, TrashIcon, BuildingOfficeIcon,
+    ChevronRightIcon, PlusIcon, XMarkIcon
+} from '@heroicons/react/24/outline';
 
 const Costs: React.FC = () => {
     const [problems, setProblems] = useState<Problem[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [editingCosts, setEditingCosts] = useState<Record<string, number>>({});
     const [editingTitles, setEditingTitles] = useState<Record<string, string>>({});
+    const [editingCompanyCosts, setEditingEditingCompanyCosts] = useState<Record<string, number>>({});
+    const [editingCompanyToggles, setEditingCompanyToggles] = useState<Record<string, boolean>>({});
 
     useEffect(() => { 
-        fetchProblems(); 
+        fetchData(); 
     }, []);
     
-    const fetchProblems = async () => { 
+    const fetchData = async () => { 
         try {
-            const res = await api.get('/problems'); 
-            setProblems(res.data); 
+            const [probRes, compRes] = await Promise.all([
+                api.get('/problems'),
+                api.get('/companies')
+            ]);
+            
+            setProblems(probRes.data); 
+            setCompanies(compRes.data);
+
             setEditingCosts(
-                (res.data as Problem[]).reduce((acc, p) => {
+                (probRes.data as Problem[]).reduce((acc, p) => {
                     acc[p._id] = Number(p.costPerHour ?? 0);
                     return acc;
                 }, {} as Record<string, number>)
             );
             setEditingTitles(
-                (res.data as Problem[]).reduce((acc, p) => {
+                (probRes.data as Problem[]).reduce((acc, p) => {
                     acc[p._id] = p.title;
                     return acc;
                 }, {} as Record<string, string>)
+            );
+
+            setEditingEditingCompanyCosts(
+                (compRes.data as Company[]).reduce((acc, c) => {
+                    acc[c._id] = Number(c.customCostPerTicket ?? 0);
+                    return acc;
+                }, {} as Record<string, number>)
+            );
+            setEditingCompanyToggles(
+                (compRes.data as Company[]).reduce((acc, c) => {
+                    acc[c._id] = !!c.useCustomCost;
+                    return acc;
+                }, {} as Record<string, boolean>)
             );
         } catch (err) {
             console.error(err);
@@ -35,13 +61,13 @@ const Costs: React.FC = () => {
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         await api.put(`/problems/${id}`, { active: !currentStatus });
-        fetchProblems();
+        fetchData();
     };
 
     const handleDelete = async (id: string) => { 
         if(window.confirm('¿Eliminar este tipo de problema?')) {
             await api.delete(`/problems/${id}`); 
-            fetchProblems(); 
+            fetchData(); 
         }
     };
 
@@ -60,7 +86,7 @@ const Costs: React.FC = () => {
 
         try {
             await api.put(`/problems/${id}`, { costPerHour: costValue, title: titleValue.trim() });
-            fetchProblems();
+            fetchData();
             alert('Actualizado correctamente');
         } catch (error) {
             console.error(error);
@@ -68,40 +94,60 @@ const Costs: React.FC = () => {
         }
     };
 
+    const saveCompanyRow = async (id: string) => {
+        const costValue = Number(editingCompanyCosts[id]);
+        const toggleValue = editingCompanyToggles[id];
+
+        if (!Number.isFinite(costValue) || costValue < 0) {
+            alert('Costo inválido');
+            return;
+        }
+
+        try {
+            await api.put(`/companies/${id}`, { 
+                customCostPerTicket: costValue, 
+                useCustomCost: toggleValue 
+            });
+            fetchData();
+            alert('Configuración de empresa actualizada');
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar empresa');
+        }
+    };
+
     return (
-        <div className="animate-fade-in pb-8">
+        <div className="animate-fade-in pb-12 space-y-10">
             {/* Page Header */}
-            <div className="mb-6">
+            <div>
                 <h1 className="text-3xl font-black text-[#00272E] tracking-tight">Configuración de Costos</h1>
-                <p className="text-[#006D65] mt-1 text-sm font-medium">Define el costo por hora para cada tipo de incidente reportado.</p>
+                <p className="text-[#006D65] mt-1 text-sm font-medium">Gestiona las tarifas generales por problema y costos personalizados por empresa.</p>
             </div>
 
-            <div className="flex flex-col gap-8 w-full mx-auto">
-                <div className="w-full">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {/* General Costs (Problems) */}
+                <div className="space-y-4">
                     <div className="marmacore-table-container">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-                            <div>
-                                <h3 className="text-base font-bold text-[#00272E]">Tabulador de Costos</h3>
-                                <p className="text-[11px] text-[#006D65] font-semibold mt-0.5 opacity-60 uppercase tracking-wider">
-                                    Ajuste de tarifas por hora
-                                </p>
-                            </div>
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50 bg-[#F8FAFB]/50">
                             <div className="flex items-center gap-3">
-                                <InformationCircleIcon className="w-5 h-5 text-[#006D65] opacity-40" />
-                                <span className="bg-[#00272E] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg tracking-wider uppercase">
-                                    Precios en MXN
-                                </span>
+                                <div className="p-2 bg-[#FD5200]/10 rounded-lg">
+                                    <InformationCircleIcon className="w-5 h-5 text-[#FD5200]" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-[#00272E]">Tarifas por Tipo de Problema</h3>
+                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Costo general por hora</p>
+                                </div>
                             </div>
                         </div>
 
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-[#F8FAFB] text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
-                                        <th className="px-6 py-3">Tipo de Problema</th>
-                                        <th className="px-6 py-3">Estado Actual</th>
-                                        <th className="px-6 py-3">Costo por Hora (MXN)</th>
-                                        <th className="px-6 py-3 text-right">Acciones</th>
+                                    <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                                        <th className="px-6 py-3">Tipo</th>
+                                        <th className="px-6 py-3">Estado</th>
+                                        <th className="px-6 py-3">Costo/Hora</th>
+                                        <th className="px-6 py-3 text-right">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -112,49 +158,36 @@ const Costs: React.FC = () => {
                                                     type="text"
                                                     value={editingTitles[p._id] ?? ''}
                                                     onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
-                                                    className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-semibold outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                    className="w-full px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50 text-[#00272E] text-xs font-semibold focus:border-[#FD5200]/40 focus:bg-white transition-all"
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button 
                                                     onClick={() => toggleStatus(p._id, p.active)}
-                                                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                                                    className={`px-2 py-1 rounded text-[9px] font-black uppercase transition-all ${
                                                         p.active 
-                                                        ? 'bg-green-50 text-green-600 border border-green-100' 
+                                                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
                                                         : 'bg-red-50 text-red-600 border border-red-100'
                                                     }`}
                                                 >
-                                                    {p.active ? <CheckCircleIcon className="w-3.5 h-3.5" /> : <XCircleIcon className="w-3.5 h-3.5" />}
                                                     {p.active ? 'Activo' : 'Inactivo'}
                                                 </button>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-bold text-gray-400">$</span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-xs font-bold text-gray-400">$</span>
                                                     <input
                                                         type="number"
-                                                        min={0}
-                                                        step={0.01}
                                                         value={editingCosts[p._id] ?? 0}
                                                         onChange={(e) => setEditingCosts({ ...editingCosts, [p._id]: Number(e.target.value) })}
-                                                        className="w-32 px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#FD5200] text-sm font-black outline-none focus:border-[#FD5200]/40 focus:bg-white focus:ring-2 focus:ring-[#FD5200]/10 transition-all"
+                                                        className="w-20 px-2 py-1.5 rounded-lg border border-gray-100 bg-gray-50 text-[#FD5200] text-xs font-black focus:border-[#FD5200]/40 focus:bg-white transition-all"
                                                     />
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => saveRow(p._id)}
-                                                        className="px-4 py-2 text-[11px] font-bold text-white bg-[#006D65] hover:bg-[#004A44] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95"
-                                                    >
-                                                        Guardar
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDelete(p._id)}
-                                                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                                    >
-                                                        <TrashIcon className="w-4 h-4" />
-                                                    </button>
+                                                    <button onClick={() => saveRow(p._id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"><CheckCircleIcon className="w-4 h-4"/></button>
+                                                    <button onClick={() => handleDelete(p._id)} className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><TrashIcon className="w-4 h-4"/></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -162,6 +195,95 @@ const Costs: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+                {/* Company Costs */}
+                <div className="space-y-4">
+                    <div className="marmacore-table-container">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50 bg-[#F8FAFB]/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-[#006D65]/10 rounded-lg">
+                                    <BuildingOfficeIcon className="w-5 h-5 text-[#006D65]" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-[#00272E]">Costos por Empresa</h3>
+                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Costo fijo por ticket</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
+                                        <th className="px-6 py-3">Empresa</th>
+                                        <th className="px-6 py-3">Personalizado</th>
+                                        <th className="px-6 py-3">Costo/Ticket</th>
+                                        <th className="px-6 py-3 text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {companies.map(c => (
+                                        <tr key={c._id} className="group hover:bg-gray-50/80 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-[#00272E]">{c.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="sr-only peer"
+                                                        checked={editingCompanyToggles[c._id] ?? false}
+                                                        onChange={(e) => setEditingCompanyToggles({ ...editingCompanyToggles, [c._id]: e.target.checked })}
+                                                    />
+                                                    <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#FD5200]"></div>
+                                                </label>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-xs font-bold text-gray-400">$</span>
+                                                    <input
+                                                        type="number"
+                                                        disabled={!editingCompanyToggles[c._id]}
+                                                        value={editingCompanyCosts[c._id] ?? 0}
+                                                        onChange={(e) => setEditingEditingCompanyCosts({ ...editingCompanyCosts, [c._id]: Number(e.target.value) })}
+                                                        className="w-20 px-2 py-1.5 rounded-lg border border-gray-100 bg-gray-50 text-[#00272E] text-xs font-black focus:border-[#FD5200]/40 focus:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button 
+                                                    onClick={() => saveCompanyRow(c._id)}
+                                                    className="p-1.5 text-[#006D65] hover:bg-emerald-50 rounded-lg transition-all"
+                                                >
+                                                    <CheckCircleIcon className="w-4 h-4"/>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* IVA Notice */}
+            <div className="bg-[#00272E] text-white p-6 rounded-2xl shadow-xl border border-white/10 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FD5200] blur-[80px] opacity-20 -mr-16 -mt-16 group-hover:opacity-30 transition-opacity" />
+                <div className="flex items-start gap-4 relative z-10">
+                    <div className="p-3 bg-white/10 rounded-xl">
+                        <InformationCircleIcon className="w-6 h-6 text-[#FD5200]" />
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-black tracking-tight">Política de Facturación y Automatización</h4>
+                        <p className="text-gray-400 text-sm mt-1 max-w-2xl">
+                            El sistema calcula automáticamente el costo final sumando el <span className="text-white font-bold">16% de IVA</span> si el ticket requiere factura.
+                            Los tickets sin factura mantienen su costo base calculado por horas o tarifa fija de empresa.
+                        </p>
                     </div>
                 </div>
             </div>

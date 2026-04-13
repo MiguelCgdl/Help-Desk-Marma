@@ -13,6 +13,8 @@ export type Company = {
     name: string;
     code: string;
     costPerTicket: number;
+    useCustomCost: boolean;
+    customCostPerTicket: number;
     email?: string;
     loginUsername?: string;
     logoUrl?: string; // NEW
@@ -35,6 +37,8 @@ export type Ticket = {
     description: string;
     imagePath?: string;
     cost: number;
+    taxAmount: number;
+    totalCost: number;
     status?: 'open' | 'solved';
     solvedAt?: string;
     requiresInvoice?: boolean; // NEW

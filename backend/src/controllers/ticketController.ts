@@ -151,7 +151,26 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
         }
     }
 
-    ticket.cost = ticket.problems.reduce((sum, p) => sum + (p.cost || 0), 0);
+    const company = await Company.findById(ticket.companyId);
+    let baseCost = 0;
+
+    // Custom Cost Logic: If company has custom cost enabled, use it as fixed base cost
+    if (company?.useCustomCost && company.customCostPerTicket > 0) {
+        baseCost = company.customCostPerTicket;
+    } else {
+        baseCost = ticket.problems.reduce((sum, p) => sum + (p.cost || 0), 0);
+    }
+
+    ticket.cost = Math.round(baseCost * 100) / 100;
+    
+    // Automatic IVA calculation (16%)
+    if (ticket.requiresInvoice) {
+        ticket.taxAmount = Math.round((ticket.cost * 0.16) * 100) / 100;
+    } else {
+        ticket.taxAmount = 0;
+    }
+    
+    ticket.totalCost = Math.round((ticket.cost + ticket.taxAmount) * 100) / 100;
     ticket.status = 'solved';
     ticket.solvedAt = new Date();
     if (comments) {
@@ -160,7 +179,6 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
     await ticket.save();
 
     try {
-        const company = await Company.findById(ticket.companyId);
         if (company && company.email) {
             await sendTicketResolutionEmail(company.email, ticket.ticketNumber, comments || '', company.name);
         }
@@ -189,6 +207,17 @@ export const toggleInvoice = asyncHandler(async (req: Request, res: Response) =>
     }
 
     ticket.requiresInvoice = Boolean(requiresInvoice);
+    
+    // Recalculate tax and total if status is solved
+    if (ticket.status === 'solved') {
+        if (ticket.requiresInvoice) {
+            ticket.taxAmount = Math.round((ticket.cost * 0.16) * 100) / 100;
+        } else {
+            ticket.taxAmount = 0;
+        }
+        ticket.totalCost = Math.round((ticket.cost + ticket.taxAmount) * 100) / 100;
+    }
+    
     await ticket.save();
 
     res.json(ticket);

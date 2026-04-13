@@ -10,6 +10,8 @@ export interface ICompany extends Document {
     password?: string;
     logoUrl?: string; // NEW
     rfc?: string;
+    useCustomCost: boolean;
+    customCostPerTicket: number;
     matchPassword(enteredPassword: string): Promise<boolean>;
     createdAt: Date;
 }
@@ -18,6 +20,8 @@ const CompanySchema = new Schema<ICompany>({
     name: { type: String, required: true, unique: true },
     code: { type: String, required: true, unique: true },
     costPerTicket: { type: Number, default: 0 },
+    useCustomCost: { type: Boolean, default: false },
+    customCostPerTicket: { type: Number, default: 0 },
     email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     loginUsername: { type: String, unique: true, sparse: true, trim: true },
     password: { type: String, select: false },

@@ -29,7 +29,9 @@ export interface ITicket extends Document {
     problems: IProblemEntry[];          // NEW – array of problems
     description: string;
     imagePath?: string;
-    cost: number;                       // total cost (sum of problems)
+    cost: number;                       // base cost (before tax)
+    taxAmount: number;                  // IVA 16% if requiresInvoice
+    totalCost: number;                  // cost + taxAmount
     status: 'open' | 'solved';
     solvedAt?: Date;
     requiresInvoice?: boolean;
@@ -49,6 +51,8 @@ const TicketSchema = new Schema<ITicket>({
     description:        { type: String, required: true, maxlength: 800 },
     imagePath:          { type: String },
     cost:               { type: Number, required: true, default: 0 },
+    taxAmount:          { type: Number, required: true, default: 0 },
+    totalCost:          { type: Number, required: true, default: 0 },
     status:             { type: String, enum: ['open', 'solved'], default: 'open' },
     solvedAt:           { type: Date },
     requiresInvoice:    { type: Boolean, default: false },
