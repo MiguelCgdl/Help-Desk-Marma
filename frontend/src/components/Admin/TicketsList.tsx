@@ -460,217 +460,235 @@ const TicketsList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="marmacore-filter-container p-0 mb-6 overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50 bg-[#F8FAFB]/50">
-                    <div className="flex items-center gap-2">
-                        <FunnelIcon className="w-4 h-4 text-[#FD5200]" />
+            <div className="marmacore-filter-container p-0 mb-6 overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-4 border-b border-gray-50 bg-[#F8FAFB]/50 gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-[#FD5200]/10 rounded-lg">
+                            <FunnelIcon className="w-5 h-5 text-[#FD5200]" />
+                        </div>
                         <div>
                             <h3 className="text-sm font-bold text-[#00272E]">Panel de Filtros</h3>
                             <p className="text-[10px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Busca y segmenta reportes</p>
                         </div>
                     </div>
+                    <button
+                        onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-[#FD5200] border border-gray-200 hover:border-[#FD5200]/30 transition-all flex items-center justify-center gap-2 bg-white"
+                    >
+                        <XMarkIcon className="w-4 h-4" />
+                        Limpiar Filtros
+                    </button>
                 </div>
-                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {/* Search */}
-                    <div className="relative col-span-1 sm:col-span-2 lg:col-span-1">
-                        <MagnifyingGlassIcon className="marmacore-icon-left" />
-                        <input
-                            type="text"
-                            placeholder="Buscar ticket o empresa..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            className="marmacore-input marmacore-input-icon py-2 text-xs w-full"
-                        />
+                    <div className="relative">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Búsqueda</label>
+                        <div className="relative">
+                            <MagnifyingGlassIcon className="marmacore-icon-left" />
+                            <input
+                                type="text"
+                                placeholder="Ticket o empresa..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                className="marmacore-input marmacore-input-icon py-2.5 text-xs w-full bg-gray-50/50"
+                            />
+                        </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:col-span-2 lg:col-span-2">
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Desde</label>
                         <input
                             type="date"
                             value={filter.startDate}
                             onChange={e => setFilter({ ...filter, startDate: e.target.value })}
-                            className="marmacore-input py-2 text-xs w-full"
+                            className="marmacore-input py-2.5 text-xs w-full bg-gray-50/50"
                         />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Hasta</label>
                         <input
                             type="date"
                             value={filter.endDate}
                             onChange={e => setFilter({ ...filter, endDate: e.target.value })}
-                            className="marmacore-input py-2 text-xs w-full"
+                            className="marmacore-input py-2.5 text-xs w-full bg-gray-50/50"
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:col-span-2 lg:col-span-2">
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Estado</label>
                         <select
                             value={filter.status}
                             onChange={e => setFilter({ ...filter, status: e.target.value })}
-                            className="marmacore-select py-2 text-xs w-full"
+                            className="marmacore-select py-2.5 text-xs w-full bg-gray-50/50"
                         >
-                            <option value="">Todos (Estado)</option>
+                            <option value="">Todos los estados</option>
                             <option value="open">Abiertos</option>
                             <option value="solved">Resueltos</option>
                         </select>
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Factura</label>
                         <select
                             value={filter.requiresInvoice}
                             onChange={e => setFilter({ ...filter, requiresInvoice: e.target.value })}
-                            className="marmacore-select py-2 text-xs w-full"
+                            className="marmacore-select py-2.5 text-xs w-full bg-gray-50/50"
                         >
-                            <option value="">Filtro Factura</option>
+                            <option value="">Todos</option>
                             <option value="true">Requerida</option>
                             <option value="false">No Requerida</option>
                         </select>
-                    </div>
-                    <div className="sm:col-span-2 lg:col-span-5 flex justify-end">
-                        <button
-                            onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
-                            className="px-3 py-2 rounded-lg text-[10px] font-bold text-gray-400 hover:text-[#FD5200] border border-gray-100 hover:border-[#FD5200]/30 transition-all flex items-center justify-center min-w-[80px]"
-                        >
-                            Limpiar Filtros
-                        </button>
                     </div>
                 </div>
             </div>
 
             {/* Table */}
-            <div className="marmacore-table-container">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+            <div className="marmacore-table-container bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                    <table className="w-full text-left min-w-[1000px] border-collapse">
                         <thead>
-                            <tr className="marmacore-table-head bg-gray-50/50">
-                                <th className="px-4 py-3 w-10">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
-                                        checked={filtered.length > 0 && selectedTickets.length === filtered.length}
-                                        onChange={e => {
-                                            if (e.target.checked) setSelectedTickets(filtered.map(t => t._id));
-                                            else setSelectedTickets([]);
-                                        }}
-                                    />
+                            <tr className="bg-[#F8FAFB]/50 border-b border-gray-100">
+                                <th className="pl-6 pr-4 py-4 w-12">
+                                    <div className="flex items-center">
+                                        <input 
+                                            type="checkbox" 
+                                            className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200] cursor-pointer"
+                                            checked={filtered.length > 0 && selectedTickets.length === filtered.length}
+                                            onChange={e => {
+                                                if (e.target.checked) setSelectedTickets(filtered.map(t => t._id));
+                                                else setSelectedTickets([]);
+                                            }}
+                                        />
+                                    </div>
                                 </th>
-                                <th className="px-4 py-3">Ticket</th>
-                                <th className="px-4 py-3">Empresa</th>
-                                <th className="px-4 py-3 hidden md:table-cell">Fecha</th>
-                                <th className="px-4 py-3 hidden lg:table-cell">Problemas</th>
-                                <th className="px-4 py-3 text-center hidden sm:table-cell">Factura</th>
-                                <th className="px-4 py-3">Estado</th>
-                                <th className="px-4 py-3 text-right">Costo</th>
-                                <th className="px-4 py-3 text-right">Acción</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Ticket</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Empresa</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">Fecha</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest hidden lg:table-cell">Problemas</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center hidden sm:table-cell">Factura</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Estado</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Costo</th>
+                                <th className="pl-4 pr-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Acción</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {loading && (
-                                <tr><td colSpan={9} className="py-16 text-center">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="w-8 h-8 border-[3px] border-[#FD5200]/20 border-t-[#FD5200] rounded-full animate-spin" />
-                                        <span className="text-xs text-gray-400 font-medium">Cargando registros...</span>
+                                <tr><td colSpan={9} className="py-20 text-center">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="w-10 h-10 border-[3px] border-[#FD5200]/20 border-t-[#FD5200] rounded-full animate-spin" />
+                                        <span className="text-sm text-gray-400 font-bold tracking-wide">Cargando registros...</span>
                                     </div>
                                 </td></tr>
                             )}
                             {!loading && filtered.length === 0 && (
-                                <tr><td colSpan={9} className="py-16 text-center">
-                                    <TicketIcon className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                                    <p className="text-sm text-gray-400 font-medium">No se encontraron tickets.</p>
+                                <tr><td colSpan={9} className="py-20 text-center">
+                                    <div className="flex flex-col items-center gap-3 opacity-30">
+                                        <TicketIcon className="w-12 h-12 text-[#00272E]" />
+                                        <p className="text-sm text-[#00272E] font-black uppercase tracking-widest">No se encontraron tickets</p>
+                                    </div>
                                 </td></tr>
                             )}
                             {filtered.map(t => (
-                                <tr key={t._id} className="group hover:bg-gray-50/80 transition-all border-b border-gray-50 last:border-0">
-                                    <td className="px-4 py-3">
-                                        <input 
-                                            type="checkbox" 
-                                            className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
-                                            checked={selectedTickets.includes(t._id)}
-                                            onChange={e => {
-                                                if (e.target.checked) setSelectedTickets([...selectedTickets, t._id]);
-                                                else setSelectedTickets(selectedTickets.filter(id => id !== t._id));
-                                            }}
-                                        />
+                                <tr key={t._id} className="group hover:bg-gray-50/50 transition-all duration-200">
+                                    <td className="pl-6 pr-4 py-4">
+                                        <div className="flex items-center">
+                                            <input 
+                                                type="checkbox" 
+                                                className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200] cursor-pointer"
+                                                checked={selectedTickets.includes(t._id)}
+                                                onChange={e => {
+                                                    if (e.target.checked) setSelectedTickets([...selectedTickets, t._id]);
+                                                    else setSelectedTickets(selectedTickets.filter(id => id !== t._id));
+                                                }}
+                                            />
+                                        </div>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span className="text-xs font-black text-[#00272E] tracking-tight">{t.ticketNumber}</span>
+                                    <td className="px-4 py-4">
+                                        <span className="text-xs font-black text-[#00272E] tracking-tight whitespace-nowrap bg-gray-100 px-2.5 py-1.5 rounded-lg border border-gray-200/50">{t.ticketNumber}</span>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center p-0.5 shrink-0">
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center p-1 shadow-sm shrink-0">
                                                 <img 
                                                     src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `${BASE_SERVER_URL}/${(t.companyId as any).logoUrl}`} 
                                                     alt="" 
                                                     className="w-full h-full object-contain"
                                                 />
                                             </div>
-                                            <span className="text-xs font-bold text-[#00272E] truncate max-w-[80px] sm:max-w-none">{(t.companyId as any).name}</span>
+                                            <span className="text-xs font-bold text-[#00272E] truncate max-w-[150px]">{(t.companyId as any).name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 hidden md:table-cell">
-                                        <div className="flex items-center gap-1.5 text-gray-400">
-                                            <ClockIcon className="w-3.5 h-3.5" />
-                                            <span className="text-[10px] font-bold">{new Date(t.createdAt).toLocaleDateString()}</span>
+                                    <td className="px-4 py-4 hidden md:table-cell">
+                                        <div className="flex items-center gap-2 text-gray-500">
+                                            <ClockIcon className="w-4 h-4 opacity-40" />
+                                            <span className="text-xs font-bold">{new Date(t.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 hidden lg:table-cell">
+                                    <td className="px-4 py-4 hidden lg:table-cell">
                                         {(t.problems && t.problems.length > 0) ? (
-                                            <div className="flex flex-wrap gap-1">
-                                                {t.problems.slice(0, 2).map((p, idx) => (
-                                                    <span key={idx} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[8px] font-black uppercase border border-gray-200">
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {t.problems.slice(0, 1).map((p, idx) => (
+                                                    <span key={idx} className="px-2 py-1 bg-[#006D65]/5 text-[#006D65] rounded-md text-[9px] font-black uppercase border border-[#006D65]/10">
                                                         {p.title}
                                                     </span>
                                                 ))}
-                                                {t.problems.length > 2 && (
-                                                    <span className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[8px] font-bold">
-                                                        +{t.problems.length - 2}
+                                                {t.problems.length > 1 && (
+                                                    <span className="px-2 py-1 bg-gray-100 text-gray-400 rounded-md text-[9px] font-black border border-gray-200">
+                                                        +{t.problems.length - 1}
                                                     </span>
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="text-gray-300 text-[10px]">—</span>
+                                            <span className="text-gray-300 text-[10px] font-bold tracking-widest ml-2">—</span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-center hidden sm:table-cell">
-                                        <span className={`marmacore-badge px-2 py-0.5 ${
+                                    <td className="px-4 py-4 text-center hidden sm:table-cell">
+                                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black border ${
                                             t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
-                                            t.requiresInvoice ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 
+                                            t.requiresInvoice ? 'bg-cyan-50 text-cyan-600 border-cyan-100' : 
                                             'bg-gray-50 text-gray-400 border-gray-100'
                                         }`}>
-                                            {t.invoiced ? 'FACTURADA' : t.requiresInvoice ? 'SI' : 'NO'}
+                                            {t.invoiced ? 'FACTURADA' : t.requiresInvoice ? 'SÍ' : 'NO'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span className={`marmacore-badge px-2 py-0.5 whitespace-nowrap ${
+                                    <td className="px-4 py-4">
+                                        <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black border w-fit whitespace-nowrap ${
                                             t.status === 'solved' 
-                                            ? 'bg-green-50 text-green-700 border-green-100' 
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
                                             : 'bg-orange-50 text-orange-700 border-orange-100'
                                         }`}>
                                             {t.status === 'solved' ? (
-                                                <><CheckCircleIcon className="w-3 h-3 hidden xs:block" /> Resuelto</>
+                                                <><CheckCircleIcon className="w-3.5 h-3.5" /> RESUELTO</>
                                             ) : (
-                                                <><ClockIcon className="w-3 h-3 hidden xs:block" /> Abierto</>
+                                                <><ClockIcon className="w-3.5 h-3.5" /> ABIERTO</>
                                             )}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <span className="text-xs font-black text-[#00272E] tracking-tight">
+                                    <td className="px-4 py-4 text-right">
+                                        <span className="text-sm font-black text-[#00272E] tracking-tight">
                                             ${t.cost?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-1.5">
+                                    <td className="pl-4 pr-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
                                             {t.status === 'open' && (
                                                 <button
                                                     onClick={() => setSolving(t)}
-                                                    className="px-2 py-1.5 bg-[#FD5200] text-white text-[9px] font-black uppercase rounded-lg shadow-sm hover:shadow-md hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1 shrink-0"
+                                                    className="px-3 py-2 bg-[#FD5200] text-white text-[10px] font-black uppercase rounded-xl shadow-sm hover:shadow-lg hover:bg-[#E64A00] transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
                                                 >
-                                                    <CheckCircleIcon className="w-3 h-3 hidden sm:block" /> Resolver
+                                                    <CheckCircleIcon className="w-4 h-4 hidden sm:block" /> Resolver
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => setDetail(t)}
-                                                className="p-1.5 text-gray-400 hover:text-[#006D65] hover:bg-[#006D65]/5 rounded-lg transition-all shrink-0"
+                                                className="p-2 text-gray-400 hover:text-[#00272E] hover:bg-gray-100 rounded-xl transition-all shrink-0"
                                                 title="Ver detalles"
                                             >
-                                                <EyeIcon className="w-3.5 h-3.5" />
+                                                <EyeIcon className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(t._id, t.ticketNumber)}
-                                                className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0 hidden sm:block"
+                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0 hidden sm:block"
                                                 title="Eliminar"
                                             >
-                                                <TrashIcon className="w-3.5 h-3.5" />
+                                                <TrashIcon className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
