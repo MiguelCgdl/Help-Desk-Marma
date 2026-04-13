@@ -208,7 +208,8 @@ const Problems: React.FC = () => {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[600px]">
                                 <thead>
                                     <tr className="marmacore-table-head">
@@ -264,6 +265,50 @@ const Problems: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {problems.map(p => (
+                                <div key={p._id} className="p-4 space-y-3 hover:bg-gray-50/30 transition-all">
+                                    <div className="flex items-start justify-between">
+                                        <div className="font-bold text-[#00272E] text-base">{p.title}</div>
+                                        <button 
+                                            onClick={() => toggleStatus(p._id, p.active)}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${
+                                                p.active 
+                                                ? 'bg-green-50 text-green-600 border border-green-100' 
+                                                : 'bg-red-50 text-red-600 border border-red-100'
+                                            }`}
+                                        >
+                                            {p.active ? 'Activo' : 'Inactivo'}
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-left">
+                                            <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-0.5">Costo Base</p>
+                                            <span className="text-lg font-black text-[#FD5200]">
+                                                ${p.costPerHour?.toFixed(2) || '0.00'}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleDelete(p._id)}
+                                                className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => startEdit(p)}
+                                                className="p-2.5 text-[#FD5200] bg-orange-50 hover:bg-orange-100 rounded-xl transition-all"
+                                            >
+                                                <PencilIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

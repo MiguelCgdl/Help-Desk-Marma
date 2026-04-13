@@ -176,7 +176,8 @@ const Costs: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[500px]">
                                 <thead>
                                     <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
@@ -231,6 +232,47 @@ const Costs: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {problems.map(p => (
+                                <div key={p._id} className="p-4 space-y-4">
+                                    <input
+                                        type="text"
+                                        value={editingTitles[p._id] ?? ''}
+                                        onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-bold focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                                    />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <button 
+                                                onClick={() => toggleStatus(p._id, p.active)}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                                                    p.active 
+                                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                                    : 'bg-red-50 text-red-600 border border-red-100'
+                                                }`}
+                                            >
+                                                {p.active ? 'Activo' : 'Inactivo'}
+                                            </button>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-xs font-bold text-gray-400">$</span>
+                                                <input
+                                                    type="number"
+                                                    value={editingCosts[p._id] ?? 0}
+                                                    onChange={(e) => setEditingCosts({ ...editingCosts, [p._id]: Number(e.target.value) })}
+                                                    className="w-24 px-3 py-1.5 rounded-xl border border-gray-100 bg-gray-50 text-[#FD5200] text-sm font-black focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={() => saveRow(p._id)} className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl active:scale-95"><CheckCircleIcon className="w-5 h-5"/></button>
+                                            <button onClick={() => handleDelete(p._id)} className="p-2.5 bg-red-50 text-red-400 rounded-xl active:scale-95"><TrashIcon className="w-5 h-5"/></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -242,14 +284,15 @@ const Costs: React.FC = () => {
                                 <div className="p-2 bg-[#006D65]/10 rounded-lg">
                                     <BuildingOfficeIcon className="w-5 h-5 text-[#006D65]" />
                                 </div>
-                                <div>
+                                <div className="flex items-center gap-2">
                                     <h3 className="text-base font-bold text-[#00272E]">Costos por Empresa</h3>
-                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider">Costo fijo por ticket</p>
+                                    <p className="text-[11px] text-[#006D65] font-semibold opacity-60 uppercase tracking-wider hidden sm:block">Costo fijo por ticket</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[500px]">
                                 <thead>
                                     <tr className="bg-gray-50/50 text-[10px] font-black text-[#00272E] uppercase tracking-[0.2em] opacity-50">
@@ -312,6 +355,55 @@ const Costs: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {companies.map(c => (
+                                <div key={c._id} className="p-4 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-black text-[#00272E] tracking-tight">{c.name}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase">Tarifas</span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="sr-only peer"
+                                                    checked={editingCompanyToggles[c._id] ?? false}
+                                                    onChange={(e) => setEditingCompanyToggles({ ...editingCompanyToggles, [c._id]: e.target.checked })}
+                                                />
+                                                <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#FD5200]"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-1.5 flex-1">
+                                            <span className="text-xs font-bold text-gray-400">$</span>
+                                            <input
+                                                type="number"
+                                                disabled={!editingCompanyToggles[c._id]}
+                                                value={editingCompanyCosts[c._id] ?? 0}
+                                                onChange={(e) => setEditingEditingCompanyCosts({ ...editingCompanyCosts, [c._id]: Number(e.target.value) })}
+                                                className="w-full px-3 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-black focus:border-[#FD5200]/40 focus:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => setSelectedCompanyId(c._id)}
+                                                className="p-2.5 bg-[#006D65]/5 text-[#006D65] rounded-xl flex items-center gap-1.5 text-[10px] font-black uppercase active:scale-95"
+                                            >
+                                                Tarifas
+                                            </button>
+                                            <button 
+                                                onClick={() => saveCompanyRow(c._id)}
+                                                className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl active:scale-95"
+                                            >
+                                                <CheckCircleIcon className="w-5 h-5"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -608,9 +608,10 @@ const TicketsList: React.FC = () => {
                 </div>
             </div>
 
-            {/* Table */}
+            {/* Table / Cards Container */}
             <div className="marmacore-table-container bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                {/* Desktop view */}
+                <div className="hidden xl:block overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
                     <table className="w-full text-left min-w-[1000px] border-collapse">
                         <thead>
                             <tr className="bg-[#F8FAFB]/50 border-b border-gray-100">
@@ -629,9 +630,9 @@ const TicketsList: React.FC = () => {
                                 </th>
                                 <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Ticket</th>
                                 <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Empresa</th>
-                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest hidden md:table-cell">Fecha</th>
-                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest hidden lg:table-cell">Problemas</th>
-                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center hidden sm:table-cell">Factura</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Fecha</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Problemas</th>
+                                <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Factura</th>
                                 <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Estado</th>
                                 <th className="px-4 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Costo</th>
                                 <th className="pl-4 pr-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Acción</th>
@@ -684,13 +685,13 @@ const TicketsList: React.FC = () => {
                                             <span className="text-xs font-bold text-[#00272E] truncate max-w-[150px]">{(t.companyId as any).name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 hidden md:table-cell">
+                                    <td className="px-4 py-4">
                                         <div className="flex items-center gap-2 text-gray-500">
                                             <ClockIcon className="w-4 h-4 opacity-40" />
                                             <span className="text-xs font-bold">{new Date(t.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 hidden lg:table-cell">
+                                    <td className="px-4 py-4">
                                         {(t.problems && t.problems.length > 0) ? (
                                             <div className="flex flex-wrap gap-1.5">
                                                 {t.problems.slice(0, 1).map((p, idx) => (
@@ -708,7 +709,7 @@ const TicketsList: React.FC = () => {
                                             <span className="text-gray-300 text-[10px] font-bold tracking-widest ml-2">—</span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-4 text-center hidden sm:table-cell">
+                                    <td className="px-4 py-4 text-center">
                                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black border ${
                                             t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
                                             t.requiresInvoice ? 'bg-cyan-50 text-cyan-600 border-cyan-100' : 
@@ -761,7 +762,7 @@ const TicketsList: React.FC = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(t._id, t.ticketNumber)}
-                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0 hidden sm:block"
+                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0"
                                                 title="Eliminar"
                                             >
                                                 <TrashIcon className="w-4 h-4" />
@@ -772,6 +773,118 @@ const TicketsList: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile view (Cards) */}
+                <div className="xl:hidden divide-y divide-gray-100">
+                    {loading && (
+                        <div className="py-20 text-center">
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-10 h-10 border-[3px] border-[#FD5200]/20 border-t-[#FD5200] rounded-full animate-spin" />
+                                <span className="text-sm text-gray-400 font-bold tracking-wide">Cargando registros...</span>
+                            </div>
+                        </div>
+                    )}
+                    {!loading && filtered.length === 0 && (
+                        <div className="py-20 text-center">
+                            <div className="flex flex-col items-center gap-3 opacity-30">
+                                <TicketIcon className="w-12 h-12 text-[#00272E]" />
+                                <p className="text-sm text-[#00272E] font-black uppercase tracking-widest">No se encontraron tickets</p>
+                            </div>
+                        </div>
+                    )}
+                    {filtered.map(t => (
+                        <div key={t._id} className="p-4 space-y-4 hover:bg-gray-50/50 transition-all">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="checkbox" 
+                                        className="w-5 h-5 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
+                                        checked={selectedTickets.includes(t._id)}
+                                        onChange={e => {
+                                            if (e.target.checked) setSelectedTickets([...selectedTickets, t._id]);
+                                            else setSelectedTickets(selectedTickets.filter(id => id !== t._id));
+                                        }}
+                                    />
+                                    <div>
+                                        <div className="text-sm font-black text-[#00272E] tracking-tight mb-1">
+                                            {t.ticketNumber}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                            <ClockIcon className="w-3 h-3" />
+                                            {new Date(t.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black border ${
+                                    t.status === 'solved' 
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                                    : 'bg-orange-50 text-orange-700 border-orange-100'
+                                }`}>
+                                    {t.status === 'solved' ? 'RESUELTO' : 'ABIERTO'}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-[#F8FAFB] p-3 rounded-xl border border-gray-100">
+                                <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center p-1.5 shadow-sm shrink-0">
+                                    <img 
+                                        src={(t.companyId as any).logoUrl.startsWith('http') ? (t.companyId as any).logoUrl : `${BASE_SERVER_URL}/${(t.companyId as any).logoUrl}`} 
+                                        alt="" 
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-black text-[#00272E] truncate">{(t.companyId as any).name}</p>
+                                    <p className="text-[10px] text-[#006D65] font-bold uppercase opacity-60">Empresa Cliente</p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5">
+                                {t.problems.map((p, idx) => (
+                                    <span key={idx} className="px-2 py-1 bg-[#006D65]/5 text-[#006D65] rounded-md text-[9px] font-black uppercase border border-[#006D65]/10">
+                                        {p.title}
+                                    </span>
+                                ))}
+                                <span className={`px-2 py-1 rounded-md text-[9px] font-black border ${
+                                    t.invoiced ? 'bg-[#00272E] text-white border-[#00272E]' :
+                                    t.requiresInvoice ? 'bg-cyan-50 text-cyan-600 border-cyan-100' : 
+                                    'bg-gray-100 text-gray-400 border-gray-200'
+                                }`}>
+                                    {t.invoiced ? 'FACTURADA' : t.requiresInvoice ? 'REQUIERE FACTURA' : 'SIN FACTURA'}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2">
+                                <div className="text-left font-black text-[#00272E]">
+                                    <div className="text-[9px] text-gray-400 uppercase tracking-widest mb-0.5">Total Ticket</div>
+                                    <span className="text-lg">${(t.totalCost || t.cost || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                                    {t.taxAmount > 0 && <span className="ml-1 text-[8px] text-[#006D65] uppercase">IVA</span>}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handleDelete(t._id, t.ticketNumber)}
+                                        className="p-2.5 text-red-400 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                                    >
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => setDetail(t)}
+                                        className="p-2.5 text-[#00272E] bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
+                                    >
+                                        <EyeIcon className="w-5 h-5" />
+                                    </button>
+                                    {t.status === 'open' && (
+                                        <button
+                                            onClick={() => setSolving(t)}
+                                            className="px-4 py-2.5 bg-[#FD5200] text-white text-xs font-black uppercase rounded-xl shadow-lg shadow-[#FD5200]/20 active:scale-95"
+                                        >
+                                            Resolver
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 

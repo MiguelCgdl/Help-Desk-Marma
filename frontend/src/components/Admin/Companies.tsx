@@ -311,7 +311,8 @@ const Companies: React.FC = () => {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[700px]">
                                 <thead>
                                     <tr className="marmacore-table-head">
@@ -413,6 +414,84 @@ const Companies: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {loading && companies.length === 0 && (
+                                <div className="py-16 text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-8 h-8 border-[3px] border-[#FD5200]/20 border-t-[#FD5200] rounded-full animate-spin" />
+                                        <span className="text-[11px] font-bold text-[#00272E] uppercase tracking-widest opacity-30">Cargando...</span>
+                                    </div>
+                                </div>
+                            )}
+                            {!loading && companies.length === 0 && (
+                                <div className="py-16 text-center">
+                                    <p className="text-sm text-gray-400 font-medium">No hay empresas registradas aún.</p>
+                                </div>
+                            )}
+                            {companies.map(c => (
+                                <div key={c._id} className={`p-4 space-y-4 ${editingId === c._id ? 'bg-orange-50/40' : ''}`}>
+                                    <div className="flex items-center gap-3">
+                                        {c.logoUrl ? (
+                                            <img 
+                                                src={c.logoUrl.startsWith('http') ? c.logoUrl : `${BASE_SERVER_URL}/${c.logoUrl}`} 
+                                                alt={c.name} 
+                                                className="w-12 h-12 object-contain rounded-xl bg-gray-50 p-2 border border-gray-100 shadow-sm" 
+                                            />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-lg font-bold text-gray-400">
+                                                {c.name.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                        <div className="min-w-0">
+                                            <div className="font-bold text-[#00272E] text-base truncate">{c.name}</div>
+                                            <span className="text-[10px] bg-[#00272E] text-white px-2 py-0.5 rounded font-mono font-bold inline-block mt-1">
+                                                {c.code}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 pb-2">
+                                        <div className="bg-[#F8FAFB] p-2.5 rounded-lg border border-gray-50">
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Usuario</p>
+                                            <p className="text-xs font-bold text-[#00272E] truncate flex items-center gap-1.5">
+                                                <UserIcon className="w-3 h-3 opacity-40 shrink-0" />
+                                                {c.loginUsername || '—'}
+                                            </p>
+                                        </div>
+                                        <div className="bg-[#F8FAFB] p-2.5 rounded-lg border border-gray-50">
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tarifa Fija</p>
+                                            <p className="text-sm font-black text-[#FD5200]">
+                                                ${c.costPerTicket.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-2">
+                                        {c.rfc ? (
+                                            <span className="text-[10px] font-bold text-[#006D65] uppercase tracking-wider bg-[#D5EFF2]/30 px-2.5 py-1 rounded-lg">
+                                                RFC: {c.rfc}
+                                            </span>
+                                        ) : <div />}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleDelete(c._id)}
+                                                className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => startEdit(c)}
+                                                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#FD5200] border border-[#FD5200]/20 bg-white rounded-xl shadow-sm active:scale-95"
+                                            >
+                                                <PencilIcon className="w-4 h-4" /> Editar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

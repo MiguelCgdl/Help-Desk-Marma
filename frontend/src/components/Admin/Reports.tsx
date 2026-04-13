@@ -125,7 +125,7 @@ export default function Reports() {
             {selectedCompany === 'all' ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Chart 1: Distribution */}
-                    <div className="marmacore-card p-8">
+                    <div className="marmacore-card p-8 text-center sm:text-left">
                         <h3 className="text-lg font-bold text-[#00272E] mb-6">Distribución de Tickets</h3>
                         <div className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -155,7 +155,8 @@ export default function Reports() {
                         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-[#00272E]">Resumen por Empresa</h3>
                         </div>
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[600px]">
                                 <thead className="bg-[#F8FAFB] text-xs font-bold text-[#006D65] uppercase tracking-wider">
                                     <tr>
@@ -201,11 +202,49 @@ export default function Reports() {
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {companiesInMonth.map((name) => (
+                                <div key={name} className="p-4 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {summary.summaryByCompany[name].logoUrl ? (
+                                                <img 
+                                                    src={summary.summaryByCompany[name].logoUrl.startsWith('http') ? summary.summaryByCompany[name].logoUrl : `${BASE_SERVER_URL}/${summary.summaryByCompany[name].logoUrl}`} 
+                                                    className="w-8 h-8 object-contain rounded" 
+                                                    alt="logo" 
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[10px] text-gray-400 font-bold">{name.charAt(0)}</div>
+                                            )}
+                                            <span className="font-bold text-[#00272E] text-sm">{name}</span>
+                                        </div>
+                                        <button 
+                                            onClick={() => setSelectedCompany(name)}
+                                            className="text-[10px] font-black text-dark-teal bg-accent-teal px-3 py-1.5 rounded-lg active:scale-95"
+                                        >
+                                            DETALLES
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tickets</p>
+                                            <p className="text-sm font-bold text-[#006D65]">{summary.summaryByCompany[name].count}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Facturado</p>
+                                            <p className="text-sm font-black text-[#FD5200]">${summary.summaryByCompany[name].totalCost.toLocaleString('es-MX')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             ) : (
                 <div className="space-y-8">
-                    <div className="marmacore-card overflow-hidden animate-fade-in">
+                    <div className="marmacore-card overflow-hidden animate-fade-in !p-0">
                         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white">
                             <h3 className="text-lg font-bold text-[#00272E] flex items-center gap-3">
                                 {currentCompanyData?.logoUrl && (
@@ -215,16 +254,17 @@ export default function Reports() {
                                         alt="logo" 
                                     />
                                 )}
-                                Listado de Tickets: {selectedCompany}
+                                <span className="hidden sm:inline">Listado de Tickets:</span> {selectedCompany}
                             </h3>
                             <button 
                                 onClick={() => setSelectedCompany('all')}
-                                className="text-xs font-bold text-[#FD5200] hover:underline"
+                                className="text-xs font-bold text-[#FD5200] hover:underline whitespace-nowrap"
                             >
                                 VOLVER AL GENERAL
                             </button>
                         </div>
-                        <div className="overflow-x-auto w-full">
+                        {/* Desktop Table View */}
+                        <div className="hidden xl:block overflow-x-auto w-full">
                             <table className="w-full text-left whitespace-nowrap min-w-[700px]">
                                 <thead className="bg-[#F8FAFB] text-xs font-bold text-[#006D65] uppercase tracking-wider">
                                     <tr>
@@ -259,6 +299,30 @@ export default function Reports() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="xl:hidden divide-y divide-gray-100">
+                            {currentCompanyData?.tickets.map((ticket: any) => (
+                                <div key={ticket._id} className="p-4 space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-sm font-mono font-bold text-[#00272E]">{ticket.ticketNumber}</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase">{new Date(ticket.createdAt).toLocaleDateString('es-MX')}</p>
+                                        </div>
+                                        <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${
+                                            ticket.status === 'open' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-green-50 text-green-600 border border-green-100'
+                                        }`}>
+                                            {ticket.status === 'open' ? 'Abierto' : 'Resuelto'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-600 line-clamp-2 italic">"{ticket.description}"</p>
+                                    <div className="flex justify-between items-center pt-2 border-t border-gray-50 mt-2">
+                                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Costo Ticket</span>
+                                        <span className="text-base font-black text-dark-teal">${ticket.cost.toLocaleString('es-MX')}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

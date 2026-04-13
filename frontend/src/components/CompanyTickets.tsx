@@ -166,7 +166,8 @@ const CompanyTickets: React.FC = () => {
             )}
 
             <div className="marmacore-card overflow-hidden bg-white shadow-md border border-gray-100/50">
-                <div className="overflow-x-auto w-full">
+                {/* Desktop view */}
+                <div className="hidden md:block overflow-x-auto w-full">
                     <table className="w-full text-left whitespace-nowrap">
                         <thead className="bg-[#F8FAFB] text-[10px] font-black text-[#006D65] uppercase tracking-wider">
                             <tr>
@@ -232,6 +233,71 @@ const CompanyTickets: React.FC = () => {
                                 })}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile view */}
+                <div className="md:hidden divide-y divide-gray-100">
+                    {loading && (
+                        <div className="p-12 text-center text-gray-400">
+                            <div className="flex justify-center items-center gap-2">
+                                <div className="w-5 h-5 border-2 border-[#00272E]/20 border-t-[#00272E] rounded-full animate-spin" />
+                                <span className="font-bold text-sm">Cargando...</span>
+                            </div>
+                        </div>
+                    )}
+                    {!loading && displayTickets.length === 0 && (
+                        <div className="p-12 text-center text-gray-400">
+                            <TicketIcon className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                            <span className="font-bold">No se encontraron tickets.</span>
+                        </div>
+                    )}
+                    {!loading && displayTickets.map((t) => {
+                        const st = statusLabel(t);
+                        const probTitle = t.problems?.[0]?.title ?? (t.problemId as any)?.title ?? '—';
+                        return (
+                            <div key={t._id} className="p-4 space-y-3 hover:bg-[#D5EFF2]/10 transition-colors">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <span className="font-mono font-bold text-[#00272E] text-lg">{t.ticketNumber}</span>
+                                        <span className="text-[10px] text-gray-400 uppercase font-black tracking-wider">
+                                            {new Date(t.createdAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                    <span className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${st.cls}`}>
+                                        {st.text}
+                                    </span>
+                                </div>
+                                
+                                <div className="text-sm text-gray-700 font-medium leading-tight">
+                                    {probTitle}
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2">
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={() => toggleInvoice(t._id, !!t.requiresInvoice)}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                                                t.requiresInvoice 
+                                                ? 'bg-blue-50 text-blue-700 border border-blue-100' 
+                                                : 'bg-gray-50 text-gray-500 border border-gray-100'
+                                            }`}
+                                        >
+                                            {t.requiresInvoice ? <CheckCircleIcon className="w-3.5 h-3.5" /> : <XCircleIcon className="w-3.5 h-3.5" />}
+                                            Factura: {t.requiresInvoice ? 'Sí' : 'No'}
+                                        </button>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-[#006D65] font-black uppercase tracking-tighter opacity-70">Costo</div>
+                                        <div className="font-black text-[#00272E] text-lg">
+                                            {t.status === 'solved'
+                                                ? `$${Number(t.cost).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+                                                : <span className="text-gray-300">—</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
