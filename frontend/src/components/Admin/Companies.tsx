@@ -206,7 +206,7 @@ const Companies: React.FC = () => {
                                             className="w-full sm:w-1/2 text-[10px] text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-gray-100 file:text-[#00272E] hover:file:bg-gray-200"
                                         />
                                         <input
-                                            type="url"
+                                            type="text"
                                             placeholder="o URL https://..."
                                             value={form.logoUrl}
                                             onChange={e => { setForm({ ...form, logoUrl: e.target.value }); setLogoFile(null); }}

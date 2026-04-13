@@ -205,8 +205,8 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
                 ticket.ticketNumber, 
                 comments || '', 
                 company.name, 
-                ticket.totalCost, 
-                ticket.requiresInvoice
+                Number(ticket.totalCost) || 0, 
+                Boolean(ticket.requiresInvoice)
             );
         }
     } catch (err) {
