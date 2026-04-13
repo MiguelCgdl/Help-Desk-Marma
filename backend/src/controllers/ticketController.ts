@@ -162,8 +162,8 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
         // 2. Use problem-specific costs from company or the global problem rate
         baseCost = ticket.problems.reduce((sum, p) => {
             const problemIdStr = p.problemId?.toString();
-            // Check if company has a custom rate for THIS specific problem
-            const customRate = (company?.problemCosts as any)?.get?.(problemIdStr) || company?.problemCosts?.[problemIdStr as any];
+            // Use .get() for Mongoose Map and cast to any to avoid TS index signature issues
+            const customRate = problemIdStr ? (company?.problemCosts as any)?.get(problemIdStr) : undefined;
             
             const rate = (typeof customRate === 'number') ? customRate : p.costPerHour;
             const hours = p.timeSpentMinutes / 60;

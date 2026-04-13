@@ -69,8 +69,8 @@ const Costs: React.FC = () => {
             const company = companies.find(c => c._id === selectedCompanyId);
             if (company) {
                 const initialProblemCosts = problems.reduce((acc, p) => {
-                    // Check both Map-style and Object-style access for the response
-                    const customRate = company.problemCosts?.[p._id];
+                    // Check if company has a custom rate for THIS specific problem
+                    const customRate = company.problemCosts ? (company.problemCosts as any)[p._id] : undefined;
                     acc[p._id] = typeof customRate === 'number' ? customRate : p.costPerHour;
                     return acc;
                 }, {} as Record<string, number>);
