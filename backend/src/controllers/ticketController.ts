@@ -4,7 +4,7 @@ import Ticket from '../models/Ticket';
 import Company from '../models/Company';
 import Problem from '../models/Problem';
 import { generateTicketNumber } from '../utils/ticketNumberGenerator';
-import { sendTicketResolutionEmail } from '../utils/mailer';
+import { sendTicketResolutionEmail, sendNewTicketEmail } from '../utils/mailer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/tickets
@@ -79,6 +79,11 @@ export const createTicket = asyncHandler(async (req, res) => {
     });
 
     res.status(201).json({ ticketNumber: ticket.ticketNumber, ticket });
+    
+    // Send email notification to company
+    if (company && company.email) {
+        sendNewTicketEmail(company.email, ticket.ticketNumber, company.name, description || 'Sin descripción').catch(console.error);
+    }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -195,7 +200,14 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
 
     try {
         if (company && company.email) {
-            await sendTicketResolutionEmail(company.email, ticket.ticketNumber, comments || '', company.name);
+            await sendTicketResolutionEmail(
+                company.email, 
+                ticket.ticketNumber, 
+                comments || '', 
+                company.name, 
+                ticket.totalCost, 
+                ticket.requiresInvoice
+            );
         }
     } catch (err) {
         console.error('Error enviando email:', err);
