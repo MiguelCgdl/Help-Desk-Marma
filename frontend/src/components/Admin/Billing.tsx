@@ -7,7 +7,8 @@ import {
     DocumentDuplicateIcon, 
     CheckCircleIcon,
     ArrowPathIcon,
-    ArrowDownTrayIcon
+    ArrowDownTrayIcon,
+    BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 
 interface BillingConfig {
