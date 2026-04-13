@@ -37,13 +37,22 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
 
     const computedCost = (problem: ProblemEntry, res: Resolution): number => {
         if (res.manualCost) return res.cost;
-        return Math.round((problem.costPerHour / 60) * res.timeSpentMinutes * 100) / 100;
+        
+        // Use company-specific rate if available, otherwise fallback to global problem rate
+        const company = ticket.companyId as any;
+        const problemId = (problem.problemId as any)?._id || problem.problemId;
+        const customRate = company?.problemCosts?.[problemId];
+        
+        const rate = (typeof customRate === 'number') ? customRate : problem.costPerHour;
+        return Math.round((rate / 60) * res.timeSpentMinutes * 100) / 100;
     };
 
-    const totalCost = ticket.problems.reduce(
-        (sum, p, i) => sum + computedCost(p, resolutions[i]),
-        0
-    );
+    const totalCost = (ticket.companyId as any)?.useCustomCost 
+        ? (ticket.companyId as any).customCostPerTicket
+        : ticket.problems.reduce(
+            (sum, p, i) => sum + computedCost(p, resolutions[i]),
+            0
+        );
 
     const handleSolve = async () => {
         setSaving(true);
@@ -84,6 +93,17 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
 
                 {/* Body */}
                 <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+                    {/* Fixed Cost Alert */}
+                    {(ticket.companyId as any)?.useCustomCost && (
+                        <div className="bg-[#00272E] text-white p-4 rounded-xl border border-[#FD5200]/30 flex items-center gap-3">
+                            <CurrencyDollarIcon className="w-6 h-6 text-[#FD5200]" />
+                            <div>
+                                <p className="text-xs font-black uppercase tracking-widest text-[#FD5200]">Tarifa Plana Activa</p>
+                                <p className="text-sm font-medium">Esta empresa tiene un costo fijo de <span className="font-black text-white">${(ticket.companyId as any).customCostPerTicket}</span> por ticket.</p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Description */}
                     <div className="bg-[#F8FAFB] rounded-xl p-4 border border-gray-100">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#006D65] mb-2 opacity-60">
@@ -122,7 +142,10 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                                                 <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
                                                 {!isOtros && (
                                                     <span className="text-xs text-[#006D65] ml-2 opacity-60">
-                                                        ${p.costPerHour}/hr
+                                                        ${((ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] ?? p.costPerHour)}/hr
+                                                        {(ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] !== undefined && (
+                                                            <span className="ml-1 text-[9px] bg-amber-100 text-amber-700 px-1 rounded font-black uppercase">Especial</span>
+                                                        )}
                                                     </span>
                                                 )}
                                             </div>

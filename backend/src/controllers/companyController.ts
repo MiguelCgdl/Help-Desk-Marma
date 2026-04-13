@@ -16,7 +16,7 @@ export const getCompanyLogo = asyncHandler(async (req, res) => {
 });
 
 export const createCompany = asyncHandler(async (req, res) => {
-    const { name, code, costPerTicket, email, loginUsername, password, rfc } = req.body;
+    const { name, code, costPerTicket, email, loginUsername, password, rfc, useCustomCost, customCostPerTicket, problemCosts } = req.body;
     let logoUrl = req.body.logoUrl;
     if (req.file) {
         logoUrl = `uploads/${req.file.filename}`;
@@ -34,7 +34,10 @@ export const createCompany = asyncHandler(async (req, res) => {
         loginUsername,
         password,
         logoUrl,
-        rfc
+        rfc,
+        useCustomCost: useCustomCost === 'true' || useCustomCost === true,
+        customCostPerTicket: Number(customCostPerTicket) || 0,
+        problemCosts: problemCosts || {}
     });
     const created = company.toObject();
     delete (created as any).password;
@@ -47,7 +50,7 @@ export const updateCompany = asyncHandler(async (req, res) => {
         res.status(404).json({ message: 'Empresa no encontrada' });
         return;
     }
-    const { name, code, costPerTicket, email, loginUsername, password, rfc } = req.body;
+    const { name, code, costPerTicket, email, loginUsername, password, rfc, useCustomCost, customCostPerTicket, problemCosts } = req.body;
     let logoUrl = req.body.logoUrl;
     if (req.file) {
         logoUrl = `uploads/${req.file.filename}`;
@@ -59,6 +62,15 @@ export const updateCompany = asyncHandler(async (req, res) => {
     if (loginUsername !== undefined) company.loginUsername = loginUsername;
     if (logoUrl !== undefined) company.logoUrl = logoUrl;
     if (rfc !== undefined) company.rfc = rfc;
+    
+    // New cost fields
+    if (useCustomCost !== undefined) company.useCustomCost = (useCustomCost === 'true' || useCustomCost === true);
+    if (customCostPerTicket !== undefined) company.customCostPerTicket = Number(customCostPerTicket) || 0;
+    if (problemCosts !== undefined) {
+        // If it's a plain object from the request, Mongoose will handle the Map conversion if we assign it
+        company.problemCosts = problemCosts;
+    }
+
     if (password && String(password).trim() !== '') {
         company.password = password;
     }
