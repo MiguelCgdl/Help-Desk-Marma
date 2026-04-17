@@ -191,12 +191,19 @@ const Costs: React.FC = () => {
                                     {problems.map(p => (
                                         <tr key={p._id} className="group hover:bg-gray-50/80 transition-colors">
                                             <td className="px-6 py-4">
-                                                <input
-                                                    type="text"
-                                                    value={editingTitles[p._id] ?? ''}
-                                                    onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
-                                                    className="w-full px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50 text-[#00272E] text-xs font-semibold focus:border-[#FD5200]/40 focus:bg-white transition-all"
-                                                />
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-gray-400">
+                                                        <span>{p.mainCategory}</span>
+                                                        <span>/</span>
+                                                        <span>{p.subcategory}</span>
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        value={editingTitles[p._id] ?? ''}
+                                                        onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-100 bg-gray-50 text-[#00272E] text-xs font-bold focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                                                    />
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button 
@@ -237,12 +244,19 @@ const Costs: React.FC = () => {
                         <div className="xl:hidden divide-y divide-gray-100">
                             {problems.map(p => (
                                 <div key={p._id} className="p-4 space-y-4">
-                                    <input
-                                        type="text"
-                                        value={editingTitles[p._id] ?? ''}
-                                        onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-bold focus:border-[#FD5200]/40 focus:bg-white transition-all"
-                                    />
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-[#006D65] opacity-60">
+                                            <span>{p.mainCategory}</span>
+                                            <span>/</span>
+                                            <span>{p.subcategory}</span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={editingTitles[p._id] ?? ''}
+                                            onChange={(e) => setEditingTitles({ ...editingTitles, [p._id]: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[#00272E] text-sm font-bold focus:border-[#FD5200]/40 focus:bg-white transition-all"
+                                        />
+                                    </div>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <button 
@@ -428,8 +442,13 @@ const Costs: React.FC = () => {
                             <div className="space-y-4">
                                 {problems.map(p => (
                                     <div key={p._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
+                                        <div className="flex flex-col max-w-[60%]">
+                                            <div className="flex items-center gap-1.5 text-[8px] font-black uppercase text-[#006D65] opacity-60 mb-0.5">
+                                                <span>{p.mainCategory}</span>
+                                                <span>/</span>
+                                                <span>{p.subcategory}</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-[#00272E] truncate">{p.specificType || p.title}</span>
                                             <span className="text-[10px] text-gray-400 font-bold uppercase">Tarifa Global: ${p.costPerHour}</span>
                                         </div>
                                         <div className="flex items-center gap-2">

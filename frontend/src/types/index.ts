@@ -25,7 +25,12 @@ export type Company = {
 export type Problem = {
     _id: string;
     title: string;
-    description?: string;
+    mainCategory: string;
+    subcategory: string;
+    specificType: string;
+    firstResponseTime: string;
+    targetResolutionTime: string;
+    priority: string;
     active: boolean;
     costPerHour: number;
 };

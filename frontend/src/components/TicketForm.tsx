@@ -300,7 +300,9 @@ const TicketForm: React.FC<TicketFormProps> = ({ lockedCompany = null, useCompan
                                                     >
                                                         <option value="">¿Qué está sucediendo?</option>
                                                         {problems.map(p => (
-                                                            <option key={p._id} value={p._id}>{p.title}</option>
+                                                            <option key={p._id} value={p._id}>
+                                                                {p.mainCategory} &gt; {p.subcategory} &gt; {p.specificType || p.title}
+                                                            </option>
                                                         ))}
                                                         <option value="__otros__">Otros / No está en la lista</option>
                                                     </select>

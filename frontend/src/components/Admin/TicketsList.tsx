@@ -139,7 +139,14 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                                                 <span className="text-[10px] font-bold bg-[#00272E] text-white px-2 py-0.5 rounded mr-2">
                                                     #{i + 1}
                                                 </span>
-                                                <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
+                                                <div className="flex flex-col">
+                                                    {(p.problemId as any)?.mainCategory && (
+                                                        <span className="text-[8px] font-black uppercase text-[#006D65] opacity-60">
+                                                            {(p.problemId as any).mainCategory} &gt; {(p.problemId as any).subcategory}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-sm font-bold text-[#00272E]">{p.title}</span>
+                                                </div>
                                                 {!isOtros && (
                                                     <span className="text-xs text-[#006D65] ml-2 opacity-60">
                                                         Precio Gral: ${((ticket.companyId as any)?.problemCosts?.[(p.problemId as any)?._id || p.problemId] ?? p.costPerHour)}
@@ -302,7 +309,14 @@ const DetailModal: React.FC<{ ticket: Ticket; onClose: () => void }> = ({ ticket
                             <div key={i} className="flex items-center justify-between bg-[#F8FAFB] rounded-xl px-4 py-3 border border-gray-100">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] bg-[#00272E] text-white px-2 py-0.5 rounded font-bold">#{i+1}</span>
-                                    <span className="text-sm font-semibold text-[#00272E]">{p.title}</span>
+                                    <div className="flex flex-col">
+                                        {(p.problemId as any)?.mainCategory && (
+                                            <span className="text-[8px] font-black uppercase text-[#006D65] opacity-60">
+                                                {(p.problemId as any).mainCategory} &gt; {(p.problemId as any).subcategory}
+                                            </span>
+                                        )}
+                                        <span className="text-sm font-semibold text-[#00272E]">{p.title}</span>
+                                    </div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-black text-[#FD5200]">${p.cost.toFixed(2)}</div>

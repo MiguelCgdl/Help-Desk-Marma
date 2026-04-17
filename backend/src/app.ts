@@ -34,6 +34,15 @@ const start = async () => {
     app.use('/api/tickets', ticketRoutes);
     app.use('/api/reports', reportRoutes);
     app.use('/api/billing', billingRoutes);
+    
+    // Error handler
+    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+        console.error(err);
+        res.status(err.status || 500).json({ 
+            message: err.message || 'Error interno del servidor',
+            error: process.env.NODE_ENV === 'development' ? err : {}
+        });
+    });
 
     const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
