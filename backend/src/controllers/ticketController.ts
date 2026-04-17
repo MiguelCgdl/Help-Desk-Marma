@@ -97,6 +97,10 @@ export const getTickets = asyncHandler(async (req, res) => {
     if (requiresInvoice !== undefined && requiresInvoice !== '') {
         filter.requiresInvoice = requiresInvoice === 'true';
     }
+    const showArchived = req.query.showArchived === 'true';
+    if (!showArchived) {
+        filter.archived = { $ne: true };
+    }
     if (startDate || endDate) {
         filter.createdAt = {};
         if (startDate) filter.createdAt.$gte = new Date(startDate as string);
@@ -270,12 +274,102 @@ export const bulkInvoice = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/tickets/:id   (admin)
+// ─────────────────────────────────────────────────────────────────────────────
+export const updateTicket = asyncHandler(async (req: Request, res: Response) => {
+    const { companyId, problems: rawProblems, description } = req.body;
+    const imagePath = req.file ? req.file.path : undefined;
+
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) { res.status(404).json({ message: 'Ticket no encontrado' }); return; }
+
+    if (companyId) {
+        const company = await Company.findById(companyId);
+        if (!company) { res.status(404).json({ message: 'Empresa no encontrada' }); return; }
+        ticket.companyId = companyId;
+    }
+
+    if (description !== undefined) ticket.description = description;
+    if (archived !== undefined) ticket.archived = archived === 'true' || archived === true;
+    if (imagePath) ticket.imagePath = imagePath;
+
+    if (rawProblems) {
+        let problemsInput: any[] = [];
+        try { problemsInput = typeof rawProblems === 'string' ? JSON.parse(rawProblems) : rawProblems; } catch { problemsInput = []; }
+        
+        if (problemsInput.length > 0) {
+            const problemEntries = await Promise.all(
+                problemsInput.map(async (p: any) => {
+                    if (p.problemId) {
+                        const doc = await Problem.findById(p.problemId);
+                        return {
+                            problemId: p.problemId,
+                            title: doc?.title ?? p.title ?? 'Desconocido',
+                            costPerHour: doc?.costPerHour ?? 0,
+                            timeSpentMinutes: 0,
+                            cost: 0,
+                            manualCost: false
+                        };
+                    } else {
+                        return {
+                            problemId: null,
+                            title: p.title || 'Otros / Sin categoría',
+                            costPerHour: 0,
+                            timeSpentMinutes: 0,
+                            cost: 0,
+                            manualCost: false
+                        };
+                    }
+                })
+            );
+            ticket.problems = problemEntries as any;
+        }
+    }
+
+    await ticket.save();
+    res.json(ticket);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE /api/tickets/bulk-delete   (admin)
+// ─────────────────────────────────────────────────────────────────────────────
+export const bulkDeleteTickets = asyncHandler(async (req: Request, res: Response) => {
+    const { ticketIds } = req.body;
+    if (!ticketIds || !Array.isArray(ticketIds)) {
+        res.status(400).json({ message: 'Se requiere un arreglo de ticketIds' });
+        return;
+    }
+    
+    console.log(`[DB] Bulk deleting tickets: ${ticketIds.length} items`);
+    await Ticket.deleteMany({ _id: { $in: ticketIds } });
+    res.json({ message: 'Tickets eliminados correctamente' });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/tickets/bulk-archive   (admin)
+// ─────────────────────────────────────────────────────────────────────────────
+export const bulkArchiveTickets = asyncHandler(async (req: Request, res: Response) => {
+    const { ticketIds, archived } = req.body;
+    if (!ticketIds || !Array.isArray(ticketIds)) {
+        res.status(400).json({ message: 'Se requiere un arreglo de ticketIds' });
+        return;
+    }
+    
+    await Ticket.updateMany(
+        { _id: { $in: ticketIds } },
+        { $set: { archived: archived ?? true } }
+    );
+    res.json({ message: 'Estado de archivo actualizado correctamente' });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DELETE /api/tickets/:id   (admin)
 // ─────────────────────────────────────────────────────────────────────────────
 export const deleteTicket = asyncHandler(async (req: Request, res: Response) => {
     const ticket = await Ticket.findById(req.params.id);
     if (!ticket) { res.status(404).json({ message: 'Ticket no encontrado' }); return; }
     
+    console.log(`[DB] Deleting individual ticket: ${req.params.id}`);
     await Ticket.findByIdAndDelete(req.params.id);
     res.json({ message: 'Ticket eliminado correctamente' });
 });

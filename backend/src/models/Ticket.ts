@@ -38,6 +38,7 @@ export interface ITicket extends Document {
     invoiced?: boolean;
     invoiceId?: Schema.Types.ObjectId;
     operatorComments?: string;
+    archived?: boolean;
     createdAt: Date;
     // Legacy fields kept so existing tickets don't break
     problemId?: Schema.Types.ObjectId;
@@ -60,6 +61,7 @@ const TicketSchema = new Schema<ITicket>({
     invoiced:           { type: Boolean, default: false },
     invoiceId:          { type: Schema.Types.ObjectId, ref: 'Invoice' },
     operatorComments:   { type: String },
+    archived:           { type: Boolean, default: false },
     createdAt:          { type: Date, default: Date.now },
     // Legacy
     problemId:          { type: Schema.Types.ObjectId, ref: 'Problem' },

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import type { Ticket, ProblemEntry } from '../../types';
@@ -7,7 +8,7 @@ import TicketForm from '../TicketForm';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
     CheckCircleIcon, XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon,
-    PlusIcon, ArrowDownTrayIcon
+    PlusIcon, ArrowDownTrayIcon, PencilIcon, ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { exportToCSV } from '../../utils/exportUtils';
 
@@ -464,17 +465,19 @@ const CutoffModal: React.FC<{
 const TicketsList: React.FC = () => {
     const [searchParams] = useSearchParams();
     const [tickets, setTickets]     = useState<Ticket[]>([]);
-    const [filter, setFilter]       = useState({
+    const [filter, setFilter]       = useState<any>({
         companyId: searchParams.get('companyId') || '',
         status:    searchParams.get('status') || '',
         requiresInvoice: '',
         startDate: '',
-        endDate: ''
+        endDate: '',
+        showArchived: false
     });
     const [search, setSearch]       = useState('');
     const [loading, setLoading]     = useState(false);
     const [solving, setSolving]     = useState<Ticket | null>(null);
     const [detail, setDetail]       = useState<Ticket | null>(null);
+    const [editing, setEditing]     = useState<Ticket | null>(null);
     const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
     const [showCutoffModal, setShowCutoffModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -483,6 +486,16 @@ const TicketsList: React.FC = () => {
     useEffect(() => { 
         fetchTickets(); 
     }, [filter]);
+
+    // Body scroll lock when modal is open
+    useEffect(() => {
+        if (showCreateModal || solving || detail || showCutoffModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [showCreateModal, solving, detail, showCutoffModal]);
 
     useEffect(() => {
         fetchCompanies();
@@ -507,6 +520,7 @@ const TicketsList: React.FC = () => {
             if (filter.requiresInvoice) params.append('requiresInvoice', filter.requiresInvoice);
             if (filter.startDate) params.append('startDate', filter.startDate);
             if (filter.endDate)   params.append('endDate', filter.endDate);
+            if (filter.showArchived) params.append('showArchived', 'true');
             const res = await api.get(`/tickets?${params.toString()}`);
             setTickets(res.data);
         } finally {
@@ -522,6 +536,25 @@ const TicketsList: React.FC = () => {
             setSelectedTickets(prev => prev.filter(tid => tid !== id));
         } catch {
             alert('Error al eliminar el ticket. Intenta de nuevo.');
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!window.confirm(`¿Estás seguro de eliminar ${selectedTickets.length} tickets? Esta acción es irreversible.`)) return;
+        try {
+            await api.delete('/tickets/bulk-delete', { data: { ticketIds: selectedTickets } });
+            fetchTickets();
+        } catch (err) {
+            console.error('Error in bulk delete:', err);
+        }
+    };
+
+    const handleBulkArchive = async (archive: boolean) => {
+        try {
+            await api.patch('/tickets/bulk-archive', { ticketIds: selectedTickets, archived: archive });
+            fetchTickets();
+        } catch (err) {
+            console.error('Error in bulk archive:', err);
         }
     };
 
@@ -580,13 +613,28 @@ const TicketsList: React.FC = () => {
                         Nuevo Ticket
                     </button>
                     {selectedTickets.length > 0 && (
-                        <button 
-                            onClick={() => setShowCutoffModal(true)}
-                            className="px-6 py-3 bg-[#FD5200] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FD5200]/20 hover:bg-[#E64A00] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
-                        >
-                            <CurrencyDollarIcon className="w-5 h-5" />
-                            Generar Corte de {selectedTickets.length} Tickets
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <button 
+                                onClick={() => handleBulkArchive(!filter.showArchived)}
+                                className="flex items-center gap-2 px-6 py-2 bg-gray-100 text-[#00272E] rounded-xl font-bold text-xs hover:bg-gray-200 transition-all border border-gray-200"
+                            >
+                                <ArchiveBoxIcon className="w-4 h-4" />
+                                {filter.showArchived ? 'Desarchivar' : 'Archivar'} ({selectedTickets.length})
+                            </button>
+                            <button 
+                                onClick={handleBulkDelete}
+                                className="flex items-center gap-2 px-6 py-2 bg-red-50 text-red-600 rounded-xl font-bold text-xs hover:bg-red-100 transition-all border border-red-100"
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                                Eliminar ({selectedTickets.length})
+                            </button>
+                            <button 
+                                onClick={() => setShowCutoffModal(true)}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#00272E] text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#00272E]/10 hover:bg-[#003B46] transition-all"
+                            >
+                                Generar Corte de Facturación
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
@@ -604,10 +652,9 @@ const TicketsList: React.FC = () => {
                         </div>
                     </div>
                     <button
-                        onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '' })}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-[#FD5200] border border-gray-200 hover:border-[#FD5200]/30 transition-all flex items-center justify-center gap-2 bg-white"
+                        onClick={() => setFilter({ companyId: '', status: '', requiresInvoice: '', startDate: '', endDate: '', showArchived: false })}
+                        className="text-xs font-bold text-gray-400 hover:text-[#FD5200] transition-colors"
                     >
-                        <XMarkIcon className="w-4 h-4" />
                         Limpiar Filtros
                     </button>
                 </div>
@@ -681,6 +728,17 @@ const TicketsList: React.FC = () => {
                             <option value="true">Requerida</option>
                             <option value="false">No Requerida</option>
                         </select>
+                    </div>
+                    <div className="flex flex-col justify-end">
+                        <label className="flex items-center gap-2 cursor-pointer pb-2.5">
+                            <input 
+                                type="checkbox" 
+                                checked={filter.showArchived}
+                                onChange={e => setFilter({ ...filter, showArchived: e.target.checked })}
+                                className="w-4 h-4 rounded border-gray-300 text-[#FD5200] focus:ring-[#FD5200]"
+                            />
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Ver Archivados</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -939,6 +997,13 @@ const TicketsList: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
+                                        onClick={() => setEditing(t)}
+                                        className="p-2.5 text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
+                                        title="Editar detalles"
+                                    >
+                                        <PencilIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
                                         onClick={() => handleDelete(t._id, t.ticketNumber)}
                                         className="p-2.5 text-red-400 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
                                     >
@@ -965,43 +1030,99 @@ const TicketsList: React.FC = () => {
                 </div>
             </div>
 
-            {/* Modals */}
-            {solving && (
-                <SolveModal
-                    ticket={solving}
-                    onClose={() => setSolving(null)}
-                    onSolved={() => { setSolving(null); fetchTickets(); }}
-                />
-            )}
-            {detail && (
-                <DetailModal ticket={detail} onClose={() => setDetail(null)} />
-            )}
-            {showCutoffModal && (
-                <CutoffModal 
-                    tickets={filtered} 
-                    selectedIds={selectedTickets} 
-                    onClose={() => setShowCutoffModal(false)}
-                    onConfirm={() => {
-                        setShowCutoffModal(false);
-                        setSelectedTickets([]);
-                        fetchTickets();
-                    }}
-                />
-            )}
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col relative">
-                        <button 
-                            onClick={() => setShowCreateModal(false)}
-                            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 z-50 bg-white/80 rounded-full backdrop-blur-sm shadow-sm"
-                        >
-                            <XMarkIcon className="w-6 h-6" />
-                        </button>
-                        <div className="overflow-y-auto flex-1 rounded-2xl">
-                            <TicketForm />
+            {/* Modals via Portal */}
+            {createPortal(
+                <>
+                    {solving && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-[#00272E]/60 backdrop-blur-sm" onClick={() => setSolving(null)} />
+                            <div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+                                <SolveModal
+                                    ticket={solving}
+                                    onClose={() => setSolving(null)}
+                                    onSolved={() => { setSolving(null); fetchTickets(); }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    )}
+                    {detail && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-[#00272E]/60 backdrop-blur-sm" onClick={() => setDetail(null)} />
+                            <div className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+                                <DetailModal ticket={detail} onClose={() => setDetail(null)} />
+                            </div>
+                        </div>
+                    )}
+                    {showCutoffModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-[#00272E]/60 backdrop-blur-sm" onClick={() => setShowCutoffModal(false)} />
+                            <div className="relative z-10 w-full max-w-5xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+                                <CutoffModal 
+                                    tickets={filtered} 
+                                    selectedIds={selectedTickets} 
+                                    onClose={() => setShowCutoffModal(false)}
+                                    onConfirm={() => {
+                                        setShowCutoffModal(false);
+                                        setSelectedTickets([]);
+                                        fetchTickets();
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {showCreateModal && (
+                        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 sm:p-6 lg:p-10 overflow-y-auto bg-[#00272E]/70 backdrop-blur-md py-10">
+                            <div className="absolute inset-0 bg-[#00272E]/70 backdrop-blur-md" onClick={() => setShowCreateModal(false)} />
+                            <div className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.4)] w-full max-w-6xl relative z-10 overflow-hidden animate-slide-up my-auto">
+                                <button 
+                                    onClick={() => setShowCreateModal(false)}
+                                    className="absolute top-6 right-8 p-3 text-gray-400 hover:text-[#00272E] hover:bg-gray-100 rounded-full transition-all z-[110] bg-white/50 backdrop-blur-sm"
+                                    title="Cerrar"
+                                >
+                                    <XMarkIcon className="w-6 h-6" />
+                                </button>
+                                <div className="max-h-[85vh] overflow-y-auto scrollbar-hide">
+                                    <TicketForm 
+                                        isModal={true}
+                                        onTicketCreated={() => {
+                                            setTimeout(() => {
+                                                setShowCreateModal(false);
+                                                fetchTickets();
+                                            }, 2000);
+                                        }} 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {editing && (
+                        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 sm:p-6 lg:p-10 overflow-y-auto bg-[#00272E]/70 backdrop-blur-md py-10">
+                            <div className="absolute inset-0 bg-[#00272E]/70 backdrop-blur-md" onClick={() => setEditing(null)} />
+                            <div className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.4)] w-full max-w-6xl relative z-10 overflow-hidden animate-slide-up my-auto">
+                                <button 
+                                    onClick={() => setEditing(null)}
+                                    className="absolute top-6 right-8 p-3 text-gray-400 hover:text-[#00272E] hover:bg-gray-100 rounded-full transition-all z-[110] bg-white/50 backdrop-blur-sm"
+                                    title="Cerrar"
+                                >
+                                    <XMarkIcon className="w-6 h-6" />
+                                </button>
+                                <div className="max-h-[85vh] overflow-y-auto scrollbar-hide">
+                                    <TicketForm 
+                                        isModal={true}
+                                        editingTicket={editing}
+                                        onTicketCreated={() => {
+                                            setTimeout(() => {
+                                                setEditing(null);
+                                                fetchTickets();
+                                            }, 2000);
+                                        }} 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>,
+                document.body
             )}
         </div>
     );
