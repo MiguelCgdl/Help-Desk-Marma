@@ -8,8 +8,10 @@ import {
     CheckCircleIcon,
     ArrowPathIcon,
     ArrowDownTrayIcon,
-    BuildingOfficeIcon
+    BuildingOfficeIcon,
+    TableCellsIcon
 } from '@heroicons/react/24/outline';
+import { exportToCSV } from '../../utils/exportUtils';
 
 interface BillingConfig {
     razonSocial: string;
@@ -105,6 +107,26 @@ const Billing: React.FC = () => {
         } catch {
             alert('Error al guardar configuración');
         }
+    };
+
+    const handleExportHistory = () => {
+        const headers = [
+            { key: 'invoiceNumber', label: 'Folio' },
+            { key: 'company.name', label: 'Empresa' },
+            { key: 'company.rfc', label: 'RFC' },
+            { key: 'total', label: 'Total' },
+            { key: 'status', label: 'Estado' },
+            { key: 'createdAt', label: 'Fecha' },
+            { key: 'uuid', label: 'UUID SAT' }
+        ];
+
+        const exportData = invoices.map(inv => ({
+            ...inv,
+            createdAt: new Date(inv.createdAt).toLocaleString(),
+            status: inv.status === 'sent' ? 'Facturado' : 'Borrador'
+        }));
+
+        exportToCSV('Historial_Facturacion', exportData, headers);
     };
 
     const handleStamp = async (id: string) => {
@@ -271,8 +293,14 @@ const Billing: React.FC = () => {
             {/* ── Tab: Historial ── */}
             {activeTab === 'history' && (
                 <div className="marmacore-table-container animate-fade-in">
-                    <div className="p-6 border-b border-gray-50">
+                    <div className="p-6 border-b border-gray-50 flex justify-between items-center">
                         <h3 className="text-lg font-bold text-[#00272E]">Registros de Facturación (Cortes)</h3>
+                        <button 
+                            onClick={handleExportHistory}
+                            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#FD5200] border border-[#FD5200]/20 rounded-xl hover:bg-[#FD5200]/5"
+                        >
+                            <TableCellsIcon className="w-4 h-4" /> Exportar a Excel
+                        </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">

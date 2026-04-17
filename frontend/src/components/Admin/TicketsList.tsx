@@ -7,8 +7,9 @@ import TicketForm from '../TicketForm';
 import {
     FunnelIcon, MagnifyingGlassIcon, EyeIcon, PhotoIcon,
     CheckCircleIcon, XMarkIcon, ClockIcon, CurrencyDollarIcon, TicketIcon, TrashIcon,
-    PlusIcon
+    PlusIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
+import { exportToCSV } from '../../utils/exportUtils';
 
 // ─── Solve Modal ─────────────────────────────────────────────────────────────
 type SolveModalProps = {
@@ -477,8 +478,24 @@ const TicketsList: React.FC = () => {
     const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
     const [showCutoffModal, setShowCutoffModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [companies, setCompanies] = useState<any[]>([]);
 
-    useEffect(() => { fetchTickets(); }, [filter]);
+    useEffect(() => { 
+        fetchTickets(); 
+    }, [filter]);
+
+    useEffect(() => {
+        fetchCompanies();
+    }, []);
+
+    const fetchCompanies = async () => {
+        try {
+            const res = await api.get('/companies');
+            setCompanies(res.data);
+        } catch (err) {
+            console.error('Error fetching companies:', err);
+        }
+    };
 
     const fetchTickets = async () => {
         setSelectedTickets([]);
@@ -514,6 +531,31 @@ const TicketsList: React.FC = () => {
         (t.companyId as any)?.name?.toLowerCase().includes(search.toLowerCase())
     );
 
+    const handleExport = () => {
+        const headers = [
+            { key: 'ticketNumber', label: 'Ticket #' },
+            { key: 'companyId.name', label: 'Empresa' },
+            { key: 'createdAt', label: 'Fecha Creación' },
+            { key: 'description', label: 'Descripción' },
+            { key: 'status', label: 'Estado' },
+            { key: 'cost', label: 'Costo' },
+            { key: 'taxAmount', label: 'IVA' },
+            { key: 'totalCost', label: 'Total' },
+            { key: 'requiresInvoice', label: 'Factura Requerida' },
+            { key: 'invoiced', label: 'Facturado' }
+        ];
+
+        const exportData = filtered.map(t => ({
+            ...t,
+            createdAt: new Date(t.createdAt).toLocaleString(),
+            status: t.status === 'solved' ? 'Resuelto' : 'Abierto',
+            requiresInvoice: t.requiresInvoice ? 'Sí' : 'No',
+            invoiced: t.invoiced ? 'Sí' : 'No'
+        }));
+
+        exportToCSV('Reporte_Tickets', exportData, headers);
+    };
+
     return (
         <div className="animate-fade-in pb-8">
             {/* Header */}
@@ -523,6 +565,13 @@ const TicketsList: React.FC = () => {
                     <p className="text-[#006D65] mt-1 text-sm font-medium">Historial completo de reportes y asistencias técnicas.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
+                    <button 
+                        onClick={handleExport}
+                        className="px-6 py-3 bg-white border border-gray-200 text-[#00272E] rounded-xl font-bold text-sm shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                    >
+                        <ArrowDownTrayIcon className="w-5 h-5 text-[#FD5200]" />
+                        Descargar Reporte
+                    </button>
                     <button 
                         onClick={() => setShowCreateModal(true)}
                         className="px-6 py-3 bg-[#006D65] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#006D65]/20 hover:bg-[#004D47] transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
@@ -562,7 +611,7 @@ const TicketsList: React.FC = () => {
                         Limpiar Filtros
                     </button>
                 </div>
-                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                     {/* Search */}
                     <div className="relative">
                         <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Búsqueda</label>
@@ -576,6 +625,20 @@ const TicketsList: React.FC = () => {
                                 className="marmacore-input marmacore-input-icon py-2.5 text-xs w-full bg-gray-50/50"
                             />
                         </div>
+                    </div>
+                    {/* Empresa Dropdown */}
+                    <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Empresa</label>
+                        <select
+                            value={filter.companyId}
+                            onChange={e => setFilter({ ...filter, companyId: e.target.value })}
+                            className="marmacore-select py-2.5 text-xs w-full bg-gray-50/50"
+                        >
+                            <option value="">Todas las empresas</option>
+                            {companies.map(c => (
+                                <option key={c._id} value={c._id}>{c.name}</option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <label className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 block ml-1">Desde</label>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { FunnelIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, CalendarIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { exportToCSV } from '../../utils/exportUtils';
 import api from '../../services/api';
 import { BASE_SERVER_URL } from '../../config';
 
@@ -40,6 +41,44 @@ export default function Reports() {
     })) : [];
 
     const currentCompanyData = selectedCompany !== 'all' ? summary.summaryByCompany[selectedCompany] : null;
+
+    const handleExport = () => {
+        if (selectedCompany === 'all') {
+            // Export summary by company
+            const headers = [
+                { key: 'company', label: 'Empresa' },
+                { key: 'count', label: 'Total Tickets' },
+                { key: 'openCount', label: 'Tickets Abiertos' },
+                { key: 'totalCost', label: 'Facturación Total' }
+            ];
+            
+            const exportData = companiesInMonth.map(name => ({
+                company: name,
+                count: summary.summaryByCompany[name].count,
+                openCount: summary.summaryByCompany[name].openCount,
+                totalCost: summary.summaryByCompany[name].totalCost
+            }));
+
+            exportToCSV(`Resumen_Mensual_${selectedMonth}_${selectedYear}`, exportData, headers);
+        } else {
+            // Export detailed tickets for the selected company
+            const headers = [
+                { key: 'ticketNumber', label: 'Ticket #' },
+                { key: 'createdAt', label: 'Fecha' },
+                { key: 'description', label: 'Descripción' },
+                { key: 'status', label: 'Estado' },
+                { key: 'cost', label: 'Costo' }
+            ];
+
+            const exportData = currentCompanyData.tickets.map((t: any) => ({
+                ...t,
+                createdAt: new Date(t.createdAt).toLocaleDateString('es-MX'),
+                status: t.status === 'open' ? 'Abierto' : 'Resuelto'
+            }));
+
+            exportToCSV(`Tickets_${selectedCompany}_${selectedMonth}_${selectedYear}`, exportData, headers);
+        }
+    };
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -93,6 +132,14 @@ export default function Reports() {
                             ))}
                         </select>
                     </div>
+
+                    <button 
+                        onClick={handleExport}
+                        className="px-4 py-2 bg-[#FD5200] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FD5200]/20 hover:bg-[#E64A00] transition-all flex items-center gap-2"
+                    >
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        Exportar Reporte
+                    </button>
                 </div>
             </div>
 
