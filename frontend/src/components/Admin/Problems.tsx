@@ -15,6 +15,7 @@ const Problems: React.FC = () => {
     const [costPerHour, setCostPerHour] = useState<number>(0);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
 
     useEffect(() => { fetchProblems(); }, []);
     
@@ -100,6 +101,42 @@ const Problems: React.FC = () => {
         }
     };
 
+    const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setIsImporting(true);
+        try {
+            const res = await api.post('/problems/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert(`Importación completada:\n- Creados: ${res.data.results.created}\n- Actualizados: ${res.data.results.updated}\n- Errores: ${res.data.results.errors}`);
+            fetchProblems();
+        } catch (err: any) {
+            const msg = err.response?.data?.message || err.message || 'Error al importar';
+            alert(`Error: ${msg}`);
+        } finally {
+            setIsImporting(false);
+            // Reset input
+            e.target.value = '';
+        }
+    };
+
+    const downloadTemplate = () => {
+        const headers = 'ID,Categoría Principal,Subcategoría,Tipo Específico,Respuesta,Resolución,Prioridad,Costo';
+        const example = '\nINF-001,Infraestructura,Redes,Falla de Switch,30 min,4 hrs,Alta,150';
+        const blob = new Blob([headers + example], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', 'template_problemas.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="animate-fade-in pb-8">
             {/* Page Header */}
@@ -130,14 +167,30 @@ const Problems: React.FC = () => {
                                     </p>
                                 </div>
                             </div>
-                            {editingId && (
-                                <button
-                                    onClick={cancelEdit}
-                                    className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 font-semibold transition-colors"
-                                >
-                                    <XMarkIcon className="w-3.5 h-3.5" /> Cancelar
-                                </button>
-                            )}
+                            <div className="flex items-center gap-3">
+                                {!editingId && (
+                                    <>
+                                        <button
+                                            onClick={downloadTemplate}
+                                            className="text-[10px] font-bold text-[#006D65] hover:text-[#00272E] transition-colors uppercase tracking-wider underline decoration-dotted"
+                                        >
+                                            Descargar Plantilla
+                                        </button>
+                                        <label className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00272E]/5 text-[#00272E] text-[10px] font-bold uppercase cursor-pointer hover:bg-[#00272E]/10 transition-all ${isImporting ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            {isImporting ? 'Importando...' : 'Importar CSV'}
+                                            <input type="file" accept=".csv" onChange={handleImportCSV} className="hidden" disabled={isImporting} />
+                                        </label>
+                                    </>
+                                )}
+                                {editingId && (
+                                    <button
+                                        onClick={cancelEdit}
+                                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 font-semibold transition-colors"
+                                    >
+                                        <XMarkIcon className="w-3.5 h-3.5" /> Cancelar
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-5 space-y-4">
