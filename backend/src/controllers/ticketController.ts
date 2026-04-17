@@ -277,7 +277,7 @@ export const bulkInvoice = asyncHandler(async (req: Request, res: Response) => {
 // PATCH /api/tickets/:id   (admin)
 // ─────────────────────────────────────────────────────────────────────────────
 export const updateTicket = asyncHandler(async (req: Request, res: Response) => {
-    const { companyId, problems: rawProblems, description } = req.body;
+    const { companyId, problems: rawProblems, description, archived } = req.body;
     const imagePath = req.file ? req.file.path : undefined;
 
     const ticket = await Ticket.findById(req.params.id);
