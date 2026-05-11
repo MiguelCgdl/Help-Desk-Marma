@@ -28,10 +28,14 @@ type Resolution = {
 
 const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) => {
     const initResolutions = (): Resolution[] =>
-        ticket.problems.map((_, i) => ({ index: i, timeSpentMinutes: 0, manualCost: false, cost: 0 }));
-
+        ticket.problems.map((p, i) => ({ 
+            index: i, 
+            timeSpentMinutes: p.timeSpentMinutes || 0, 
+            manualCost: p.manualCost || false, 
+            cost: p.cost || 0 
+        }));
     const [resolutions, setResolutions] = useState<Resolution[]>(initResolutions);
-    const [comments, setComments] = useState('');
+    const [comments, setComments] = useState(ticket.operatorComments || '');
     const [saving, setSaving] = useState(false);
 
     const update = (i: number, patch: Partial<Resolution>) =>
@@ -81,7 +85,9 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <div>
                         <div className="flex items-center gap-3">
-                            <h2 className="font-black text-[#00272E] text-lg">Resolver Ticket</h2>
+                            <h2 className="font-black text-[#00272E] text-lg">
+                                {ticket.status === 'solved' ? 'Editar Solución / Costo' : 'Resolver Ticket'}
+                            </h2>
                             {ticket.requiresInvoice && (
                                 <span className="px-2 py-0.5 bg-cyan-100 text-cyan-800 rounded-lg text-[10px] font-bold uppercase">Requiere Factura</span>
                             )}
@@ -259,7 +265,7 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
                                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 : <CheckCircleIcon className="w-4 h-4" />
                             }
-                            Marcar como Resuelto
+                            {ticket.status === 'solved' ? 'Guardar Cambios' : 'Marcar como Resuelto'}
                         </button>
                     </div>
                 </div>
@@ -269,7 +275,11 @@ const SolveModal: React.FC<SolveModalProps> = ({ ticket, onClose, onSolved }) =>
 };
 
 // ─── Detail Modal (read-only for solved tickets) ──────────────────────────────
-const DetailModal: React.FC<{ ticket: Ticket; onClose: () => void }> = ({ ticket, onClose }) => (
+const DetailModal: React.FC<{ 
+    ticket: Ticket; 
+    onClose: () => void;
+    onEdit?: () => void;
+}> = ({ ticket, onClose, onEdit }) => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -282,9 +292,19 @@ const DetailModal: React.FC<{ ticket: Ticket; onClose: () => void }> = ({ ticket
                     </div>
                     <p className="text-xs text-[#006D65] font-mono font-bold mt-0.5">{ticket.ticketNumber}</p>
                 </div>
-                <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
-                    <XMarkIcon className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                    {ticket.status === 'solved' && !ticket.invoiced && onEdit && (
+                        <button 
+                            onClick={onEdit}
+                            className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors flex items-center gap-1 text-[10px] font-black uppercase"
+                        >
+                            <PencilIcon className="w-4 h-4" /> Editar
+                        </button>
+                    )}
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
+                        <XMarkIcon className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
                 <div className="bg-[#F8FAFB] rounded-xl p-4 border border-gray-100">
@@ -888,6 +908,15 @@ const TicketsList: React.FC = () => {
                                                     <CheckCircleIcon className="w-4 h-4 hidden sm:block" /> Resolver
                                                 </button>
                                             )}
+                                            {t.status === 'solved' && !t.invoiced && (
+                                                <button
+                                                    onClick={() => setSolving(t)}
+                                                    className="p-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all shrink-0"
+                                                    title="Editar Costos / Solución"
+                                                >
+                                                    <PencilIcon className="w-4 h-4" />
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => setDetail(t)}
                                                 className="p-2 text-gray-400 hover:text-[#00272E] hover:bg-gray-100 rounded-xl transition-all shrink-0"
@@ -1015,6 +1044,15 @@ const TicketsList: React.FC = () => {
                                     >
                                         <EyeIcon className="w-5 h-5" />
                                     </button>
+                                    {t.status === 'solved' && !t.invoiced && (
+                                        <button
+                                            onClick={() => setSolving(t)}
+                                            className="p-2.5 text-amber-500 bg-amber-50 hover:bg-amber-100 rounded-xl transition-all"
+                                            title="Editar Costos / Solución"
+                                        >
+                                            <PencilIcon className="w-5 h-5" />
+                                        </button>
+                                    )}
                                     {t.status === 'open' && (
                                         <button
                                             onClick={() => setSolving(t)}
@@ -1049,7 +1087,15 @@ const TicketsList: React.FC = () => {
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                             <div className="absolute inset-0 bg-[#00272E]/60 backdrop-blur-sm" onClick={() => setDetail(null)} />
                             <div className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-hide">
-                                <DetailModal ticket={detail} onClose={() => setDetail(null)} />
+                                <DetailModal 
+                                    ticket={detail} 
+                                    onClose={() => setDetail(null)} 
+                                    onEdit={() => {
+                                        const t = detail;
+                                        setDetail(null);
+                                        setSolving(t);
+                                    }}
+                                />
                             </div>
                         </div>
                     )}

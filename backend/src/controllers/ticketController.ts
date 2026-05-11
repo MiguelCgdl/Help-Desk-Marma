@@ -142,7 +142,10 @@ export const solveTicket = asyncHandler(async (req: Request, res: Response) => {
 
     const ticket = await Ticket.findById(req.params.id);
     if (!ticket) { res.status(404).json({ message: 'Ticket no encontrado' }); return; }
-    if (ticket.status === 'solved') { res.status(400).json({ message: 'El ticket ya está resuelto' }); return; }
+    if (ticket.invoiced) {
+        res.status(400).json({ message: 'No se puede editar un ticket que ya ha sido facturado' });
+        return;
+    }
 
     // Apply resolutions to each problem entry
     for (const r of problemResolutions) {
