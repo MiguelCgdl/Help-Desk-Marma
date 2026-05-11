@@ -119,6 +119,12 @@ export const finalizeInvoice = asyncHandler(async (req, res) => {
 });
 
 export const getInvoices = asyncHandler(async (req, res) => {
-    const invoices = await Invoice.find().populate('company', 'name rfc').sort('-createdAt');
+    const invoices = await Invoice.find()
+        .populate('company', 'name rfc')
+        .populate({
+            path: 'tickets',
+            select: 'ticketNumber description cost taxAmount totalCost solvedAt problems'
+        })
+        .sort('-createdAt');
     res.json(invoices);
 });

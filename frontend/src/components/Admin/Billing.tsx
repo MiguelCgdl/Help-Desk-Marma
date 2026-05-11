@@ -9,7 +9,10 @@ import {
     ArrowPathIcon,
     ArrowDownTrayIcon,
     BuildingOfficeIcon,
-    TableCellsIcon
+    TableCellsIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
+    TicketIcon
 } from '@heroicons/react/24/outline';
 import { exportToCSV } from '../../utils/exportUtils';
 
@@ -29,7 +32,10 @@ interface Invoice {
     invoiceNumber: string;
     uuid?: string;
     status: 'draft' | 'sent' | 'canceled';
+    subtotal: number;
+    iva: number;
     total: number;
+    tickets: Ticket[]; // Now populated
     createdAt: string;
     pdfUrl?: string;
 }
@@ -43,6 +49,7 @@ const Billing: React.FC = () => {
     const [config, setConfig] = useState<BillingConfig | null>(null);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(false);
+    const [expandedInvoiceId, setExpandedInvoiceId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchCompanies();
@@ -244,6 +251,7 @@ const Billing: React.FC = () => {
                                                 />
                                             </th>
                                             <th className="px-6 py-3">Folio</th>
+                                            <th className="px-6 py-3">Detalles</th>
                                             <th className="px-6 py-3">Fecha</th>
                                             <th className="px-6 py-3">Subtotal</th>
                                             <th className="px-6 py-3">IVA</th>
@@ -276,6 +284,17 @@ const Billing: React.FC = () => {
                                                     />
                                                 </td>
                                                 <td className="px-6 py-4 font-bold text-sm text-[#00272E]">#{t.ticketNumber}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-[10px] font-bold text-[#00272E] line-clamp-1">{t.description}</div>
+                                                    <div className="flex gap-1 mt-1">
+                                                        {t.problems?.slice(0, 2).map((p, idx) => (
+                                                            <span key={idx} className="text-[8px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 uppercase font-black">
+                                                                {p.title}
+                                                            </span>
+                                                        ))}
+                                                        {(t.problems?.length || 0) > 2 && <span className="text-[8px] text-gray-400 font-bold">+{t.problems!.length - 2}</span>}
+                                                    </div>
+                                                </td>
                                                 <td className="px-6 py-4 text-xs font-medium text-gray-500">{new Date(t.solvedAt || t.createdAt).toLocaleDateString()}</td>
                                                 <td className="px-6 py-4 text-sm font-bold text-[#00272E]">${t.cost.toLocaleString()}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-500">${(t.taxAmount || 0).toLocaleString()}</td>
@@ -316,40 +335,99 @@ const Billing: React.FC = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {invoices.map(inv => (
-                                    <tr key={inv._id} className="hover:bg-gray-50/50 group">
-                                        <td className="px-6 py-4 font-bold text-[#00272E]">{inv.invoiceNumber}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-bold text-sm">{inv.company.name}</div>
-                                            <div className="text-[10px] text-[#006D65] font-black uppercase">{inv.company.rfc}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm font-black text-[#FD5200]">${inv.total.toLocaleString()}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${inv.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                                                }`}>
-                                                {inv.status === 'sent' ? 'FACTURADO' : 'BORRADOR / CORTE'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-[10px] text-gray-400">
-                                            {inv.uuid || '—'}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {inv.status === 'draft' && (
-                                                    <button
-                                                        onClick={() => handleStamp(inv._id)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-[#FD5200] text-white rounded-lg hover:bg-[#E64A00] transition-colors"
+                                    <React.Fragment key={inv._id}>
+                                        <tr className="hover:bg-gray-50/50 group">
+                                            <td className="px-6 py-4 font-bold text-[#00272E]">
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => setExpandedInvoiceId(expandedInvoiceId === inv._id ? null : inv._id)}
+                                                        className="p-1 hover:bg-gray-100 rounded-md transition-colors"
                                                     >
-                                                        <ArrowPathIcon className="w-3.5 h-3.5" /> Timbrar
+                                                        {expandedInvoiceId === inv._id ? <ChevronUpIcon className="w-3.5 h-3.5" /> : <ChevronDownIcon className="w-3.5 h-3.5" />}
                                                     </button>
-                                                )}
-                                                <button className="p-2 text-gray-300 hover:text-[#00272E] hover:bg-gray-50 rounded-lg">
-                                                    <ArrowDownTrayIcon className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                    {inv.invoiceNumber}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-bold text-sm">{inv.company.name}</div>
+                                                <div className="text-[10px] text-[#006D65] font-black uppercase">{inv.company.rfc}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm font-black text-[#FD5200]">${inv.total.toLocaleString()}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${inv.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                                                    }`}>
+                                                    {inv.status === 'sent' ? 'FACTURADO' : 'BORRADOR / CORTE'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-[10px] text-gray-400">
+                                                {inv.uuid || '—'}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {inv.status === 'draft' && (
+                                                        <button
+                                                            onClick={() => handleStamp(inv._id)}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-[#FD5200] text-white rounded-lg hover:bg-[#E64A00] transition-colors"
+                                                        >
+                                                            <ArrowPathIcon className="w-3.5 h-3.5" /> Timbrar
+                                                        </button>
+                                                    )}
+                                                    <button className="p-2 text-gray-300 hover:text-[#00272E] hover:bg-gray-50 rounded-lg">
+                                                        <ArrowDownTrayIcon className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {expandedInvoiceId === inv._id && (
+                                            <tr className="bg-gray-50/50">
+                                                <td colSpan={6} className="px-12 py-6">
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 text-xs font-black text-[#00272E] uppercase tracking-wider mb-2">
+                                                            <TicketIcon className="w-4 h-4 text-[#FD5200]" />
+                                                            Incidentes Incluidos ({inv.tickets?.length || 0})
+                                                        </div>
+                                                        <div className="grid grid-cols-1 gap-3">
+                                                            {inv.tickets?.map(t => (
+                                                                <div key={t._id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-start justify-between gap-4">
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center gap-3 mb-1">
+                                                                            <span className="text-xs font-black text-[#FD5200]">#{t.ticketNumber}</span>
+                                                                            <span className="text-[10px] text-gray-400 font-bold uppercase">{new Date(t.solvedAt || t.createdAt).toLocaleString()}</span>
+                                                                        </div>
+                                                                        <p className="text-sm font-bold text-[#00272E] mb-2">{t.description}</p>
+                                                                        <div className="flex flex-wrap gap-2">
+                                                                            {t.problems?.map((p, pIdx) => (
+                                                                                <span key={pIdx} className="text-[9px] bg-[#006D65]/5 text-[#006D65] px-2 py-0.5 rounded font-black uppercase">
+                                                                                    {p.title}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right whitespace-nowrap">
+                                                                        <div className="text-[10px] text-gray-400 font-bold uppercase">Monto Ticket</div>
+                                                                        <div className="text-sm font-black text-[#00272E]">${t.totalCost?.toLocaleString() || (t.cost + (t.taxAmount || 0)).toLocaleString()}</div>
+                                                                        <div className="text-[9px] text-gray-400 font-medium">Sub: ${t.cost.toLocaleString()} + IVA: ${(t.taxAmount || 0).toLocaleString()}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex justify-end pt-2 border-t border-gray-200/50 mt-4">
+                                                            <div className="text-right space-y-1">
+                                                                <div className="text-[10px] text-gray-400 font-bold uppercase">Totales del Corte</div>
+                                                                <div className="flex gap-4 text-xs font-bold text-[#006D65]">
+                                                                    <span>Subtotal: ${inv.subtotal?.toLocaleString()}</span>
+                                                                    <span>IVA: ${inv.iva?.toLocaleString()}</span>
+                                                                </div>
+                                                                <div className="text-lg font-black text-[#FD5200]">Total: ${inv.total.toLocaleString()}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

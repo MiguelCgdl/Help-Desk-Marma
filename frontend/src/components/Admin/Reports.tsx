@@ -80,6 +80,35 @@ export default function Reports() {
         }
     };
 
+    const handleExportAllTickets = () => {
+        if (!summary) return;
+
+        const headers = [
+            { key: 'company', label: 'Empresa' },
+            { key: 'ticketNumber', label: 'Ticket #' },
+            { key: 'createdAt', label: 'Fecha' },
+            { key: 'description', label: 'Descripción' },
+            { key: 'status', label: 'Estado' },
+            { key: 'cost', label: 'Costo' }
+        ];
+
+        const allTickets: any[] = [];
+        Object.keys(summary.summaryByCompany).forEach(companyName => {
+            summary.summaryByCompany[companyName].tickets.forEach((t: any) => {
+                allTickets.push({
+                    company: companyName,
+                    ticketNumber: t.ticketNumber,
+                    createdAt: new Date(t.createdAt).toLocaleDateString('es-MX'),
+                    description: t.description,
+                    status: t.status === 'open' ? 'Abierto' : 'Resuelto',
+                    cost: t.cost
+                });
+            });
+        });
+
+        exportToCSV(`Todos_Los_Tickets_${selectedMonth}_${selectedYear}`, allTickets, headers);
+    };
+
     return (
         <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -135,10 +164,18 @@ export default function Reports() {
 
                     <button 
                         onClick={handleExport}
+                        className="px-4 py-2 bg-white border border-[#FD5200] text-[#FD5200] rounded-xl font-bold text-sm hover:bg-[#FD5200]/5 transition-all flex items-center gap-2"
+                    >
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        Exportar Vista
+                    </button>
+
+                    <button 
+                        onClick={handleExportAllTickets}
                         className="px-4 py-2 bg-[#FD5200] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FD5200]/20 hover:bg-[#E64A00] transition-all flex items-center gap-2"
                     >
                         <ArrowDownTrayIcon className="w-4 h-4" />
-                        Exportar Reporte
+                        Descargar Detalle Mensual
                     </button>
                 </div>
             </div>

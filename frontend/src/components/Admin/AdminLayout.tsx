@@ -25,12 +25,8 @@ const AdminLayout: React.FC = () => {
 
     const navItems = [
         { name: 'Panel Principal', path: '/admin', icon: Squares2X2Icon },
-        { name: 'Tickets', path: '/admin/tickets', icon: TicketIcon },
         { name: 'Empresas', path: '/admin/companies', icon: BuildingOfficeIcon },
-        { name: 'Tipos de Problema', path: '/admin/problems', icon: ExclamationCircleIcon },
-        { name: 'Reporte tickets', path: '/admin/reports', icon: ChartBarIcon },
-        { name: 'Configurar Costos', path: '/admin/costs', icon: CurrencyDollarIcon },
-        { name: 'Facturación', path: '/admin/billing', icon: DocumentTextIcon },
+        { name: 'Módulo de Tickets', path: '/admin/tickets', icon: TicketIcon },
     ];
 
     return (
